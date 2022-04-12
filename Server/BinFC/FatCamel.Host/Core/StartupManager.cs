@@ -1,0 +1,288 @@
+﻿using FatCamel.Host.StaticClasses;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
+using System.Runtime.Loader;
+using System.Text.Json;
+
+namespace FatCamel.Host.Core
+{
+    public static class StartupManager
+    {
+        private const string HOST_NAME = "Хост системы";
+
+        public const string UNINSTALL_PROMPT = "prompt";
+
+        public static HostingOptions? Options { get; private set; }
+
+        public static string? SettingsPath { get; set; }
+
+        /// <summary>
+        /// Список проверенных сборок
+        /// </summary>
+        public static List<(string Module, string Name, string FullName)> LoadedAssemblies { get; } = new List<(string, string, string)>();
+        /// <summary>
+        /// Информация о заменённых сборках
+        /// </summary>
+        public static List<AssemblyReplacementInfo> ReplacesAssemblies { get; } = new List<AssemblyReplacementInfo>();
+
+        private static (T Value, int Index) FindWithIndex<T>(this IEnumerable<T> source, Predicate<T> match) where T : struct
+        {
+            var i = 0;
+            foreach (var a in source)
+            {
+                if (match(a))
+                    return (a, i);
+
+                i++;
+            }
+
+            return (default, -1);
+        }
+
+        private static Assembly[]? _hostAssemblies;
+        public static Assembly[] HostAssemblies
+        {
+            get
+            {
+                if (_hostAssemblies == null)
+                    _hostAssemblies = AssemblyLoadContext.Default.Assemblies.ToArray();
+                return _hostAssemblies;
+            }
+        }
+
+        private static readonly IStringLocalizer _localizer = InternalLocalizers.General;
+
+        /// <summary>
+        /// Загрузка модулей и предварительная проверка
+        /// </summary>
+        /// <exception cref="MetadataValidationException">Если отсутствуют название или версия модуля, или название содежржит запрещённые символы</exception>
+        /// <exception cref="ModuleSelfReferenceException">Если в метаданных присутствует ссылка на самого себя</exception>
+        private static IEnumerable<ModuleMetadata> Metadata(HostingOptions options)
+        {
+            var order = 0;
+            Dictionary<string, string> loaded = new Dictionary<string, string>();
+            foreach (string file in Directory.EnumerateFiles(options.Configurations!, "*.json").Where(fn => !Path.GetFileName(fn).StartsWith("appsettings.")))
+            {
+                var md = JsonSerializer.Deserialize<ModuleMetadata>(File.ReadAllBytes(file))!;
+                if (string.IsNullOrWhiteSpace(md.ModulePath))
+                    md.ModulePath = Path.GetFullPath(Path.Combine(options.Installations!, md.Name));
+                else if (!Path.IsPathRooted(md.ModulePath))
+                    md.ModulePath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(file)!, md.ModulePath));
+
+                md.Validate();
+                md.CheckModulePath();
+
+                if (loaded.ContainsKey(md.Name))
+                {
+                    var path = loaded[md.Name];
+                    throw new ApplicationException(string.Join(";", md.Name, path, file);
+                }
+                else
+                    loaded.Add(md.Name, file);
+
+                md.Order = order;
+                order++;
+
+                yield return md;
+            }
+        }
+
+        private static void AddConfiguration(IConfigurationBuilder configBuilder, InternalModule module, HostingOptions options)
+        {
+            var settingsPath = Path.Combine(options.Configurations!, $"appsettings.{module.Metadata.Name}.json");
+            if (File.Exists(settingsPath))
+            {
+                settingsPath = Path.GetFullPath(settingsPath);
+                configBuilder.AddJsonFile(settingsPath, false, true);
+                module.Metadata.SettingsPath = settingsPath;
+            }
+
+            if (module.Metadata.ExtraSettingsFiles?.Length > 0)
+            {
+                for (var i = 0; i < module.Metadata.ExtraSettingsFiles.Length; i++)
+                {
+                    var setPath = module.Metadata.ExtraSettingsFiles[i];
+                    if (!Path.IsPathRooted(setPath))
+                        module.Metadata.ExtraSettingsFiles[i] = setPath = module.GetFilePath(setPath);
+                    configBuilder.AddJsonFile(setPath, true, true);
+                }
+            }
+        }
+
+        private static void EnsureAssemblyVersion(EosAssemblyInfo asm, string filePath)
+        {
+            if (asm.AssemblyVersion == null)
+            {
+                using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                using var peReader = new PEReader(fs);
+
+                MetadataReader mr = peReader.GetMetadataReader();
+
+                var version = mr.GetAssemblyDefinition().Version;
+
+                if (version != null)
+                    asm.AssemblyVersion = version;
+            }
+        }
+
+        /// <summary>
+        /// Загрузка дополнительных сборок модуля
+        /// </summary>
+        /// <param name="module">Информация о модуле</param>
+        /// <param name="assemblies">Список сборок которые надо загузить в контекст после проверки версий</param>
+        /// <exception cref="AssemblyVersionIncompatibleException">Вызывается если ProductVersion хоста ниже ProductVersion модуля</exception>
+        private static void LoadExtraAssemblies(InternalModule module, List<(EosAssemblyInfo Assembly, string Path, string ModuleName)> assemblies)
+        {
+            StartupLogger.LogInformation(_localizer["EXTRA_ASSEMBLY_LOAD", module.Name]);
+
+            var extMod = module.ExtraAssemblies.ToArray();
+
+            foreach (var (asm, filePath) in extMod)
+            {
+                LoadedAssemblies.Add((module.Name, asm.Name, asm.FullName));
+                var hostAsm = HostAssemblies.FirstOrDefault(a => a!.GetName().Name == asm.Name);
+                if (hostAsm != null)    // Если нашли сборку которая есть в хосте
+                {
+                    EnsureAssemblyVersion(asm, filePath);
+
+                    // Сравнение сборок модуля со сборками хоста
+                    var ver = asm.AssemblyVersion;
+                    var hostVer = hostAsm.GetName().Version;
+                    if (ver != null && hostVer != null && ver > hostVer)  // Если версия в хосте ниже версии из модуля
+                    {
+                        throw new AssemblyVersionIncompatibleException(asm.Name!, module.Name, ver.ToString(), hostVer.ToString());
+                    }
+                    else
+                    {   // Отмечаем что произошла замена сборки на версию из хоста
+                        // Загрузка сборки модуля пропускается
+                        ReplacesAssemblies.Add(new AssemblyReplacementInfo
+                        {
+                            Module = HOST_NAME,
+                            ReplacedAssembly = asm.Name,
+                            ReplacementAssembly = hostAsm.FullName
+                        });
+                    }
+                }
+                else
+                {
+                    var (prevAsm, index) = assemblies.FindWithIndex(a => a.Assembly.Name == asm.Name);
+
+                    if (index < 0)
+                        assemblies.Add((asm, filePath, module.Name));
+                    else
+                    {
+                        EnsureAssemblyVersion(asm, filePath);
+                        EnsureAssemblyVersion(prevAsm.Assembly, prevAsm.Path);
+
+                        if (asm.AssemblyVersion > prevAsm.Assembly.AssemblyVersion)
+                        {
+                            StartupLogger.LogInformation(_localizer["ASSEMBLY_REPLACE", prevAsm.Assembly.FullName!, asm.FullName]);
+                            assemblies[index] = (asm, filePath, module.Name);
+                            ReplacesAssemblies.Add(new AssemblyReplacementInfo
+                            {
+                                Module = module.Name,
+                                ReplacedAssembly = prevAsm.Assembly.Name,
+                                ReplacementAssembly = asm.FullName
+                            });
+                        }
+                        else if (asm.AssemblyVersion == prevAsm.Assembly.AssemblyVersion)
+                            ReplacesAssemblies.Add(new AssemblyReplacementInfo
+                            {
+                                Module = prevAsm.ModuleName,
+                                ReplacedAssembly = prevAsm.Assembly.Name,
+                                ReplacementAssembly = asm.FullName
+                            });
+                        else
+                            ReplacesAssemblies.Add(new AssemblyReplacementInfo
+                            {
+                                Module = prevAsm.ModuleName,
+                                ReplacedAssembly = asm.Name,
+                                ReplacementAssembly = prevAsm.Assembly.FullName
+                            });
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Загрузка метаданных из потока
+        /// </summary>
+        /// <param name="file">Поток с метаданными в формате JSON</param>
+        /// <remarks>Используется только при усатановке модулей</remarks>
+        /// <returns>Объект метаданных считаный из потока</returns>
+        public static ModuleMetadata LoadMetadata(Stream file)
+        {
+            using var ms = new MemoryStream();
+            file.CopyTo(ms);
+
+            var text = new StreamReader(ms).ReadToEnd();
+
+            return JsonSerializer.Deserialize<ModuleMetadata>(ms.ToArray())!;
+        }
+
+        /// <summary>
+        /// Регистрация модулей
+        /// </summary>
+        /// <param name="options">Параметры хоста</param>
+        /// <param name="configBuilder">Системный билдер настроек</param>
+        /// <exception cref="CycleReferenceException">Если в зависимостях модулей присутствует цикл</exception>
+        /// <exception cref="MetadataValidationException">Если отсутствуют название или версия модуля, или название содежржит запрещённые символы</exception>
+        /// <exception cref="ModuleSelfReferenceException">Если в метаданных присутствует ссылка на самого себя</exception>
+        /// <exception cref="MissingDependencyException">Если в метаданных отсутсвует необходимый модуль</exception>
+        public static void Register(HostingOptions options, IConfigurationBuilder configBuilder)
+        {
+            _graph = new ModulesGraph(Metadata(options));
+            Options = options;
+
+            if (_graph.MissingDependencies.Count > 0)
+            {
+                var kv = _graph.MissingDependencies.First();
+                throw new MissingDependencyException(kv.Key, kv.Value.First(), _graph.MissingDependencies);
+            }
+
+            // Список сборок которые надо загузить в контекст после проверки версий
+            var assemblies = new List<(EosAssemblyInfo Assembly, string Path, string ModuleName)>();
+
+            _graph.TraverseAndExecute(node =>
+            {
+                var path = Path.Combine(node.Module.Metadata.ModulePath!, $"{node.Module.Name}.dll");
+                if (File.Exists(path))
+                {
+                    var asm = AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.GetFullPath(path));
+                    node.Module.RootAssembly = asm;
+                    if (node.Module.Metadata.SupportedLanguages?.Length > 0)
+                        LocalizationManager.AddLanguageAssembly(node.Module.Metadata.SupportedLanguages, asm);
+                }
+                LoadExtraAssemblies(node.Module, assemblies);
+                AddConfiguration(configBuilder, node.Module, options);
+            });
+
+            foreach (var asm in assemblies)
+                try
+                {
+                    AssemblyLoadContext.Default.LoadFromAssemblyPath(asm.Path);
+                }
+                catch (Exception ex)
+                {
+                    StartupLogger.LogError(ex, _localizer["ASSEMBLY_LOAD_ERROR"], asm.Assembly, asm.Path, asm.ModuleName);
+                    throw;
+                }
+
+            StartupLogger.LogInformation(_localizer["REGISTER_END"]);
+        }
+
+        public static void InitComponents(StartupStages stage)
+        {
+            foreach (var comp in Graph.Where(m => m.Metadata.StartupSteps != null).SelectMany(m => m.Metadata.StartupSteps!.GetComponents(stage)))
+                comp.Init(stage);
+        }
+    }
+}
