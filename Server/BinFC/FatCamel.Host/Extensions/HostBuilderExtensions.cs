@@ -44,6 +44,8 @@ namespace FatCamel.Host.Extensions
                     settingsPath = Path.Combine(prov.Root, "appsettings.json");
             }
 
+            if (settingsPath != null)
+                StartupLogger.LogInformation(_localizer["SETTINGS_PATH", settingsPath]);
             StartupManager.SettingsPath = settingsPath;
 
             return cfg;
@@ -59,10 +61,13 @@ namespace FatCamel.Host.Extensions
             {
                 var cfg = ModifyConfiguration(configBuilder, settingsPath);
 
-                var options = cfg.GetSection("Eos:Hosting").Get<HostingOptions>();
+                var log = cfg.GetValue<bool?>("Project:StartupLogging");
+                if (log.HasValue && log.Value == false)
+                    StartupLogger.Disable();
+                var options = cfg.GetSection("Project:Hosting").Get<HostingOptions>();
 
                 if (options == null)
-                    throw new ArgumentNullException(nameof(options), _localizer["MISSING_SECTION", "Eos:Hosting"]);
+                    throw new ArgumentNullException(nameof(options), _localizer["MISSING_SECTION", "Project:Hosting"]);
 
                 StartupManager.Register(options, configBuilder);
             });

@@ -4,6 +4,8 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
+using FatCamel.Host.Core;
+using FatCamel.Host.Enums;
 using FatCamel.Host.Extensions;
 using FatCamel.Host.StaticClasses;
 using Microsoft.AspNetCore.Hosting;
@@ -31,7 +33,7 @@ namespace FatCamel.Host
                 new Option("--config", _localizer["CONFIG_DESC"]!)
                 {
                     Argument = new Argument<string>(_localizer["CONFIG_ARG_DESC"]!)
-},
+                },
                 new Option<bool>("--no-start-log", _localizer["STSRT_LOG_DESC"]!)
             };
 
@@ -41,6 +43,10 @@ namespace FatCamel.Host
             {
                 _envName = environment;
                 _settingsPath = config;
+
+                if (noStartOut)
+                    StartupLogger.Disable();
+
                 return 1;
             });
 
@@ -54,11 +60,15 @@ namespace FatCamel.Host
                 if (ParseArgs(args) == 1)
                 {
                     var host = CreateHostBuilder(args).Build();
+                    var lifetime = host.Services.GetService(typeof(IHostApplicationLifetime)) as IHostApplicationLifetime;
+                    lifetime?.ApplicationStarted.Register(() => StartupManager.InitComponents(StartupStages.ApplicationStart));
                     host.Run();
                 }
             }
             catch (Exception ex)
             {
+                Util.StartupLogger.LogError(ex, _localizer["GLOBAL_ERROR"]);
+
                 Console.WriteLine(_localizer["SERVER_STOP"]!);
                 if (!(System.Environment.GetEnvironmentVariable("APP_POOL_ID") is string) && !Debugger.IsAttached)
                 {
@@ -73,6 +83,7 @@ namespace FatCamel.Host
                 .ConfigureModules(_settingsPath)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseModulesWebAssets();
                     webBuilder.UseStartup<Startup>();
                 })
                 .FinalConfiguration();

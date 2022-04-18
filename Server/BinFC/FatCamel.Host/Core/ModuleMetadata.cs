@@ -73,6 +73,11 @@ namespace FatCamel.Host.Core
         [JsonIgnore]
         public int Order { get; set; }
 
+        /// <summary>
+        /// Список инициализации плагинов
+        /// </summary>
+        public StartupSteps? StartupSteps { get; set; }
+
         public string Key
         {
             get
@@ -92,13 +97,13 @@ namespace FatCamel.Host.Core
         public void Validate()
         {
             if (string.IsNullOrWhiteSpace(Name))
-                throw new ApplicationException(_localizer["MD_VAL_NO_NAME_ERR"]!);
+                throw new MetadataValidationException(_localizer["MD_VAL_NO_NAME_ERR"]!);
             else if (invalidFileNameChars.IsMatch(Name))
-                throw new ApplicationException(_localizer["MD_VAL_NAME_ERR"]!);
+                throw new MetadataValidationException(_localizer["MD_VAL_NAME_ERR"]!);
             if (string.IsNullOrWhiteSpace(Version))
-                throw new ApplicationException(_localizer["MD_VAL_NO_VER_ERR"]!);
+                throw new MetadataValidationException(_localizer["MD_VAL_NO_VER_ERR"]!);
             if (Dependencies?.ContainsKey(Name) == true)
-                throw new ApplicationException(Name);
+                throw new ModuleSelfReferenceException(Name);
         }
 
         /// <summary>
@@ -108,7 +113,7 @@ namespace FatCamel.Host.Core
         public void CheckModulePath()
         {
             if (!Directory.Exists(ModulePath))
-                throw new ApplicationException(_localizer["MD_VAL_PATH_ERR", ModulePath]!);
+                throw new MetadataValidationException(_localizer["MD_VAL_PATH_ERR", ModulePath]!);
         }
 
         /// <summary>

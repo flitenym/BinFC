@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BinFC\FatCamel.Host.csproj" />
+    <ProjectReference Include="..\FatCamel.Host\FatCamel.Host.csproj" />
   </ItemGroup>
 
 </Project>

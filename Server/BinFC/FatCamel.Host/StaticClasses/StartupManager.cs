@@ -1,4 +1,6 @@
-﻿using FatCamel.Host.StaticClasses;
+﻿using FatCamel.Host.Core;
+using FatCamel.Host.Enums;
+using FatCamel.Host.StaticClasses;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using System;
@@ -12,13 +14,17 @@ using System.Reflection.PortableExecutable;
 using System.Runtime.Loader;
 using System.Text.Json;
 
-namespace FatCamel.Host.Core
+namespace FatCamel.Host.StaticClasses
 {
     public static class StartupManager
     {
+        private static ModulesGraph? _graph;
+
         private const string HOST_NAME = "Хост системы";
 
         public const string UNINSTALL_PROMPT = "prompt";
+
+        public static ModulesGraph Graph => _graph!;
 
         public static HostingOptions? Options { get; private set; }
 
@@ -71,6 +77,8 @@ namespace FatCamel.Host.Core
             Dictionary<string, string> loaded = new Dictionary<string, string>();
             foreach (string file in Directory.EnumerateFiles(options.Configurations!, "*.json").Where(fn => !Path.GetFileName(fn).StartsWith("appsettings.")))
             {
+                StartupLogger.LogInformation(_localizer["METADATA_LOAD_START", file]);
+
                 var md = JsonSerializer.Deserialize<ModuleMetadata>(File.ReadAllBytes(file))!;
                 if (string.IsNullOrWhiteSpace(md.ModulePath))
                     md.ModulePath = Path.GetFullPath(Path.Combine(options.Installations!, md.Name));
@@ -83,11 +91,12 @@ namespace FatCamel.Host.Core
                 if (loaded.ContainsKey(md.Name))
                 {
                     var path = loaded[md.Name];
-                    throw new ApplicationException(string.Join(";", md.Name, path, file);
+                    throw new DuplicateModuleException(md.Name, path, file);
                 }
                 else
                     loaded.Add(md.Name, file);
 
+                StartupLogger.LogInformation(_localizer["METADATA_LOAD_END"]);
                 md.Order = order;
                 order++;
 
@@ -117,7 +126,7 @@ namespace FatCamel.Host.Core
             }
         }
 
-        private static void EnsureAssemblyVersion(EosAssemblyInfo asm, string filePath)
+        private static void EnsureAssemblyVersion(AssemblyInfo asm, string filePath)
         {
             if (asm.AssemblyVersion == null)
             {
@@ -139,7 +148,7 @@ namespace FatCamel.Host.Core
         /// <param name="module">Информация о модуле</param>
         /// <param name="assemblies">Список сборок которые надо загузить в контекст после проверки версий</param>
         /// <exception cref="AssemblyVersionIncompatibleException">Вызывается если ProductVersion хоста ниже ProductVersion модуля</exception>
-        private static void LoadExtraAssemblies(InternalModule module, List<(EosAssemblyInfo Assembly, string Path, string ModuleName)> assemblies)
+        private static void LoadExtraAssemblies(InternalModule module, List<(AssemblyInfo Assembly, string Path, string ModuleName)> assemblies)
         {
             StartupLogger.LogInformation(_localizer["EXTRA_ASSEMBLY_LOAD", module.Name]);
 
@@ -239,6 +248,8 @@ namespace FatCamel.Host.Core
         /// <exception cref="MissingDependencyException">Если в метаданных отсутсвует необходимый модуль</exception>
         public static void Register(HostingOptions options, IConfigurationBuilder configBuilder)
         {
+            StartupLogger.LogInformation(_localizer["REGISTER_START"]);
+
             _graph = new ModulesGraph(Metadata(options));
             Options = options;
 
@@ -249,7 +260,7 @@ namespace FatCamel.Host.Core
             }
 
             // Список сборок которые надо загузить в контекст после проверки версий
-            var assemblies = new List<(EosAssemblyInfo Assembly, string Path, string ModuleName)>();
+            var assemblies = new List<(AssemblyInfo Assembly, string Path, string ModuleName)>();
 
             _graph.TraverseAndExecute(node =>
             {

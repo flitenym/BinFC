@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Eos.Archive.Platform.Exchange.Module.Module
+namespace TelegramFatCamel
 {
     public class Startup : IModule
     {
