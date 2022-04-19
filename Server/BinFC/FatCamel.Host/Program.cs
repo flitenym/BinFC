@@ -18,7 +18,7 @@ namespace FatCamel.Host
     {
         private static string _envName = "Production";
 
-        private static string? _settingsPath = null;
+        private static string _settingsPath = null;
 
         private static readonly IStringLocalizer _localizer = InternalLocalizers.General;
 
@@ -67,7 +67,7 @@ namespace FatCamel.Host
             }
             catch (Exception ex)
             {
-                Util.StartupLogger.LogError(ex, _localizer["GLOBAL_ERROR"]);
+                StartupLogger.LogError(ex, _localizer["GLOBAL_ERROR"]);
 
                 Console.WriteLine(_localizer["SERVER_STOP"]!);
                 if (!(System.Environment.GetEnvironmentVariable("APP_POOL_ID") is string) && !Debugger.IsAttached)

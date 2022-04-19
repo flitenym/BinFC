@@ -15,7 +15,7 @@ namespace FatCamel.Host.Extensions
     {
         private static readonly IStringLocalizer _localizer = InternalLocalizers.General;
 
-        private static IConfiguration ModifyConfiguration(IConfigurationBuilder configBuilder, string? settingsPath)
+        private static IConfiguration ModifyConfiguration(IConfigurationBuilder configBuilder, string settingsPath)
         {
             if (!string.IsNullOrEmpty(settingsPath))
             {
@@ -55,7 +55,7 @@ namespace FatCamel.Host.Extensions
         /// Регистрация модулей в системе
         /// </summary>
         /// <param name="settingsPath">Путь к настройкам указанный в командной строке</param>
-        public static IHostBuilder ConfigureModules(this IHostBuilder builder, string? settingsPath)
+        public static IHostBuilder ConfigureModules(this IHostBuilder builder, string settingsPath)
         {
             return builder.ConfigureAppConfiguration((context, configBuilder) =>
             {

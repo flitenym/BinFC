@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace TelegramFatCamel.Services
+namespace TelegramFatCamel.Module.Services
 {
     public class TelegramFatCamelBotService : ITelegramFatCamelBotService
     {

@@ -20,7 +20,7 @@ namespace FatCamel.Host.Core
 
             public override int GetHashCode() => From.GetHashCode() ^ To.GetHashCode();
 
-            public override bool Equals(object? obj)
+            public override bool Equals(object obj)
             {
                 var other = obj as Edge?;
                 if (!other.HasValue) return false;
@@ -36,7 +36,7 @@ namespace FatCamel.Host.Core
         {
             private readonly ModulesGraph _graph;
 
-            private IEnumerable<Node>? _dependantNodes;
+            private IEnumerable<Node> _dependantNodes;
 
             /// <summary>
             /// Объект модуля
@@ -46,7 +46,7 @@ namespace FatCamel.Host.Core
             /// <summary>
             /// Список зависимых модулей
             /// </summary>
-            public IEnumerable<Node>? DependantNodes
+            public IEnumerable<Node> DependantNodes
             {
                 get
                 {
@@ -108,7 +108,7 @@ namespace FatCamel.Host.Core
                     List<string> errorList = new();
                     errorList.Add(moduleForCheck.Name);
                     errorList.AddRange(nextModule.Dependencies.Select(p => p.Key));
-                    throw new CycleReferenceException(errorList);
+                    throw new ApplicationException(string.Join("; ", errorList));
                 }
 
                 var list = source.Where(m => nextModule.Dependencies?.Any(d => d.Key == m.Name) ?? false);

@@ -18,7 +18,7 @@ namespace FatCamel.Host.StaticClasses
 {
     public static class StartupManager
     {
-        private static ModulesGraph? _graph;
+        private static ModulesGraph _graph;
 
         private const string HOST_NAME = "Хост системы";
 
@@ -26,9 +26,9 @@ namespace FatCamel.Host.StaticClasses
 
         public static ModulesGraph Graph => _graph!;
 
-        public static HostingOptions? Options { get; private set; }
+        public static HostingOptions Options { get; private set; }
 
-        public static string? SettingsPath { get; set; }
+        public static string SettingsPath { get; set; }
 
         /// <summary>
         /// Список проверенных сборок
@@ -53,7 +53,7 @@ namespace FatCamel.Host.StaticClasses
             return (default, -1);
         }
 
-        private static Assembly[]? _hostAssemblies;
+        private static Assembly[] _hostAssemblies;
         public static Assembly[] HostAssemblies
         {
             get
@@ -91,7 +91,7 @@ namespace FatCamel.Host.StaticClasses
                 if (loaded.ContainsKey(md.Name))
                 {
                     var path = loaded[md.Name];
-                    throw new DuplicateModuleException(md.Name, path, file);
+                    throw new ApplicationException(string.Join("; ", md.Name, path, file));
                 }
                 else
                     loaded.Add(md.Name, file);
@@ -167,7 +167,7 @@ namespace FatCamel.Host.StaticClasses
                     var hostVer = hostAsm.GetName().Version;
                     if (ver != null && hostVer != null && ver > hostVer)  // Если версия в хосте ниже версии из модуля
                     {
-                        throw new AssemblyVersionIncompatibleException(asm.Name!, module.Name, ver.ToString(), hostVer.ToString());
+                        throw new ApplicationException(string.Join("; ", asm.Name!, module.Name, ver.ToString(), hostVer.ToString()));
                     }
                     else
                     {   // Отмечаем что произошла замена сборки на версию из хоста
@@ -256,7 +256,7 @@ namespace FatCamel.Host.StaticClasses
             if (_graph.MissingDependencies.Count > 0)
             {
                 var kv = _graph.MissingDependencies.First();
-                throw new MissingDependencyException(kv.Key, kv.Value.First(), _graph.MissingDependencies);
+                throw new ApplicationException(string.Join("; ", kv.Key, kv.Value.First(), _graph.MissingDependencies));
             }
 
             // Список сборок которые надо загузить в контекст после проверки версий
@@ -269,8 +269,6 @@ namespace FatCamel.Host.StaticClasses
                 {
                     var asm = AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.GetFullPath(path));
                     node.Module.RootAssembly = asm;
-                    if (node.Module.Metadata.SupportedLanguages?.Length > 0)
-                        LocalizationManager.AddLanguageAssembly(node.Module.Metadata.SupportedLanguages, asm);
                 }
                 LoadExtraAssemblies(node.Module, assemblies);
                 AddConfiguration(configBuilder, node.Module, options);

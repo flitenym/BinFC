@@ -5,11 +5,11 @@ VisualStudioVersion = 17.2.32317.152
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FatCamel.Host", "FatCamel.Host\FatCamel.Host.csproj", "{FAEAB766-7B81-4DCA-93AA-F6E7F84EBE16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramFatCamel", "TelegramFatCamel\TelegramFatCamel.csproj", "{66DC4BD3-FBE9-436C-9DAD-AD57A1ADC68C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramFatCamel.Module", "TelegramFatCamel.Module\TelegramFatCamel.Module.csproj", "{66DC4BD3-FBE9-436C-9DAD-AD57A1ADC68C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{AFAF337E-3621-4640-9062-ECE6A3848EDB}"
 	ProjectSection(SolutionItems) = preProject
-		FatCamel.props = FatCamel.props
+		Project.props = Project.props
 	EndProjectSection
 EndProject
 Global

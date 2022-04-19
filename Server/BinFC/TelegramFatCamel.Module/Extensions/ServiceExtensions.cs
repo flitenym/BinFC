@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using TelegramFatCamel.Services;
+using TelegramFatCamel.Module.Services;
 
-namespace FatCamel.Host.Extensions
+namespace TelegramFatCamel.Module.Extensions
 {
     public static class ServiceExtensions
     {

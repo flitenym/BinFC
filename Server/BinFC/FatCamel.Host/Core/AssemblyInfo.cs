@@ -11,9 +11,9 @@ namespace FatCamel.Host.Core
 
         public string Name { get; set; }
 
-        public Version? Version { get; set; }
+        public Version Version { get; set; }
 
-        public Version? AssemblyVersion { get; set; }
+        public Version AssemblyVersion { get; set; }
 
         public string FullName => AssemblyVersion != null || Version != null ? $"\"{Name}\", Version={AssemblyVersion ?? Version}" : $"\"{Name}\"";
 

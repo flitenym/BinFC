@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using TelegramFatCamel.Module.Extensions;
 
 namespace TelegramFatCamel
 {
@@ -13,6 +14,7 @@ namespace TelegramFatCamel
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddServices();
         }
     }
 }

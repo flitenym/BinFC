@@ -16,7 +16,7 @@ namespace FatCamel.Host.Core
         private static readonly IStringLocalizer _localizer = InternalLocalizers.General;
         private static readonly Regex invalidFileNameChars = new Regex("[" + Regex.Escape(new string(Path.GetInvalidFileNameChars())) + "]", RegexOptions.Compiled);
 
-        private string? _key;
+        private string _key;
 
         /// <summary>
         /// Название
@@ -38,34 +38,34 @@ namespace FatCamel.Host.Core
         /// Префикс пути для статических файлов
         /// </summary>
         [JsonPropertyName("Web Assets Prefix")]
-        public string? WebAssetsPrefix { get; set; }
+        public string WebAssetsPrefix { get; set; }
 
         /// <summary>
         /// Список зависимостей
         /// </summary>
-        public Dictionary<string, string>? Dependencies { get; set; }
+        public Dictionary<string, string> Dependencies { get; set; }
 
         /// <summary>
         /// Список сборок, доступ к которым предоставляется другим модуля
         /// </summary>
-        public string[]? Shared { get; set; }
+        public string[] Shared { get; set; }
 
         /// <summary>
         /// Дополнительные файлы с настройками
         /// </summary>
         [JsonPropertyName("Extra Settings")]
-        public string[]? ExtraSettingsFiles { get; set; }
+        public string[] ExtraSettingsFiles { get; set; }
 
         /// <summary>
         /// Путь к файлу настроек модуля
         /// </summary>
         [JsonIgnore]
-        public string? SettingsPath { get; set; }
+        public string SettingsPath { get; set; }
 
         /// <summary>
         /// Список дополнительных языков, предоставляемых модулем
         /// </summary>
-        public string[]? SupportedLanguages { get; set; }
+        public string[] SupportedLanguages { get; set; }
 
         /// <summary>
         /// Порядок загрузки метаданных с диска
@@ -76,7 +76,7 @@ namespace FatCamel.Host.Core
         /// <summary>
         /// Список инициализации плагинов
         /// </summary>
-        public StartupSteps? StartupSteps { get; set; }
+        public StartupSteps StartupSteps { get; set; }
 
         public string Key
         {
@@ -97,13 +97,13 @@ namespace FatCamel.Host.Core
         public void Validate()
         {
             if (string.IsNullOrWhiteSpace(Name))
-                throw new MetadataValidationException(_localizer["MD_VAL_NO_NAME_ERR"]!);
+                throw new ApplicationException(_localizer["MD_VAL_NO_NAME_ERR"]!);
             else if (invalidFileNameChars.IsMatch(Name))
-                throw new MetadataValidationException(_localizer["MD_VAL_NAME_ERR"]!);
+                throw new ApplicationException(_localizer["MD_VAL_NAME_ERR"]!);
             if (string.IsNullOrWhiteSpace(Version))
-                throw new MetadataValidationException(_localizer["MD_VAL_NO_VER_ERR"]!);
+                throw new ApplicationException(_localizer["MD_VAL_NO_VER_ERR"]!);
             if (Dependencies?.ContainsKey(Name) == true)
-                throw new ModuleSelfReferenceException(Name);
+                throw new ApplicationException(Name);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace FatCamel.Host.Core
         public void CheckModulePath()
         {
             if (!Directory.Exists(ModulePath))
-                throw new MetadataValidationException(_localizer["MD_VAL_PATH_ERR", ModulePath]!);
+                throw new ApplicationException(_localizer["MD_VAL_PATH_ERR", ModulePath]!);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace FatCamel.Host.Core
 
         public override int GetHashCode() => ModulePath.GetHashCode();
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             var other = obj as ModuleMetadata;
             if (other == null) return false;

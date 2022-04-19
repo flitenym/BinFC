@@ -1,7 +1,10 @@
 ﻿using FatCamel.Host.Enums;
 using FatCamel.Host.StaticClasses;
 using Microsoft.Extensions.Localization;
+using System;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 
 namespace FatCamel.Host.Core
 {
@@ -28,13 +31,13 @@ namespace FatCamel.Host.Core
         {
             var asm = AssemblyLoadContext.Default.Assemblies.FirstOrDefault(a => (a.GetName().Name == Assembly));
             if (asm == null)
-                throw new PluginInitException(_localizer["MISSING_ASSEMBLY", Assembly, Type, Method, stage]);
+                throw new ApplicationException(_localizer["MISSING_ASSEMBLY", Assembly, Type, Method, stage]);
             var type = asm.GetType(Type, false);
             if (type == null)
-                throw new PluginInitException(_localizer["MISSING_TYPE", Assembly, Type, Method, stage]);
+                throw new ApplicationException(_localizer["MISSING_TYPE", Assembly, Type, Method, stage]);
             var mtd = type.GetMethod(Method, BindingFlags.Static | BindingFlags.Public);
             if (mtd == null)
-                throw new PluginInitException(_localizer["MISSING_METHOD", Assembly, Type, Method, stage]);
+                throw new ApplicationException(_localizer["MISSING_METHOD", Assembly, Type, Method, stage]);
 
             StartupLogger.LogInformation(_localizer["PLUGIN_INIT_CALL", Assembly, Type, Method, stage]);
             mtd.Invoke(null, null);

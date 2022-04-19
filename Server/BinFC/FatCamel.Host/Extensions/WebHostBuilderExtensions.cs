@@ -31,8 +31,6 @@ namespace FatCamel.Host.Extensions
 
                     if (addedPaths.Contains(pfx)) continue;
                     addedPaths.Add(pfx);
-                    providers.Add(new ModuleWebAssetsFileProvider(module.Metadata.WebAssetsPrefix!, Path.Combine(module.Metadata.ModulePath!, "wwwroot")));
-
                     StartupLogger.LogInformation("Добавлен обработчик стаических фалов для пути '{0}' из модуля '{1}'", pfx, module.Name);
                 }
 

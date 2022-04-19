@@ -2,7 +2,6 @@
 using FatCamel.Host.StaticClasses;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
@@ -10,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using FatCamel.Host.Extensions;
+using Microsoft.Extensions.DependencyModel;
 
 namespace FatCamel.Host.Core
 {
@@ -17,14 +18,14 @@ namespace FatCamel.Host.Core
     {
         private AssemblyLoadContext _alc;
 
-        private IModule? _innerModule;
+        private IModule _innerModule;
 
         private IStringLocalizer _localizer = InternalLocalizers.General;
 
         /// <summary>
         /// Сборка в которой распологается экземпляр модуля
         /// </summary>
-        public Assembly? RootAssembly { get; set; }
+        public Assembly RootAssembly { get; set; }
 
         /// <summary>
         /// Информация о модуле
@@ -51,7 +52,7 @@ namespace FatCamel.Host.Core
                 using var file = File.OpenRead(depsPath);
 
                 var dependencies = reader.Read(file);
-                foreach (var assemblyName in dependencies.GetDefaultAssemblyNames())
+                foreach (var assemblyName in dependencies.GetDefaultProjectAssemblyNames())
                 {
                     var filePath = Path.Combine(Metadata.ModulePath!, $"{assemblyName.Name}.dll");
                     if (assemblyName.Name != Metadata.Name && File.Exists(filePath))
@@ -81,7 +82,7 @@ namespace FatCamel.Host.Core
             }
         }
 
-        public virtual IModule? CreateInstance(IConfiguration configuration)
+        public virtual IModule CreateInstance(IConfiguration configuration)
         {
             if (_innerModule == null)
             {
@@ -104,7 +105,7 @@ namespace FatCamel.Host.Core
             return _innerModule;
         }
 
-        public virtual T? CreateInstance<T>(params object?[]? args) where T : class
+        public virtual T CreateInstance<T>(params object[] args) where T : class
         {
             var type = RootAssembly?.GetExportedTypes().FirstOrDefault(t => typeof(T).IsAssignableFrom(t));
 
@@ -134,7 +135,7 @@ namespace FatCamel.Host.Core
             return null;
         }
 
-        public virtual Type? FindType<T>() => RootAssembly?.GetExportedTypes().FirstOrDefault<Type?>(t => typeof(T).IsAssignableFrom(t));
+        public virtual Type FindType<T>() => RootAssembly?.GetExportedTypes().FirstOrDefault(t => typeof(T).IsAssignableFrom(t));
 
         public virtual void AddParts(ApplicationPartManager partManager)
         {
@@ -164,7 +165,7 @@ namespace FatCamel.Host.Core
         }
 
         public override int GetHashCode() => Metadata.GetHashCode();
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             var other = obj as InternalModule;
             if (other == null) return false;

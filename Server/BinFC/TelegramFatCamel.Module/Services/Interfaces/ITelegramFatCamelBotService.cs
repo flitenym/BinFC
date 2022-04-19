@@ -1,4 +1,4 @@
-﻿namespace TelegramFatCamel.Services
+﻿namespace TelegramFatCamel.Module.Services
 {
     public interface ITelegramFatCamelBotService
     {

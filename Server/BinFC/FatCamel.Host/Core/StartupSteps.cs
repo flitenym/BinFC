@@ -9,26 +9,26 @@ namespace FatCamel.Host.Core
         /// <summary>
         /// Список плагинов иницилизируемых до выполнения метода ConfigureServices
         /// </summary>
-        public List<StartupDescription>? PreConfigureServices { get; set; }
+        public List<StartupDescription> PreConfigureServices { get; set; }
 
         /// <summary>
         /// Список плагинов иницилизируемых во время выполнения метода ConfigureServices
         /// </summary>
-        public List<StartupDescription>? ConfigureServices { get; set; }
+        public List<StartupDescription> ConfigureServices { get; set; }
 
         /// <summary>
         /// Список плагинов иницилизируемых во время выполнения метода Configure
         /// </summary>
-        public List<StartupDescription>? Configure { get; set; }
+        public List<StartupDescription> Configure { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public List<StartupDescription>? ApplicationStart { get; set; }
+        public List<StartupDescription> ApplicationStart { get; set; }
 
         public IEnumerable<StartupDescription> GetComponents(StartupStages stage)
         {
-            IEnumerable<StartupDescription>? result = null;
+            IEnumerable<StartupDescription> result = null;
             switch (stage)
             {
                 case StartupStages.PreConfigureServices:
