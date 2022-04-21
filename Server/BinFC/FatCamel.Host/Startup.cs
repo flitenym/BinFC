@@ -42,14 +42,27 @@ namespace FatCamel.Host
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseExceptionHandler();
+            }
 
-            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            foreach (var m in _modules)
+            {
+                m.Configure(app, env);
+            }
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
