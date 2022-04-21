@@ -8,11 +8,6 @@
   <Import Project="..\Project.props" />
 
   <ItemGroup>
-    <None Remove="metadata.json" />
-    <None Remove="telegramsettings.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="metadata.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -22,9 +17,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Threading.Channels" Version="6.0.0" >
+	  <Private>false</Private>
+	  <ExcludeAssets>runtime</ExcludeAssets>
+	</PackageReference>
     <PackageReference Include="Telegram.Bot" Version="17.0.0" />
     <PackageReference Include="Telegram.Bot.Extensions.Polling" Version="1.0.2" />
-  </ItemGroup>
+  
+</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FatCamel.Host\FatCamel.Host.csproj">

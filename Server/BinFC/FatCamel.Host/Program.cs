@@ -18,7 +18,7 @@ namespace FatCamel.Host
         {
             try
             {
-                System.Diagnostics.Debugger.Launch();
+                //System.Diagnostics.Debugger.Launch();
                 var host = CreateHostBuilder().Build();
                 var lifetime = host.Services.GetService(typeof(IHostApplicationLifetime)) as IHostApplicationLifetime;
                 lifetime?.ApplicationStarted.Register(() => StartupManager.InitComponents(StartupStages.ApplicationStart));
