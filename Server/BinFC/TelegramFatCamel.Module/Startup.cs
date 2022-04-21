@@ -10,10 +10,12 @@ namespace TelegramFatCamel
     {
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers().AddApplicationPart(typeof(Startup).Assembly);
             services.AddServices();
         }
     }

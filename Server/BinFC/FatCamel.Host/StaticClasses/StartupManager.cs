@@ -75,7 +75,7 @@ namespace FatCamel.Host.StaticClasses
         {
             var order = 0;
             Dictionary<string, string> loaded = new Dictionary<string, string>();
-            foreach (string file in Directory.EnumerateFiles(options.Configurations!, "*.json").Where(fn => !Path.GetFileName(fn).StartsWith("appsettings.")))
+            foreach (string file in Directory.EnumerateFiles(options.Configurations!, "*.json"))
             {
                 StartupLogger.LogInformation(_localizer["METADATA_LOAD_START", file]);
 
@@ -106,14 +106,6 @@ namespace FatCamel.Host.StaticClasses
 
         private static void AddConfiguration(IConfigurationBuilder configBuilder, InternalModule module, HostingOptions options)
         {
-            var settingsPath = Path.Combine(options.Configurations!, $"appsettings.{module.Metadata.Name}.json");
-            if (File.Exists(settingsPath))
-            {
-                settingsPath = Path.GetFullPath(settingsPath);
-                configBuilder.AddJsonFile(settingsPath, false, true);
-                module.Metadata.SettingsPath = settingsPath;
-            }
-
             if (module.Metadata.ExtraSettingsFiles?.Length > 0)
             {
                 for (var i = 0; i < module.Metadata.ExtraSettingsFiles.Length; i++)

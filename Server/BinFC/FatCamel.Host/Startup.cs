@@ -7,9 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
-using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace FatCamel.Host
@@ -30,18 +27,16 @@ namespace FatCamel.Host
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "FatCamel.Host", Version = "v1" });
-            });
-
-            services.TryAddTransient(typeof(IStringLocalizer<>), typeof(StringLocalizer<>));
 
             foreach (var m in _modules)
             {
                 m.ConfigureServices(services);
             }
 
+            services.Configure<ExceptionHandlerOptions>(options =>
+            {
+                options.ExceptionHandlingPath = "/Error";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,20 +45,7 @@ namespace FatCamel.Host
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FatCamel.Host v1"));
             }
-
-            app.UseStaticFiles();
-
-            foreach (var m in _modules)
-                m.Configure(app, env);
-
-            app.UseRouting();
-
-            app.UseAuthentication();
-
-            app.UseAuthorization();
 
             app.UseHttpsRedirection();
 

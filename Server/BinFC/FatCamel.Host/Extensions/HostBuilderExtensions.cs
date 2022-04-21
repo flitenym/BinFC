@@ -15,39 +15,21 @@ namespace FatCamel.Host.Extensions
     {
         private static readonly IStringLocalizer _localizer = InternalLocalizers.General;
 
-        private static IConfiguration ModifyConfiguration(IConfigurationBuilder configBuilder, string settingsPath)
+        private static IConfiguration ModifyConfiguration(IConfigurationBuilder configBuilder)
         {
-            if (!string.IsNullOrEmpty(settingsPath))
-            {
-                if (!Path.IsPathRooted(settingsPath))
-                    settingsPath = Path.GetFullPath(settingsPath);
-                if (!File.Exists(settingsPath))
-                    throw new FileNotFoundException(_localizer["SETTINGS_FILE_NOT_FOUND"], Path.GetFileName(settingsPath));
-
-                var src = configBuilder.Sources
-                    .OfType<JsonConfigurationSource>()
-                    .Where(s => s.Path.StartsWith("appsettings")).ToArray();
-                foreach (var item in src)
-                    configBuilder.Sources.Remove(item);
-
-                configBuilder.AddJsonFile(settingsPath, true, true);
-            }
+            string settingsPath = null;
 
             var cfg = configBuilder.Build();    // Информация о пути стандартного appsettings.json будет доступна только если вызвать метод Build
-
-            if (string.IsNullOrWhiteSpace(settingsPath))
-            {
-                var prov = configBuilder.Sources
-                    .OfType<JsonConfigurationSource>()
-                    .FirstOrDefault(s => s.Path.StartsWith("appsettings.json"))?.FileProvider as PhysicalFileProvider;
-                if (prov != null)
-                    settingsPath = Path.Combine(prov.Root, "appsettings.json");
-            }
+             
+            var prov = configBuilder.Sources
+                .OfType<JsonConfigurationSource>()
+                .FirstOrDefault(s => s.Path.StartsWith("appsettings.json"))?.FileProvider as PhysicalFileProvider;
+            if (prov != null)
+                settingsPath = Path.Combine(prov.Root, "appsettings.json");
 
             if (settingsPath != null)
                 StartupLogger.LogInformation(_localizer["SETTINGS_PATH", settingsPath]);
             StartupManager.SettingsPath = settingsPath;
-
             return cfg;
         }
 
@@ -55,15 +37,12 @@ namespace FatCamel.Host.Extensions
         /// Регистрация модулей в системе
         /// </summary>
         /// <param name="settingsPath">Путь к настройкам указанный в командной строке</param>
-        public static IHostBuilder ConfigureModules(this IHostBuilder builder, string settingsPath)
+        public static IHostBuilder ConfigureModules(this IHostBuilder builder)
         {
             return builder.ConfigureAppConfiguration((context, configBuilder) =>
             {
-                var cfg = ModifyConfiguration(configBuilder, settingsPath);
+                var cfg = ModifyConfiguration(configBuilder);
 
-                var log = cfg.GetValue<bool?>("Project:StartupLogging");
-                if (log.HasValue && log.Value == false)
-                    StartupLogger.Disable();
                 var options = cfg.GetSection("Project:Hosting").Get<HostingOptions>();
 
                 if (options == null)
