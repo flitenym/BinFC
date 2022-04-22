@@ -15,9 +15,18 @@ RUN dotnet restore "FatCamel.Host/FatCamel.Host.csproj"
 COPY . .
 WORKDIR "/src/FatCamel.Host"
 RUN dotnet build "FatCamel.Host.csproj" -c Release -o /app/build
-
 FROM build AS publish
 RUN dotnet publish "FatCamel.Host.csproj" -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+WORKDIR /src
+COPY ["FatCamel.Host/FatCamel.Host.csproj", "TelegramFatCamel.Module/"]
+RUN dotnet restore "TelegramFatCamel.Module/TelegramFatCamel.Module.csproj"
+COPY . .
+WORKDIR "/src/TelegramFatCamel.Module"
+RUN dotnet build "TelegramFatCamel.Module.csproj" -c Release -o /app/build/Modules/TelegramFatCamel.Module
+FROM build AS publish
+RUN dotnet publish "TelegramFatCamel.Module.csproj" -c Release -o /app/publish/Modules/TelegramFatCamel.Module
 
 FROM base AS final
 WORKDIR /app

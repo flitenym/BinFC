@@ -14,7 +14,7 @@ namespace FatCamel.Host.StaticClasses
             {
                 ResourcesPath = "Localization"
             });
-            General = new ResourceManagerStringLocalizerFactory(options, new LoggerFactory()).Create("FatCamel.Host", LOCATION);
+            General = new ResourceManagerStringLocalizerFactory(options, new LoggerFactory()).Create("FatCamel.Host.General", LOCATION);
         }
     }
 }

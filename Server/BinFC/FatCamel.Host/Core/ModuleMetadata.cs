@@ -13,7 +13,6 @@ namespace FatCamel.Host.Core
     /// </summary>
     public class ModuleMetadata
     {
-        private static readonly IStringLocalizer _localizer = InternalLocalizers.General;
         private static readonly Regex invalidFileNameChars = new Regex("[" + Regex.Escape(new string(Path.GetInvalidFileNameChars())) + "]", RegexOptions.Compiled);
 
         private string _key;
@@ -35,20 +34,9 @@ namespace FatCamel.Host.Core
         public string Version { get; set; } = string.Empty;
 
         /// <summary>
-        /// Префикс пути для статических файлов
-        /// </summary>
-        [JsonPropertyName("Web Assets Prefix")]
-        public string WebAssetsPrefix { get; set; }
-
-        /// <summary>
         /// Список зависимостей
         /// </summary>
         public Dictionary<string, string> Dependencies { get; set; }
-
-        /// <summary>
-        /// Список сборок, доступ к которым предоставляется другим модуля
-        /// </summary>
-        public string[] Shared { get; set; }
 
         /// <summary>
         /// Дополнительные файлы с настройками
@@ -63,20 +51,10 @@ namespace FatCamel.Host.Core
         public string SettingsPath { get; set; }
 
         /// <summary>
-        /// Список дополнительных языков, предоставляемых модулем
-        /// </summary>
-        public string[] SupportedLanguages { get; set; }
-
-        /// <summary>
         /// Порядок загрузки метаданных с диска
         /// </summary>
         [JsonIgnore]
         public int Order { get; set; }
-
-        /// <summary>
-        /// Список инициализации плагинов
-        /// </summary>
-        public StartupSteps StartupSteps { get; set; }
 
         public string Key
         {
@@ -97,11 +75,11 @@ namespace FatCamel.Host.Core
         public void Validate()
         {
             if (string.IsNullOrWhiteSpace(Name))
-                throw new ApplicationException(_localizer["MD_VAL_NO_NAME_ERR"]!);
+                throw new ApplicationException(InternalLocalizers.General["MD_VAL_NO_NAME_ERR"]!);
             else if (invalidFileNameChars.IsMatch(Name))
-                throw new ApplicationException(_localizer["MD_VAL_NAME_ERR"]!);
+                throw new ApplicationException(InternalLocalizers.General["MD_VAL_NAME_ERR"]!);
             if (string.IsNullOrWhiteSpace(Version))
-                throw new ApplicationException(_localizer["MD_VAL_NO_VER_ERR"]!);
+                throw new ApplicationException(InternalLocalizers.General["MD_VAL_NO_VER_ERR"]!);
             if (Dependencies?.ContainsKey(Name) == true)
                 throw new ApplicationException(Name);
         }
@@ -113,7 +91,7 @@ namespace FatCamel.Host.Core
         public void CheckModulePath()
         {
             if (!Directory.Exists(ModulePath))
-                throw new ApplicationException(_localizer["MD_VAL_PATH_ERR", ModulePath]!);
+                throw new ApplicationException(InternalLocalizers.General["MD_VAL_PATH_ERR", ModulePath]!);
         }
 
         /// <summary>

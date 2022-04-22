@@ -1,11 +1,9 @@
 ﻿using FatCamel.Host.Core;
-using FatCamel.Host.Enums;
-using FatCamel.Host.StaticClasses;
+using FatCamel.Host.Core.Classes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -64,8 +62,6 @@ namespace FatCamel.Host.StaticClasses
             }
         }
 
-        private static readonly IStringLocalizer _localizer = InternalLocalizers.General;
-
         /// <summary>
         /// Загрузка модулей и предварительная проверка
         /// </summary>
@@ -77,7 +73,7 @@ namespace FatCamel.Host.StaticClasses
             Dictionary<string, string> loaded = new Dictionary<string, string>();
             foreach (string file in Directory.EnumerateFiles(options.Configurations!, "*.json"))
             {
-                StartupLogger.LogInformation(_localizer["METADATA_LOAD_START", file]);
+                StartupLogger.LogInformation(InternalLocalizers.General["METADATA_LOAD_START", file]);
 
                 var md = JsonSerializer.Deserialize<ModuleMetadata>(File.ReadAllBytes(file))!;
                 if (string.IsNullOrWhiteSpace(md.ModulePath))
@@ -96,7 +92,7 @@ namespace FatCamel.Host.StaticClasses
                 else
                     loaded.Add(md.Name, file);
 
-                StartupLogger.LogInformation(_localizer["METADATA_LOAD_END"]);
+                StartupLogger.LogInformation(InternalLocalizers.General["METADATA_LOAD_END"]);
                 md.Order = order;
                 order++;
 
@@ -142,7 +138,7 @@ namespace FatCamel.Host.StaticClasses
         /// <exception cref="AssemblyVersionIncompatibleException">Вызывается если ProductVersion хоста ниже ProductVersion модуля</exception>
         private static void LoadExtraAssemblies(InternalModule module, List<(AssemblyInfo Assembly, string Path, string ModuleName)> assemblies)
         {
-            StartupLogger.LogInformation(_localizer["EXTRA_ASSEMBLY_LOAD", module.Name]);
+            StartupLogger.LogInformation(InternalLocalizers.General["EXTRA_ASSEMBLY_LOAD", module.Name]);
 
             var extMod = module.ExtraAssemblies.ToArray();
 
@@ -159,6 +155,7 @@ namespace FatCamel.Host.StaticClasses
                     var hostVer = hostAsm.GetName().Version;
                     if (ver != null && hostVer != null && ver > hostVer)  // Если версия в хосте ниже версии из модуля
                     {
+                        StartupLogger.LogError(InternalLocalizers.General["ASSEMBLY_VERSION_INCOMPATIBLE", asm.Name!, module.Name, ver.ToString(), hostVer.ToString()]);
                         throw new ApplicationException(string.Join("; ", asm.Name!, module.Name, ver.ToString(), hostVer.ToString()));
                     }
                     else
@@ -185,7 +182,7 @@ namespace FatCamel.Host.StaticClasses
 
                         if (asm.AssemblyVersion > prevAsm.Assembly.AssemblyVersion)
                         {
-                            StartupLogger.LogInformation(_localizer["ASSEMBLY_REPLACE", prevAsm.Assembly.FullName!, asm.FullName]);
+                            StartupLogger.LogInformation(InternalLocalizers.General["ASSEMBLY_REPLACE", prevAsm.Assembly.FullName!, asm.FullName]);
                             assemblies[index] = (asm, filePath, module.Name);
                             ReplacesAssemblies.Add(new AssemblyReplacementInfo
                             {
@@ -214,22 +211,6 @@ namespace FatCamel.Host.StaticClasses
         }
 
         /// <summary>
-        /// Загрузка метаданных из потока
-        /// </summary>
-        /// <param name="file">Поток с метаданными в формате JSON</param>
-        /// <remarks>Используется только при усатановке модулей</remarks>
-        /// <returns>Объект метаданных считаный из потока</returns>
-        public static ModuleMetadata LoadMetadata(Stream file)
-        {
-            using var ms = new MemoryStream();
-            file.CopyTo(ms);
-
-            var text = new StreamReader(ms).ReadToEnd();
-
-            return JsonSerializer.Deserialize<ModuleMetadata>(ms.ToArray())!;
-        }
-
-        /// <summary>
         /// Регистрация модулей
         /// </summary>
         /// <param name="options">Параметры хоста</param>
@@ -240,7 +221,7 @@ namespace FatCamel.Host.StaticClasses
         /// <exception cref="MissingDependencyException">Если в метаданных отсутсвует необходимый модуль</exception>
         public static void Register(HostingOptions options, IConfigurationBuilder configBuilder)
         {
-            StartupLogger.LogInformation(_localizer["REGISTER_START"]);
+            StartupLogger.LogInformation(InternalLocalizers.General["REGISTER_START"]);
 
             _graph = new ModulesGraph(Metadata(options));
             Options = options;
@@ -273,17 +254,11 @@ namespace FatCamel.Host.StaticClasses
                 }
                 catch (Exception ex)
                 {
-                    StartupLogger.LogError(ex, _localizer["ASSEMBLY_LOAD_ERROR"], asm.Assembly, asm.Path, asm.ModuleName);
+                    StartupLogger.LogError(ex, InternalLocalizers.General["ASSEMBLY_LOAD_ERROR"], asm.Assembly, asm.Path, asm.ModuleName);
                     throw;
                 }
 
-            StartupLogger.LogInformation(_localizer["REGISTER_END"]);
-        }
-
-        public static void InitComponents(StartupStages stage)
-        {
-            foreach (var comp in Graph.Where(m => m.Metadata.StartupSteps != null).SelectMany(m => m.Metadata.StartupSteps!.GetComponents(stage)))
-                comp.Init(stage);
+            StartupLogger.LogInformation(InternalLocalizers.General["REGISTER_END"]);
         }
     }
 }

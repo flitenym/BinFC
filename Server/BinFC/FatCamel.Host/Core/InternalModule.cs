@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using FatCamel.Host.Extensions;
 using Microsoft.Extensions.DependencyModel;
+using FatCamel.Host.Core.Classes;
 
 namespace FatCamel.Host.Core
 {
@@ -19,8 +20,6 @@ namespace FatCamel.Host.Core
         private AssemblyLoadContext _alc;
 
         private IModule _innerModule;
-
-        private IStringLocalizer _localizer = InternalLocalizers.General;
 
         /// <summary>
         /// Сборка в которой распологается экземпляр модуля
@@ -122,13 +121,13 @@ namespace FatCamel.Host.Core
                         return Activator.CreateInstance(type, args) as T;
                 }
 
-                StartupLogger.LogWarning(_localizer["CTOR_ARGS_MISSMATCH"]);
+                StartupLogger.LogWarning(InternalLocalizers.General["CTOR_ARGS_MISSMATCH"]);
             }
 
             var paramLessCtor = ctors.FirstOrDefault(c => c.GetParameters().Length == 0);
 
             if (paramLessCtor == null)
-                StartupLogger.LogWarning(_localizer["NO_DEFAULT_CTOR"]);
+                StartupLogger.LogWarning(InternalLocalizers.General["NO_DEFAULT_CTOR"]);
             else
                 return Activator.CreateInstance(type) as T;
 

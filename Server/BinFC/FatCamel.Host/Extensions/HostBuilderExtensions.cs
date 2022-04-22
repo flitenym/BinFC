@@ -1,10 +1,10 @@
 ﻿using FatCamel.Host.Core;
+using FatCamel.Host.Core.Classes;
 using FatCamel.Host.StaticClasses;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Localization;
 using System;
 using System.IO;
 using System.Linq;
@@ -13,8 +13,6 @@ namespace FatCamel.Host.Extensions
 {
     public static class HostBuilderExtensions
     {
-        private static readonly IStringLocalizer _localizer = InternalLocalizers.General;
-
         private static IConfiguration ModifyConfiguration(IConfigurationBuilder configBuilder)
         {
             string settingsPath = null;
@@ -28,7 +26,7 @@ namespace FatCamel.Host.Extensions
                 settingsPath = Path.Combine(prov.Root, "appsettings.json");
 
             if (settingsPath != null)
-                StartupLogger.LogInformation(_localizer["SETTINGS_PATH", settingsPath]);
+                StartupLogger.LogInformation(InternalLocalizers.General["SETTINGS_PATH", settingsPath]);
             StartupManager.SettingsPath = settingsPath;
             return cfg;
         }
@@ -46,7 +44,7 @@ namespace FatCamel.Host.Extensions
                 var options = cfg.GetSection("Project:Hosting").Get<HostingOptions>();
 
                 if (options == null)
-                    throw new ArgumentNullException(nameof(options), _localizer["MISSING_SECTION", "Project:Hosting"]);
+                    throw new ArgumentNullException(nameof(options), InternalLocalizers.General["MISSING_SECTION", "Project:Hosting"]);
 
                 StartupManager.Register(options, configBuilder);
             });

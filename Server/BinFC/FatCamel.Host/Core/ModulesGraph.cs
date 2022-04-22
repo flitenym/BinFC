@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FatCamel.Host.Core.Structs;
+using FatCamel.Host.StaticClasses;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,65 +12,18 @@ namespace FatCamel.Host.Core
     /// </summary>
     public class ModulesGraph : IEnumerable<InternalModule>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public struct Edge
-        {
-            public string From { get; set; }
-            public string To { get; set; }
+        #region Interface realization
 
-            public override int GetHashCode() => From.GetHashCode() ^ To.GetHashCode();
+        public IEnumerator<InternalModule> GetEnumerator() => _nodes.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-            public override bool Equals(object obj)
-            {
-                var other = obj as Edge?;
-                if (!other.HasValue) return false;
+        #endregion
 
-                return From == other.Value.From && To == other.Value.To;
-            }
-        }
+        #region Fields
 
-        /// <summary>
-        /// Модуль - узел графа
-        /// </summary>
-        public class Node
-        {
-            private readonly ModulesGraph _graph;
-
-            private IEnumerable<Node> _dependantNodes;
-
-            /// <summary>
-            /// Объект модуля
-            /// </summary>
-            public InternalModule Module { get; }
-
-            /// <summary>
-            /// Список зависимых модулей
-            /// </summary>
-            public IEnumerable<Node> DependantNodes
-            {
-                get
-                {
-                    if (_dependantNodes == null)
-                    {
-                        _dependantNodes = _graph._edges.Where(e => e.From == Module.Metadata.Key).Select(e => new Node(_graph, _graph.First(m => m.Metadata.Key == e.To)));
-                    }
-
-                    return _dependantNodes;
-                }
-            }
-
-            internal Node(ModulesGraph graph, InternalModule module)
-            {
-                _graph = graph;
-                Module = module;
-            }
-        }
+        public readonly List<Edge> _edges = new List<Edge>();
 
         private readonly List<InternalModule> _nodes = new List<InternalModule>();
-
-        private readonly List<Edge> _edges = new List<Edge>();
 
         private readonly Dictionary<string, List<string>> _missingDependencies = new Dictionary<string, List<string>>();
 
@@ -89,6 +44,8 @@ namespace FatCamel.Host.Core
         /// </summary>
         public IReadOnlyDictionary<string, List<string>> MissingDependencies => _missingDependencies;
 
+        #endregion
+
         /// <summary>
         /// Получает список, отсортированный по зависимостям
         /// </summary>
@@ -108,7 +65,9 @@ namespace FatCamel.Host.Core
                     List<string> errorList = new();
                     errorList.Add(moduleForCheck.Name);
                     errorList.AddRange(nextModule.Dependencies.Select(p => p.Key));
-                    throw new ApplicationException(string.Join("; ", errorList));
+                    errorList.Reverse();
+                    StartupLogger.LogInformation(InternalLocalizers.General["CYCLE_REFERENCE", string.Join("\", \"", errorList)]);
+                    throw new ApplicationException(string.Join("\", \"", errorList));
                 }
 
                 var list = source.Where(m => nextModule.Dependencies?.Any(d => d.Key == m.Name) ?? false);
@@ -188,10 +147,6 @@ namespace FatCamel.Host.Core
             }
         }
 
-        public IEnumerator<InternalModule> GetEnumerator() => _nodes.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
         /// <summary>
         /// Проход по узлам графа и выполнение действия
         /// </summary>
@@ -199,7 +154,7 @@ namespace FatCamel.Host.Core
         /// <param name="action">Действие выполняемое для каждого узла</param>
         public void TraverseAndExecute(Action<Node> action)
         {
-            Queue<ModulesGraph.Node> nodes = new Queue<ModulesGraph.Node>(Roots);
+            Queue<Node> nodes = new Queue<Node>(Roots);
             List<string> loaded = new List<string>();
 
             while (nodes.Count > 0)
@@ -228,11 +183,13 @@ namespace FatCamel.Host.Core
                 loaded.Add(node.Module.Name);
 
                 if (node.DependantNodes?.Any() == true)
+                {
                     foreach (var depNode in node.DependantNodes)
                     {
                         if (!nodes.Any(n => n.Module.Name == depNode.Module.Name))
                             nodes.Enqueue(depNode);
                     }
+                }
             }
         }
     }

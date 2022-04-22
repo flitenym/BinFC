@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FatCamel.Host.Core
+namespace FatCamel.Host.Core.Classes
 {
     public class AssemblyInfo
     {

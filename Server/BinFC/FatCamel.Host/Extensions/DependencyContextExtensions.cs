@@ -1,4 +1,4 @@
-﻿using FatCamel.Host.Core;
+﻿using FatCamel.Host.Core.Classes;
 using Microsoft.Extensions.DependencyModel;
 using System;
 using System.Collections.Generic;
