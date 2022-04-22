@@ -54,98 +54,43 @@ namespace TelegramFatCamel.Module.StaticClasses
 
         private static async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            Console.WriteLine($"Receive message type: {message.Type}");
             if (message.Type != MessageType.Text)
                 return;
 
             var action = message.Text!.Split(' ')[0] switch
             {
-                "/inline" => SendInlineKeyboard(botClient, message),
-                "/keyboard" => SendReplyKeyboard(botClient, message),
-                "/remove" => RemoveKeyboard(botClient, message),
-                "/request" => RequestContactAndLocation(botClient, message),
+                "/start" => Start(botClient, message, "Вас приветствует бот Fat Cashback. Для указания своего ID нажмите соответствующую кнопку."),
+                "/usage" => Start(botClient, message, "Для указания своего ID нажмите соответствующую кнопку."),
                 _ => Usage(botClient, message)
             };
-            Message sentMessage = await action;
-            Console.WriteLine($"The message was sent with id: {sentMessage.MessageId}");
 
-            // Send inline keyboard
-            // You can process responses in BotOnCallbackQueryReceived handler
-            static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, Message message)
+            Message sentMessage = await action;
+
+            static async Task<Message> Start(ITelegramBotClient botClient, Message message, string messageText)
             {
                 await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
 
                 // Simulate longer running task
                 await Task.Delay(500);
 
-                InlineKeyboardMarkup inlineKeyboard = new(
-                    new[]
-                    {
-                    // first row
-                    new []
-                    {
-                        InlineKeyboardButton.WithCallbackData("1.1", "11"),
-                        InlineKeyboardButton.WithCallbackData("1.2", "12"),
-                    },
-                    // second row
-                    new []
-                    {
-                        InlineKeyboardButton.WithCallbackData("2.1", "21"),
-                        InlineKeyboardButton.WithCallbackData("2.2", "22"),
-                    },
-                    });
-
-                return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                            text: "Choose",
-                                                            replyMarkup: inlineKeyboard);
-            }
-
-            static async Task<Message> SendReplyKeyboard(ITelegramBotClient botClient, Message message)
-            {
                 ReplyKeyboardMarkup replyKeyboardMarkup = new(
                     new[]
                     {
-                        new KeyboardButton[] { "1.1", "1.2" },
-                        new KeyboardButton[] { "2.1", "2.2" },
+                        new KeyboardButton[] { "Ввести свой ID" }
                     })
                 {
                     ResizeKeyboard = true
                 };
 
                 return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                            text: "Choose",
+                                                            text: "Вас приветствует бот Fat Cashback. Для указания своего ID нажмите соответствующую кнопку.",
                                                             replyMarkup: replyKeyboardMarkup);
-            }
-
-            static async Task<Message> RemoveKeyboard(ITelegramBotClient botClient, Message message)
-            {
-                return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                            text: "Removing keyboard",
-                                                            replyMarkup: new ReplyKeyboardRemove());
-            }
-
-            static async Task<Message> RequestContactAndLocation(ITelegramBotClient botClient, Message message)
-            {
-                ReplyKeyboardMarkup RequestReplyKeyboard = new(
-                    new[]
-                    {
-                    KeyboardButton.WithRequestLocation("Location"),
-                    KeyboardButton.WithRequestContact("Contact"),
-                    });
-
-                return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                            text: "Who or Where are you?",
-                                                            replyMarkup: RequestReplyKeyboard);
             }
 
             static async Task<Message> Usage(ITelegramBotClient botClient, Message message)
             {
-                const string usage = "Usage:\n" +
-                                     "/inline   - send inline keyboard\n" +
-                                     "/keyboard - send custom keyboard\n" +
-                                     "/remove   - remove custom keyboard\n" +
-                                     "/photo    - send a photo\n" +
-                                     "/request  - request location or contact";
+                const string usage = "Возможности:\n" +
+                                     "/usage - Регистрация своего ID";
 
                 return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
                                                             text: usage,
