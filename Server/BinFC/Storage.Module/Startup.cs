@@ -30,11 +30,11 @@ namespace Storage.Module
 
             if (dbSettings.DbProviderType == DbProviderType.SqlServer)
             {
-                services.AddDbContext<DataContext>(opt => opt.UseSqlServer(dbSettings.ConnectionString));
+                services.AddDbContext<DataContext>(opt => opt.UseSqlServer(dbSettings.ConnectionString), ServiceLifetime.Singleton);
             }
             else if (dbSettings.DbProviderType == DbProviderType.PostgreSql)
             {
-                services.AddDbContext<DataContext>(opt => opt.UseNpgsql(dbSettings.ConnectionString));
+                services.AddDbContext<DataContext>(opt => opt.UseNpgsql(dbSettings.ConnectionString), ServiceLifetime.Singleton);
             }
 
             services.AddScoped<IDbSettingsService, DbSettingsService>();
