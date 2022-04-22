@@ -10,12 +10,15 @@ namespace TelegramFatCamel.Module.Services
 {
     public class TelegramFatCamelBotService : ITelegramFatCamelBotService
     {
-        private TelegramBotSettings _telegramBotSettings;
+        private readonly ITelegramSettingsService _telegramSettingsService;
+
         private TelegramBotClient _client;
+
         private CancellationTokenSource _cancellationToken;
+
         public TelegramFatCamelBotService(ITelegramSettingsService telegramSettingsService)
         {
-            _telegramBotSettings = telegramSettingsService.GetSettings();
+            _telegramSettingsService = telegramSettingsService;
         }
 
         public Task FatCamelBotStartAsync()
@@ -32,7 +35,7 @@ namespace TelegramFatCamel.Module.Services
 
         private void StartTelegramBot()
         {
-            _client = new TelegramBotClient(_telegramBotSettings.Token);
+            _client = new TelegramBotClient(_telegramSettingsService.Token);
             ReceiverOptions receiverOptions = new() { AllowedUpdates = { } };
 
             _cancellationToken = new CancellationTokenSource();

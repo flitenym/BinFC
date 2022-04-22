@@ -1,19 +1,15 @@
 ﻿using Microsoft.Extensions.Configuration;
 using TelegramFatCamel.Module.Services.Interfaces;
-using TelegramFatCamel.Module.StaticClasses;
 
 namespace TelegramFatCamel.Module.Services
 {
     public class TelegramSettingsService : ITelegramSettingsService
     {
+        public string Token { get; set; }
+
         public TelegramSettingsService(IConfiguration configuration)
         {
-            TelegramBotSettings.Initialize(configuration);
-        }
-
-        public TelegramBotSettings GetSettings()
-        {
-            return TelegramBotSettings.GetInstance();
+            Token = configuration.GetSection("Telegram:Token").Get<string>();
         }
     }
 }

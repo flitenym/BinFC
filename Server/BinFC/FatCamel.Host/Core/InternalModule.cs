@@ -95,9 +95,13 @@ namespace FatCamel.Host.Core
                 {
                     var parameters = ctor.GetParameters();
                     if (parameters.Length == 0)
+                    {
                         _innerModule = Activator.CreateInstance(type) as IModule;
+                    }
                     else if (parameters.Length == 1 && parameters[0].ParameterType == typeof(IConfiguration))
+                    {
                         _innerModule = Activator.CreateInstance(type, configuration) as IModule;
+                    }
                 }
             }
 

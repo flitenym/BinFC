@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Localization;
 using System.Linq;
 
 namespace FatCamel.Host
@@ -19,6 +17,7 @@ namespace FatCamel.Host
         public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
+            System.Diagnostics.Debugger.Launch();
             _modules = StartupManager.Graph?.Select(m => m.CreateInstance(_configuration)).Where(m => m != null).Cast<IModule>().ToArray() ?? new IModule[0];
         }
 

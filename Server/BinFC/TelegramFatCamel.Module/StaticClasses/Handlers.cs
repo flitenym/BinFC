@@ -83,7 +83,7 @@ namespace TelegramFatCamel.Module.StaticClasses
                 };
 
                 return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                            text: "Вас приветствует бот Fat Cashback. Для указания своего ID нажмите соответствующую кнопку.",
+                                                            text: messageText,
                                                             replyMarkup: replyKeyboardMarkup);
             }
 

@@ -4,6 +4,6 @@ namespace TelegramFatCamel.Module.Services.Interfaces
 {
     public interface ITelegramSettingsService
     {
-        public TelegramBotSettings GetSettings();
+        public string Token { get; set; }
     }
 }
