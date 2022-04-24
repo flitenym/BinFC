@@ -49,6 +49,9 @@ namespace TelegramFatCamel.Module.Services
                     case CommandNames.GetOperationsCommand:
                         await ExecuteCommand(CommandNames.GetOperationsCommand, update);
                         return;
+                    case CommandNames.InputIdCommand:
+                        await ExecuteCommand(CommandNames.InputIdCommand, update);
+                        return;
                 }
             }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -13,16 +14,18 @@ namespace TelegramFatCamel.Module.Services
     {
         private readonly ITelegramSettingsService _telegramSettingsService;
 
-        private readonly ICommandExecutorService _commandExecutorService;
+        private readonly IServiceProvider _serviceProvider;
+
+        private ICommandExecutorService _commandExecutorService;
 
         private TelegramBotClient _client;
 
         private CancellationTokenSource _cancellationToken;
 
-        public TelegramFatCamelBotService(ITelegramSettingsService telegramSettingsService, ICommandExecutorService commandExecutorService)
+        public TelegramFatCamelBotService(IServiceProvider serviceProvider, ITelegramSettingsService telegramSettingsService)
         {
+            _serviceProvider = serviceProvider;
             _telegramSettingsService = telegramSettingsService;
-            _commandExecutorService = commandExecutorService;
         }
 
         public async Task<TelegramBotClient> GetTelegramBotAsync()
@@ -57,6 +60,7 @@ namespace TelegramFatCamel.Module.Services
         {
             try
             {
+                _commandExecutorService ??= _serviceProvider.GetRequiredService<ICommandExecutorService>();
                 await _commandExecutorService.Execute(update);
             }
             catch (Exception exception)

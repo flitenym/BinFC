@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -23,6 +24,7 @@ namespace TelegramFatCamel.Module.Commands
         {
             await _client.SendTextMessageAsync(
                 update.Message.Chat.Id,
+                $"Доступные команды:{Environment.NewLine}" +
                 $"Указание Id пользователя: \"{CommandNames.InputIdCommand}\"",
                 ParseMode.Markdown);
         }
