@@ -15,8 +15,7 @@ namespace FatCamel.Host
         {
             try
             {
-                var host = CreateHostBuilder().Build();
-                host.Run();
+                CreateHostBuilder().Build().Run();
             }
             catch (Exception ex)
             {
@@ -37,7 +36,6 @@ namespace FatCamel.Host
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                })
-                .FinalConfiguration();
+                });
     }
 }

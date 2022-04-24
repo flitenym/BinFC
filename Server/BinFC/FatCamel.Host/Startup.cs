@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FatCamel.Host
 {
@@ -29,7 +31,7 @@ namespace FatCamel.Host
 
             foreach (var m in _modules)
             {
-                m.ConfigureServices(services);
+                m.ConfigureServicesAsync(services).Wait();
             }
 
             services.Configure<ExceptionHandlerOptions>(options =>
@@ -39,7 +41,7 @@ namespace FatCamel.Host
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostApplicationLifetime hal, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             app.UseForwardedHeaders();
 
@@ -56,7 +58,7 @@ namespace FatCamel.Host
 
             foreach (var m in _modules)
             {
-                m.Configure(app, env);
+                m.ConfigureAsync(app, hal, env, serviceProvider).Wait();
             }
 
             app.UseRouting();

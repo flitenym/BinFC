@@ -5,8 +5,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Storage.Module.Services;
 using Storage.Module.Services.Interfaces;
+using System;
+using System.Threading.Tasks;
 
 namespace Storage.Module
 {
@@ -19,12 +22,12 @@ namespace Storage.Module
             _configuration = configuration;
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public Task ConfigureAsync(IApplicationBuilder app, IHostApplicationLifetime hal, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
-
+            return Task.CompletedTask;
         }
 
-        public void ConfigureServices(IServiceCollection services)
+        public Task ConfigureServicesAsync(IServiceCollection services)
         {
             DbSettings dbSettings = DbSettings.Initialize(_configuration);
 
@@ -38,6 +41,8 @@ namespace Storage.Module
             }
 
             services.AddScoped<IDbSettingsService, DbSettingsService>();
+
+            return Task.CompletedTask;
         }
     }
 }

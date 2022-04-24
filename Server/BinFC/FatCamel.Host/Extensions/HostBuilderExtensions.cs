@@ -49,18 +49,5 @@ namespace FatCamel.Host.Extensions
                 StartupManager.Register(options, configBuilder);
             });
         }
-
-        /// <summary>
-        /// Добавляет файл настройки для тех. поддержки
-        /// </summary>
-        /// <remarks>Метод должен вызываться последним во время настроки хоста</remarks>
-        public static IHostBuilder FinalConfiguration(this IHostBuilder builder)
-        {
-            return builder.ConfigureAppConfiguration((context, configBuilder) =>
-            {
-                var customPath = Path.Join(Path.GetDirectoryName(StartupManager.SettingsPath), "custom.appsettings.json");
-                configBuilder.AddJsonFile(customPath, true, true);
-            });
-        }
     }
 }

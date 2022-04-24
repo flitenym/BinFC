@@ -1,10 +1,11 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
-using Telegram.Bot.Args;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
+using Telegram.Bot.Types;
 using TelegramFatCamel.Module.Services.Interfaces;
-using TelegramFatCamel.Module.StaticClasses;
 
 namespace TelegramFatCamel.Module.Services
 {
@@ -12,46 +13,78 @@ namespace TelegramFatCamel.Module.Services
     {
         private readonly ITelegramSettingsService _telegramSettingsService;
 
+        private readonly ICommandExecutorService _commandExecutorService;
+
         private TelegramBotClient _client;
 
         private CancellationTokenSource _cancellationToken;
 
-        public TelegramFatCamelBotService(ITelegramSettingsService telegramSettingsService)
+        public TelegramFatCamelBotService(ITelegramSettingsService telegramSettingsService, ICommandExecutorService commandExecutorService)
         {
             _telegramSettingsService = telegramSettingsService;
+            _commandExecutorService = commandExecutorService;
         }
 
-        public Task FatCamelBotStartAsync()
+        public async Task<TelegramBotClient> GetTelegramBotAsync()
         {
-            StartTelegramBot();
-            return Task.CompletedTask;
+            if (_client != null)
+            {
+                return _client;
+            }
+
+            await StartTelegramBotAsync();
+
+            return _client;
         }
 
-        public Task FatCamelBotStopAsync()
-        {
-            StopTelegramBot();
-            return Task.CompletedTask;
-        }
-
-        private void StartTelegramBot()
+        private Task StartTelegramBotAsync()
         {
             _client = new TelegramBotClient(_telegramSettingsService.Token);
             ReceiverOptions receiverOptions = new() { AllowedUpdates = { } };
 
             _cancellationToken = new CancellationTokenSource();
 
-            _client.StartReceiving(Handlers.HandleUpdateAsync,
-                           Handlers.HandleErrorAsync,
-                           receiverOptions,
-                           _cancellationToken.Token);
+            _client.StartReceiving(
+                HandleUpdateAsync,
+                HandleErrorAsync,
+                receiverOptions,
+                _cancellationToken.Token);
+
+            return Task.CompletedTask;
         }
 
-        private void StopTelegramBot()
+        public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _commandExecutorService.Execute(update);
+            }
+            catch (Exception exception)
+            {
+                await HandleErrorAsync(botClient, exception, cancellationToken);
+            }
+        }
+
+        public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+        {
+            var ErrorMessage = exception switch
+            {
+                ApiRequestException apiRequestException => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+                _ => exception.ToString()
+            };
+
+            Console.WriteLine(ErrorMessage);
+            return Task.CompletedTask;
+        }
+
+        public Task StopTelegramBotAsync()
         {
             if (_cancellationToken != null)
             {
                 _cancellationToken.Cancel();
             }
+
+            return Task.CompletedTask;
         }
     }
 }
