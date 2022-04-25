@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using TelegramFatCamel.Module.Commands.Base;
 using TelegramFatCamel.Module.Commands.CommandSettings;
 using TelegramFatCamel.Module.Services.Interfaces;
@@ -26,7 +27,8 @@ namespace TelegramFatCamel.Module.Commands
                 update.Message.Chat.Id,
                 $"Доступные команды:{Environment.NewLine}" +
                 $"Указание Id пользователя: \"{CommandNames.InputIdCommand}\"",
-                ParseMode.Markdown);
+                ParseMode.Markdown,
+                replyMarkup: new ReplyKeyboardRemove());
         }
     }
 }

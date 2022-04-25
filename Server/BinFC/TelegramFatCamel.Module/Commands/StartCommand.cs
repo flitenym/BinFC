@@ -22,20 +22,21 @@ namespace TelegramFatCamel.Module.Commands
 
         public override async Task ExecuteAsync(Update update)
         {
-            var inlineKeyboard = new ReplyKeyboardMarkup(new[]
-            {
+            ReplyKeyboardMarkup replyKeyboardMarkup = new(
                 new[]
                 {
-                    new KeyboardButton(CommandNames.GetOperationsCommand)
-                }
-            });
+                        new KeyboardButton(CommandNames.GetOperationsCommand)
+                })
+            {
+                ResizeKeyboard = true
+            };
 
             await _client.SendTextMessageAsync(
                 update.Message.Chat.Id,
                 $"Добро пожаловать! Я буду помогать в регистрации Fat Camel!{Environment.NewLine}" +
                 $"Для получения списка комманд напишите \"{CommandNames.GetOperationsCommand}\" или нажмите на кнопку.",
                 ParseMode.Markdown, 
-                replyMarkup: inlineKeyboard);
+                replyMarkup: replyKeyboardMarkup);
         }
     }
 }

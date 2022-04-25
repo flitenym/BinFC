@@ -8,23 +8,21 @@ using TelegramFatCamel.Module.Services.Interfaces;
 
 namespace TelegramFatCamel.Module.Commands
 {
-    public class InputBepCommand : BaseCommand
+    public class ErrorInputIdCommand : BaseCommand
     {
         private readonly TelegramBotClient _client;
-        public InputBepCommand(ITelegramFatCamelBotService telegramFatCamelBotService)
+        public ErrorInputIdCommand(ITelegramFatCamelBotService telegramFatCamelBotService)
         {
             _client = telegramFatCamelBotService.GetTelegramBotAsync().Result;
         }
 
-        public override string Name => CommandNames.InputBepCommand;
+        public override string Name => CommandNames.ErrorInputIdCommand;
 
         public override async Task ExecuteAsync(Update update)
         {
-            // TODO реализовать логику
-
             await _client.SendTextMessageAsync(
-                update.CallbackQuery.Message.Chat.Id, 
-                "BEP принят.",
+                update.Message.Chat.Id,
+                "Неверно введен Id. Попробуйте снова.",
                 ParseMode.Markdown);
         }
     }

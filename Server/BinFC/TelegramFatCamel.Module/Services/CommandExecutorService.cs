@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Storage.Module;
+using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +16,14 @@ namespace TelegramFatCamel.Module.Services
 {
     public class CommandExecutorService : ICommandExecutorService
     {
+        private readonly IUserInfoRepository _userInfoRepository;
         private readonly List<BaseCommand> _commands;
         private BaseCommand _lastCommand;
 
-        public CommandExecutorService(IServiceProvider serviceProvider)
+        public CommandExecutorService(IUserInfoRepository userInfoRepository, IServiceProvider serviceProvider)
         {
+            _userInfoRepository = userInfoRepository;
             _commands = serviceProvider.GetServices<BaseCommand>().ToList();
-            Console.WriteLine("Пиздарики");
         }
 
         public async Task Execute(Update update)
@@ -27,25 +31,13 @@ namespace TelegramFatCamel.Module.Services
             if (update?.Message?.Chat == null && update?.CallbackQuery == null)
                 return;
 
-            switch (_lastCommand?.Name)
-            {
-                case CommandNames.InputIdCommand:
-                    {
-                        await ExecuteCommand(CommandNames.SelectPurseCommand, update);
-                        break;
-                    }
-                case CommandNames.InputTrcCommand:
-                case CommandNames.InputBepCommand:
-                    {
-                        await ExecuteCommand(CommandNames.FinishInputsCommand, update);
-                        break;
-                    }
-            }
-
             if (update.Type == UpdateType.Message)
             {
                 switch (update.Message?.Text)
                 {
+                    case CommandNames.StartCommand:
+                        await ExecuteCommand(CommandNames.StartCommand, update);
+                        return;
                     case CommandNames.GetOperationsCommand:
                         await ExecuteCommand(CommandNames.GetOperationsCommand, update);
                         return;
@@ -69,10 +61,49 @@ namespace TelegramFatCamel.Module.Services
                 }
             }
 
-            if (update.Message?.Text.Contains(CommandNames.StartCommand) == true)
+            switch (_lastCommand?.Name)
             {
-                await ExecuteCommand(CommandNames.StartCommand, update);
-                return;
+                case CommandNames.InputIdCommand:
+                    {
+                        string inputedId = update.Message?.Text.Trim();
+                        if (!string.IsNullOrEmpty(inputedId) && long.TryParse(inputedId, out var inputedIdLong))
+                        {
+                            //введен ИД корректно, проверим его в БД
+                            var existedUserId = await _userInfoRepository.GetUserInfoByUserId(inputedIdLong);
+
+                            if (existedUserId == null)
+                            {
+                                // выведем сообщение, что "Данный id не зарегистрирован в базе, попробуйте снова"
+                                await ExecuteCommand(CommandNames.NotExistIdCommand, update);
+                            }
+                            else
+                            {
+                                if (string.IsNullOrEmpty(existedUserId.TrcAddress ?? existedUserId.BepAddress))
+                                {
+                                    // т.к. кошельки пустые, можем перейти на установку кошелька
+                                    await ExecuteCommand(CommandNames.SelectPurseCommand, update);
+                                }
+                                else
+                                {
+                                    // т.к. один из кошельков не пустой, тогда выполним команду смены кошелька
+                                    await ExecuteCommand(CommandNames.ChangePurseCommand, update);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // выведем сообщение, что "Неверно введен Id."
+                            await ExecuteCommand(CommandNames.ErrorInputIdCommand, update);
+                        }
+
+                        break;
+                    }
+                case CommandNames.InputTrcCommand:
+                case CommandNames.InputBepCommand:
+                    {
+                        await ExecuteCommand(CommandNames.FinishInputsCommand, update);
+                        break;
+                    }
             }
 
             // по дефолту просто пропишем операции.

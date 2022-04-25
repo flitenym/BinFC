@@ -20,11 +20,9 @@ namespace TelegramFatCamel.Module.Commands
 
         public override async Task ExecuteAsync(Update update)
         {
-            // TODO реализовать логику
-
             await _client.SendTextMessageAsync(
-                update.Message.Chat.Id, 
-                "ИД принят.",
+                update.Message.Chat.Id,
+                "Введите Id.",
                 ParseMode.Markdown);
         }
     }

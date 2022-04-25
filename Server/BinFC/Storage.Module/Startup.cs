@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Storage.Module.Repositories;
+using Storage.Module.Repositories.Interfaces;
 using Storage.Module.Services;
 using Storage.Module.Services.Interfaces;
 using System;
@@ -41,6 +43,7 @@ namespace Storage.Module
             }
 
             services.AddScoped<IDbSettingsService, DbSettingsService>();
+            services.AddScoped<IUserInfoRepository, UserInfoRepository>();
 
             return Task.CompletedTask;
         }

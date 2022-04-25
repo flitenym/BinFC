@@ -19,14 +19,18 @@
 	</PackageReference>
     <PackageReference Include="Telegram.Bot" Version="17.0.0" />
     <PackageReference Include="Telegram.Bot.Extensions.Polling" Version="1.0.2" />
-  
-</ItemGroup>
+
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FatCamel.Host\FatCamel.Host.csproj">
 	  <Private>false</Private>
 	  <ExcludeAssets>runtime</ExcludeAssets>
 	</ProjectReference>
+    <ProjectReference Include="..\Storage.Module\Storage.Module.csproj">
+	  <Private>false</Private>
+	  <ExcludeAssets>runtime</ExcludeAssets>
+	  </ProjectReference>
   </ItemGroup>
 
 </Project>
