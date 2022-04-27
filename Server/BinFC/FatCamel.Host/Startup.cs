@@ -1,11 +1,16 @@
+using FatCamel.Host.Enum;
 using FatCamel.Host.Interfaces;
+using FatCamel.Host.Middlewares;
 using FatCamel.Host.StaticClasses;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace FatCamel.Host
@@ -26,6 +31,19 @@ namespace FatCamel.Host
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.DefaultRequestCulture = new RequestCulture(nameof(CultureType.ru));
+                options.SupportedCultures = new List<CultureInfo>() { 
+                    new CultureInfo(nameof(CultureType.ru)),
+                    new CultureInfo(nameof(CultureType.en))
+                };
+                options.SupportedUICultures = new List<CultureInfo>() {
+                    new CultureInfo(nameof(CultureType.ru)),
+                    new CultureInfo(nameof(CultureType.en))
+                };
+            });
+
             services.AddControllers();
 
             foreach (var m in _modules)
@@ -52,6 +70,10 @@ namespace FatCamel.Host
             {
                 app.UseExceptionHandler();
             }
+
+            app.UseRequestLocalization();
+
+            app.UseMiddleware<CultureMiddleware>();
 
             app.UseStaticFiles();
 

@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using TelegramFatCamel.Module.Commands.Base;
 using TelegramFatCamel.Module.Commands.CommandSettings;
+using TelegramFatCamel.Module.Localization;
 using TelegramFatCamel.Module.Services.Interfaces;
 
 namespace TelegramFatCamel.Module.Commands
@@ -30,7 +30,7 @@ namespace TelegramFatCamel.Module.Commands
             {
                 await _client.SendTextMessageAsync(
                     update.Message.Chat.Id,
-                    CommandMessages.IdUnspecified);
+                    string.Format(TelegramLoc.IdUnspecified, CommandNames.InputIdCommand));
                 return;
             }
 
@@ -50,7 +50,7 @@ namespace TelegramFatCamel.Module.Commands
 
             await _client.SendTextMessageAsync(
                 update.Message.Chat.Id,
-                CommandMessages.ChoosePurse,
+                TelegramLoc.ChoosePurse,
                 replyMarkup: inlineKeyboard);
         }
     }

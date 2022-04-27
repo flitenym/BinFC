@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 using TelegramFatCamel.Module.Commands.Base;
 using TelegramFatCamel.Module.Commands.CommandSettings;
+using TelegramFatCamel.Module.Localization;
 using TelegramFatCamel.Module.Services.Interfaces;
 
 namespace TelegramFatCamel.Module.Commands
@@ -30,7 +30,7 @@ namespace TelegramFatCamel.Module.Commands
             {
                 await _client.SendTextMessageAsync(
                     update.Message.Chat.Id,
-                    CommandMessages.InputNameEmpty);
+                    string.Format(TelegramLoc.InputNameEmpty, CommandNames.InputNameCommand));
                 return;
             }
 
@@ -45,13 +45,13 @@ namespace TelegramFatCamel.Module.Commands
             {
                 await _client.SendTextMessageAsync(
                     update.Message.Chat.Id,
-                    CommandMessages.AcceptName);
+                    TelegramLoc.AcceptName);
             }
             else
             {
                 await _client.SendTextMessageAsync(
                     update.Message.Chat.Id,
-                    string.Format(CommandMessages.AcceptNameWithExisted, existedUserName));
+                    string.Format(TelegramLoc.AcceptNameWithExisted, existedUserName));
             }
         }
     }

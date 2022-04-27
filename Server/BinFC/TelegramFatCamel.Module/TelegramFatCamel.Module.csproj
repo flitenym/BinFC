@@ -33,4 +33,20 @@
 	  </ProjectReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Update="Localization\TelegramLoc.ru.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <PublicClass>True</PublicClass>
+      <StronglyTypedFileName>$(IntermediateOutputPath)\TelegramLoc.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>TelegramFatCamel.Module.Localization</StronglyTypedNamespace>
+      <StronglyTypedClassName>TelegramLoc</StronglyTypedClassName>
+      <LastGenOutput>TelegramLoc.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <Target Name="_GenerateResxSource" BeforeTargets="BeforeCompile;CoreCompile" DependsOnTargets="PrepareResources">
+  </Target>
+
+
 </Project>
