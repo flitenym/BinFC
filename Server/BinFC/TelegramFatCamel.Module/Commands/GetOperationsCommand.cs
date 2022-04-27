@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -21,13 +20,11 @@ namespace TelegramFatCamel.Module.Commands
 
         public override string Name => CommandNames.GetOperationsCommand;
 
-        public override async Task ExecuteAsync(Update update)
+        public override async Task ExecuteAsync(Update update, dynamic param = null)
         {
             await _client.SendTextMessageAsync(
                 update.Message.Chat.Id,
-                $"Доступные команды:{Environment.NewLine}" +
-                $"Указание Id пользователя: \"{CommandNames.InputIdCommand}\"",
-                ParseMode.Markdown,
+                CommandMessages.Operations,
                 replyMarkup: new ReplyKeyboardRemove());
         }
     }

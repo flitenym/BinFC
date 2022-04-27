@@ -26,20 +26,32 @@ namespace Storage.Module
 
         public Task ConfigureAsync(IApplicationBuilder app, IHostApplicationLifetime hal, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
+            var _dataContext = serviceProvider.GetRequiredService<DataContext>();
+            _dataContext.Database.EnsureCreated();
             return Task.CompletedTask;
         }
 
         public Task ConfigureServicesAsync(IServiceCollection services)
         {
+            services.AddControllers().AddApplicationPart(typeof(Startup).Assembly);
+
             DbSettings dbSettings = DbSettings.Initialize(_configuration);
 
             if (dbSettings.DbProviderType == DbProviderType.SqlServer)
             {
-                services.AddDbContext<DataContext>(opt => opt.UseSqlServer(dbSettings.ConnectionString), ServiceLifetime.Singleton);
+                services.AddDbContext<DataContext>(
+                    opt => opt.UseSqlServer(
+                        dbSettings.ConnectionString
+                    )
+                );
             }
             else if (dbSettings.DbProviderType == DbProviderType.PostgreSql)
             {
-                services.AddDbContext<DataContext>(opt => opt.UseNpgsql(dbSettings.ConnectionString), ServiceLifetime.Singleton);
+                services.AddDbContext<DataContext>(
+                    opt => opt.UseNpgsql(
+                        dbSettings.ConnectionString
+                    )
+                );
             }
 
             services.AddScoped<IDbSettingsService, DbSettingsService>();

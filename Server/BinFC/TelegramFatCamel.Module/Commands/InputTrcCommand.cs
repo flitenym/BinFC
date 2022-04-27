@@ -1,4 +1,4 @@
-﻿using Storage.Module;
+﻿using Storage.Module.Repositories.Interfaces;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -11,24 +11,19 @@ namespace TelegramFatCamel.Module.Commands
 {
     public class InputTrcCommand : BaseCommand
     {
-        private readonly DataContext _dataContext;
         private readonly TelegramBotClient _client;
-        public InputTrcCommand(ITelegramFatCamelBotService telegramFatCamelBotService, DataContext dataContext)
+        public InputTrcCommand(ITelegramFatCamelBotService telegramFatCamelBotService)
         {
             _client = telegramFatCamelBotService.GetTelegramBotAsync().Result;
-            _dataContext = dataContext;
         }
 
         public override string Name => CommandNames.InputTrcCommand;
 
-        public override async Task ExecuteAsync(Update update)
+        public override async Task ExecuteAsync(Update update, dynamic param = null)
         {
-            // TODO реализовать логику
-
             await _client.SendTextMessageAsync(
-                update.CallbackQuery.Message.Chat.Id, 
-                "TRC принят.",
-                ParseMode.Markdown);
+                update.CallbackQuery.Message.Chat.Id,
+                CommandMessages.InputTrc);
         }
     }
 }

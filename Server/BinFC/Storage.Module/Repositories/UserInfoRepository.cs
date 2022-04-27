@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FatCamel.Host.Core;
+using Microsoft.EntityFrameworkCore;
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,20 +18,29 @@ namespace Storage.Module.Repositories
 
         public async Task DataContextSaveChanges()
         {
-            await _dataContext.SaveChangesAsync();
+            try
+            {
+                await _dataContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                StartupLogger.LogError(ex,
+                    nameof(UserInfoRepository) + string.Join("; ", _dataContext.ChangeTracker.Entries().Select(x => x.Entity.GetType().Name)));
+                _dataContext.ChangeTracker.Clear();
+            }
         }
 
         public async Task<UserInfo> GetUserInfoByChatId(long chatId, bool isNeedTracking = true)
         {
             if (isNeedTracking)
             {
-                return await _dataContext.UserInfo
+                return await _dataContext.UsersInfo
                     .Where(x => x.ChatId == chatId)
                     .FirstOrDefaultAsync();
             }
             else
             {
-                return await _dataContext.UserInfo
+                return await _dataContext.UsersInfo
                     .AsNoTracking()
                     .Where(x => x.ChatId == chatId)
                     .FirstOrDefaultAsync();
@@ -40,13 +51,13 @@ namespace Storage.Module.Repositories
         {
             if (isNeedTracking)
             {
-                return await _dataContext.UserInfo
+                return await _dataContext.UsersInfo
                     .Where(x => x.UserId == userId)
                     .FirstOrDefaultAsync();
             }
             else
             {
-                return await _dataContext.UserInfo
+                return await _dataContext.UsersInfo
                     .AsNoTracking()
                     .Where(x => x.UserId == userId)
                     .FirstOrDefaultAsync();

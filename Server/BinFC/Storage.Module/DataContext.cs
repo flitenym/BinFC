@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Storage.Module.Entities;
-using System;
 
 namespace Storage.Module
 {
@@ -11,6 +10,6 @@ namespace Storage.Module
 
         }
 
-        public DbSet<UserInfo> UserInfo { get; set; }
+        public DbSet<UserInfo> UsersInfo { get; set; }
     }
 }

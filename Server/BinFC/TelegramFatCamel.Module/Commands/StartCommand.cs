@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -20,7 +19,7 @@ namespace TelegramFatCamel.Module.Commands
 
         public override string Name => CommandNames.StartCommand;
 
-        public override async Task ExecuteAsync(Update update)
+        public override async Task ExecuteAsync(Update update, dynamic param = null)
         {
             ReplyKeyboardMarkup replyKeyboardMarkup = new(
                 new[]
@@ -33,9 +32,7 @@ namespace TelegramFatCamel.Module.Commands
 
             await _client.SendTextMessageAsync(
                 update.Message.Chat.Id,
-                $"Добро пожаловать! Я буду помогать в регистрации Fat Camel!{Environment.NewLine}" +
-                $"Для получения списка комманд напишите \"{CommandNames.GetOperationsCommand}\" или нажмите на кнопку.",
-                ParseMode.Markdown, 
+                CommandMessages.StartCommand,
                 replyMarkup: replyKeyboardMarkup);
         }
     }

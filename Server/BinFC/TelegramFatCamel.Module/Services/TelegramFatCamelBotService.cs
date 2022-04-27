@@ -61,7 +61,7 @@ namespace TelegramFatCamel.Module.Services
             try
             {
                 _commandExecutorService ??= _serviceProvider.GetRequiredService<ICommandExecutorService>();
-                await _commandExecutorService.Execute(update);
+                await _commandExecutorService.ExecuteAsync(update);
             }
             catch (Exception exception)
             {

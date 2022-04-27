@@ -18,14 +18,11 @@ namespace TelegramFatCamel.Module.Commands
 
         public override string Name => CommandNames.InputBepCommand;
 
-        public override async Task ExecuteAsync(Update update)
+        public override async Task ExecuteAsync(Update update, dynamic param = null)
         {
-            // TODO реализовать логику
-
             await _client.SendTextMessageAsync(
-                update.CallbackQuery.Message.Chat.Id, 
-                "BEP принят.",
-                ParseMode.Markdown);
+                update.CallbackQuery.Message.Chat.Id,
+                CommandMessages.InputBep);
         }
     }
 }

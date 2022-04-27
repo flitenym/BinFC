@@ -32,13 +32,20 @@ namespace TelegramFatCamel.Module
             services.AddSingleton<ITelegramFatCamelBotService, TelegramFatCamelBotService>();
 
             // Commands
-            services.AddSingleton<BaseCommand, StartCommand>();
+            services.AddSingleton<BaseCommand, AcceptEmailCommand>();
+            services.AddSingleton<BaseCommand, AcceptNameCommand>();
+            services.AddSingleton<BaseCommand, AcceptPurseCommand>();
+            services.AddSingleton<BaseCommand, ChangePurseCommand>();
+            services.AddSingleton<BaseCommand, ErrorInputIdCommand>();
             services.AddSingleton<BaseCommand, GetOperationsCommand>();
-            services.AddSingleton<BaseCommand, InputIdCommand>();
-            services.AddSingleton<BaseCommand, SelectPurseCommand>();
-            services.AddSingleton<BaseCommand, InputTrcCommand>();
             services.AddSingleton<BaseCommand, InputBepCommand>();
-            services.AddSingleton<BaseCommand, FinishInputsCommand>();
+            services.AddSingleton<BaseCommand, InputEmailCommand>();
+            services.AddSingleton<BaseCommand, InputIdCommand>();
+            services.AddSingleton<BaseCommand, InputNameCommand>();
+            services.AddSingleton<BaseCommand, InputTrcCommand>();
+            services.AddSingleton<BaseCommand, NotExistIdCommand>();
+            services.AddSingleton<BaseCommand, SelectPurseCommand>();
+            services.AddSingleton<BaseCommand, StartCommand>();
 
             return Task.CompletedTask;
         }

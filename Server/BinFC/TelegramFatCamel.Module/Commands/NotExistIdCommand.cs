@@ -18,12 +18,11 @@ namespace TelegramFatCamel.Module.Commands
 
         public override string Name => CommandNames.NotExistIdCommand;
 
-        public override async Task ExecuteAsync(Update update)
+        public override async Task ExecuteAsync(Update update, dynamic param = null)
         {
             await _client.SendTextMessageAsync(
                 update.Message.Chat.Id,
-                "Данный Id не зарегистрирован в базе. Попробуйте снова.",
-                ParseMode.Markdown);
+                CommandMessages.IdNotRegister);
         }
     }
 }
