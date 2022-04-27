@@ -5,7 +5,9 @@ using FatCamel.Host.Extensions;
 using FatCamel.Host.StaticClasses;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Web;
 
 namespace FatCamel.Host
 {
@@ -36,6 +38,12 @@ namespace FatCamel.Host
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                })
+                .UseNLog();
     }
 }

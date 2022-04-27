@@ -1,5 +1,6 @@
 ﻿using FatCamel.Host.Core;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,9 +14,11 @@ namespace Storage.Module.Controllers
     public class UserInfoController : ControllerBase
     {
         private readonly DataContext _dataContext;
-        public UserInfoController(DataContext dataContext)
+        private readonly ILogger<UserInfoController> _logger;
+        public UserInfoController(DataContext dataContext, ILogger<UserInfoController> logger)
         {
             _dataContext = dataContext;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -100,8 +103,7 @@ namespace Storage.Module.Controllers
             }
             catch (Exception ex)
             {
-                StartupLogger.LogError(ex,
-                    nameof(UserInfoController) + string.Join("; ", _dataContext.ChangeTracker.Entries().Select(x => x.Entity.GetType().Name)));
+                _logger.LogError(ex, string.Join("; ", _dataContext.ChangeTracker.Entries().Select(x => x.Entity.GetType().Name)));
                 _dataContext.ChangeTracker.Clear();
                 return BadRequest($"Не удалось выполнить сохранение: {ex.Message}");
             }

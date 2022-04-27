@@ -1,4 +1,5 @@
-﻿using FatCamel.Host.Enum;
+﻿using FatCamel.Host.Core;
+using FatCamel.Host.Enum;
 using FatCamel.Host.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

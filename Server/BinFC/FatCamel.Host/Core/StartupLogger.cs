@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using NLog.Web;
 using System;
 
 namespace FatCamel.Host.Core
@@ -13,11 +14,10 @@ namespace FatCamel.Host.Core
             {
                 builder.AddConsole();
                 builder.AddDebug();
-            }).CreateLogger("Project.Platform.Host");
+            }).CreateLogger(typeof(Startup).Assembly.GetName().Name);
         }
 
         public static void Disable() => _logger = null;
-
         public static void LogInformation(string message, params object[] args) => _logger?.LogInformation(message, args);
         public static void LogWarning(string message, params object[] args) => _logger?.LogWarning(message, args);
         public static void LogError(string message, params object[] args) => _logger?.LogError(message, args);
