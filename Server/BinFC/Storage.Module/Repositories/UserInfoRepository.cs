@@ -1,5 +1,4 @@
-﻿using FatCamel.Host.Core;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;

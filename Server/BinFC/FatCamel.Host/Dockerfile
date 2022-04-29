@@ -18,11 +18,23 @@ RUN dotnet build "FatCamel.Host.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "FatCamel.Host.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["FatCamel.Host/FatCamel.Host.csproj", "TelegramFatCamel.Module/"]
+COPY ["Storage.Module/Storage.Module.csproj", "Storage.Module/"]
+RUN dotnet restore "Storage.Module/Storage.Module.csproj"
+COPY . .
+WORKDIR "/src/Storage.Module"
+COPY ["Storage.Module.json", "/app/build/Settings/"]
+WORKDIR "/src/Storage.Module"
+RUN dotnet build "Storage.Module.csproj" -c Release -o /app/build/Modules/Storage.Module
+FROM build AS publish
+RUN dotnet publish "Storage.Module.csproj" -c Release -o /app/publish/Modules/Storage.Module
+
+WORKDIR /src
+COPY ["TelegramFatCamel.Module/TelegramFatCamel.Module.csproj", "TelegramFatCamel.Module/"]
 RUN dotnet restore "TelegramFatCamel.Module/TelegramFatCamel.Module.csproj"
 COPY . .
+WORKDIR "/src/TelegramFatCamel.Module"
+COPY ["TelegramFatCamel.Module.json", "/app/build/Settings/"]
 WORKDIR "/src/TelegramFatCamel.Module"
 RUN dotnet build "TelegramFatCamel.Module.csproj" -c Release -o /app/build/Modules/TelegramFatCamel.Module
 FROM build AS publish
@@ -31,4 +43,4 @@ RUN dotnet publish "TelegramFatCamel.Module.csproj" -c Release -o /app/publish/M
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "FatCamel.Host.dll"]
+ENTRYPOINT ["dotnet", "FatCamel.Host.dll", "--server.urls", "http://+:80;https://+:443"]

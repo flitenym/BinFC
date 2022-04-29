@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 using TelegramFatCamel.Module.Commands.Base;
 using TelegramFatCamel.Module.Commands.CommandSettings;
 using TelegramFatCamel.Module.Localization;
@@ -23,19 +24,21 @@ namespace TelegramFatCamel.Module.Commands
 
         public override async Task ExecuteAsync(Update update, dynamic param = null)
         {
-            var existedUser = await _userInfoRepository.GetUserInfoByChatId(update.Message.Chat.Id);
+            var existedUser = await _userInfoRepository.GetUserInfoByChatId(update.Message.Chat.Id, false);
 
             if (existedUser == null)
             {
                 await _client.SendTextMessageAsync(
                     update.Message.Chat.Id,
-                    string.Format(TelegramLoc.IdUnspecified, CommandNames.InputIdCommand));
+                    string.Format(TelegramLoc.IdUnspecified, CommandNames.InputIdCommand),
+                    replyMarkup: new ReplyKeyboardRemove());
                 return;
             }
 
             await _client.SendTextMessageAsync(
                 update.Message.Chat.Id,
-                TelegramLoc.InputName);
+                TelegramLoc.InputName,
+                replyMarkup: new ReplyKeyboardRemove());
         }
     }
 }

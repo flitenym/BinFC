@@ -40,6 +40,7 @@ namespace TelegramFatCamel.Module
             services.AddSingleton<BaseCommand, ChangePurseCommand>();
             services.AddSingleton<BaseCommand, ErrorInputIdCommand>();
             services.AddSingleton<BaseCommand, GetOperationsCommand>();
+            services.AddSingleton<BaseCommand, GetPrivateCommand>();            
             services.AddSingleton<BaseCommand, InputBepCommand>();
             services.AddSingleton<BaseCommand, InputEmailCommand>();
             services.AddSingleton<BaseCommand, InputIdCommand>();

@@ -132,6 +132,9 @@
   <data name="AcceptNameWithExisted" xml:space="preserve">
     <value>Your specified SN is accepted. SN was specified: {0}</value>
   </data>
+  <data name="BepButton" xml:space="preserve">
+    <value>BEP-20</value>
+  </data>
   <data name="ChoosePurse" xml:space="preserve">
     <value>Choose a wallet.</value>
   </data>
@@ -170,10 +173,29 @@
 Id: {0}
 Change wallet: {1}
 SN indication: {2}
-E-mail indication: {3}</value>
+E-mail indication: {3}
+Private area: {4}</value>
+  </data>
+  <data name="PrivateBep" xml:space="preserve">
+    <value>BEP-20: {0}</value>
+  </data>
+  <data name="PrivateEmail" xml:space="preserve">
+    <value>E-mail: {0}</value>
+  </data>
+  <data name="PrivateId" xml:space="preserve">
+    <value>Id: {0}</value>
+  </data>
+  <data name="PrivateName" xml:space="preserve">
+    <value>SN: {0}</value>
+  </data>
+  <data name="PrivateTrc" xml:space="preserve">
+    <value>TRC-20: {0}</value>
   </data>
   <data name="StartCommand" xml:space="preserve">
     <value>Welcome! I will help register Fat Camel!
 To get a list of commands type "{0}" or click the button.</value>
+  </data>
+  <data name="TrcButton" xml:space="preserve">
+    <value>TRC-20</value>
   </data>
 </root>

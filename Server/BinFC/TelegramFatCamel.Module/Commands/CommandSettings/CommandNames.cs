@@ -4,6 +4,7 @@
     {
         public const string StartCommand = "/start";
         public const string GetOperationsCommand = "Операции";
+        public const string GetPrivateCommand = "/private";
         public const string InputIdCommand = "/id";
         public const string InputNameCommand = "/name";
         public const string AcceptNameCommand = "/accept_name";

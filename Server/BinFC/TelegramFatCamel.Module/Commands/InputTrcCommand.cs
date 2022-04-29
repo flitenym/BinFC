@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 using TelegramFatCamel.Module.Commands.Base;
 using TelegramFatCamel.Module.Commands.CommandSettings;
 using TelegramFatCamel.Module.Localization;
@@ -22,7 +23,8 @@ namespace TelegramFatCamel.Module.Commands
         {
             await _client.SendTextMessageAsync(
                 update.CallbackQuery.Message.Chat.Id,
-                TelegramLoc.InputTrc);
+                TelegramLoc.InputTrc,
+                replyMarkup: new ReplyKeyboardRemove());
         }
     }
 }

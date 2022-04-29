@@ -132,6 +132,9 @@
   <data name="AcceptNameWithExisted" xml:space="preserve">
     <value>Ваше указанное ФИ принято. ФИ было указано: {0}</value>
   </data>
+  <data name="BepButton" xml:space="preserve">
+    <value>BEP-20</value>
+  </data>
   <data name="ChoosePurse" xml:space="preserve">
     <value>Выберите кошелек.</value>
   </data>
@@ -170,10 +173,29 @@
 Указание Id: {0}
 Изменение кошелька: {1}
 Указание ФИ: {2}
-Указание e-mail: {3}</value>
+Указание e-mail: {3}
+Личный кабинет: {4}</value>
+  </data>
+  <data name="PrivateBep" xml:space="preserve">
+    <value>BEP-20: {0}</value>
+  </data>
+  <data name="PrivateEmail" xml:space="preserve">
+    <value>E-mail: {0}</value>
+  </data>
+  <data name="PrivateId" xml:space="preserve">
+    <value>ИД: {0}</value>
+  </data>
+  <data name="PrivateName" xml:space="preserve">
+    <value>ФИ: {0}</value>
+  </data>
+  <data name="PrivateTrc" xml:space="preserve">
+    <value>TRC-20: {0}</value>
   </data>
   <data name="StartCommand" xml:space="preserve">
     <value>Добро пожаловать! Я буду помогать в регистрации Fat Camel!
 Для получения списка комманд напишите "{0}" или нажмите на кнопку.</value>
+  </data>
+  <data name="TrcButton" xml:space="preserve">
+    <value>TRC-20</value>
   </data>
 </root>

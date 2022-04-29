@@ -43,8 +43,8 @@ namespace TelegramFatCamel.Module.Commands
             {
                 new []
                 {
-                    new InlineKeyboardButton("TRC-20"){CallbackData = CommandNames.InputTrcCommand},
-                    new InlineKeyboardButton("BEP-20"){CallbackData = CommandNames.InputBepCommand},
+                    new InlineKeyboardButton(TelegramLoc.TrcButton){CallbackData = CommandNames.InputTrcCommand},
+                    new InlineKeyboardButton(TelegramLoc.BepButton){CallbackData = CommandNames.InputBepCommand},
                 }
             });
 

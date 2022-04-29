@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решен
 		publish.ps1 = publish.ps1
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinanceApi.Module", "BinanceApi.Module\BinanceApi.Module.csproj", "{CF38DB93-60F5-4014-9BB0-D0E2C0EAE113}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{66DC4BD3-FBE9-436C-9DAD-AD57A1ADC68C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66DC4BD3-FBE9-436C-9DAD-AD57A1ADC68C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66DC4BD3-FBE9-436C-9DAD-AD57A1ADC68C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF38DB93-60F5-4014-9BB0-D0E2C0EAE113}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF38DB93-60F5-4014-9BB0-D0E2C0EAE113}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF38DB93-60F5-4014-9BB0-D0E2C0EAE113}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF38DB93-60F5-4014-9BB0-D0E2C0EAE113}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

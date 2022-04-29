@@ -1,5 +1,4 @@
-﻿using FatCamel.Host.Core;
-using FatCamel.Host.Enum;
+﻿using FatCamel.Host.Enum;
 using FatCamel.Host.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -57,6 +56,7 @@ namespace Storage.Module
 
             services.AddScoped<IDbSettingsService, DbSettingsService>();
             services.AddScoped<IUserInfoRepository, UserInfoRepository>();
+            services.AddScoped<ISettingsRepository, SettingsRepository>();
 
             return Task.CompletedTask;
         }

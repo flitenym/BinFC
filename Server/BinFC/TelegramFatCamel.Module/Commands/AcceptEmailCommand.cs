@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using TelegramFatCamel.Module.Commands.Base;
 using TelegramFatCamel.Module.Commands.CommandSettings;
 using TelegramFatCamel.Module.Localization;
@@ -31,7 +31,8 @@ namespace TelegramFatCamel.Module.Commands
             {
                 await _client.SendTextMessageAsync(
                     update.Message.Chat.Id,
-                    string.Format(TelegramLoc.InputEmailEmpty, CommandNames.InputEmailCommand));
+                    string.Format(TelegramLoc.InputEmailEmpty, CommandNames.InputEmailCommand),
+                    replyMarkup: new ReplyKeyboardRemove());
                 return;
             }
 
@@ -46,13 +47,15 @@ namespace TelegramFatCamel.Module.Commands
             {
                 await _client.SendTextMessageAsync(
                     update.Message.Chat.Id,
-                    TelegramLoc.AcceptEmail);
+                    TelegramLoc.AcceptEmail,
+                    replyMarkup: new ReplyKeyboardRemove());
             }
             else
             {
                 await _client.SendTextMessageAsync(
                     update.Message.Chat.Id,
-                    string.Format(TelegramLoc.AcceptEmailWithExisted, existedUserEmail));
+                    string.Format(TelegramLoc.AcceptEmailWithExisted, existedUserEmail),
+                    replyMarkup: new ReplyKeyboardRemove());
             }
         }
     }

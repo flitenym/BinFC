@@ -1,4 +1,5 @@
 ﻿using Storage.Module.Repositories.Interfaces;
+using System;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -10,17 +11,17 @@ using TelegramFatCamel.Module.Services.Interfaces;
 
 namespace TelegramFatCamel.Module.Commands
 {
-    public class InputEmailCommand : BaseCommand
+    public class GetPrivateCommand : BaseCommand
     {
         private readonly IUserInfoRepository _userInfoRepository;
         private readonly TelegramBotClient _client;
-        public InputEmailCommand(ITelegramFatCamelBotService telegramFatCamelBotService, IUserInfoRepository userInfoRepository)
+        public GetPrivateCommand(ITelegramFatCamelBotService telegramFatCamelBotService, IUserInfoRepository userInfoRepository)
         {
             _client = telegramFatCamelBotService.GetTelegramBotAsync().Result;
             _userInfoRepository = userInfoRepository;
         }
 
-        public override string Name => CommandNames.InputEmailCommand;
+        public override string Name => CommandNames.GetPrivateCommand;
 
         public override async Task ExecuteAsync(Update update, dynamic param = null)
         {
@@ -35,9 +36,16 @@ namespace TelegramFatCamel.Module.Commands
                 return;
             }
 
+            string id = !existedUser.UserId.HasValue ? string.Empty : string.Format(TelegramLoc.PrivateId, existedUser.UserId);
+            string name = string.IsNullOrEmpty(existedUser.UserName) ? string.Empty : string.Format(TelegramLoc.PrivateName, existedUser.UserName);
+            string email = string.IsNullOrEmpty(existedUser.UserEmail) ? string.Empty : string.Format(TelegramLoc.PrivateEmail, existedUser.UserEmail);
+            string purse = string.IsNullOrEmpty(existedUser.BepAddress) ?
+                                string.IsNullOrEmpty(existedUser.TrcAddress) ? string.Empty : string.Format(TelegramLoc.PrivateTrc, existedUser.TrcAddress) :
+                                string.Format(TelegramLoc.PrivateBep, existedUser.BepAddress);
+
             await _client.SendTextMessageAsync(
                 update.Message.Chat.Id,
-                TelegramLoc.InputEmail,
+                string.Join(Environment.NewLine, id, name, email, purse),
                 replyMarkup: new ReplyKeyboardRemove());
         }
     }

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using TelegramFatCamel.Module.Commands.Base;
 using TelegramFatCamel.Module.Commands.CommandSettings;
@@ -43,8 +42,8 @@ namespace TelegramFatCamel.Module.Commands
             {
                 new []
                 {
-                    new InlineKeyboardButton("TRC-20"){CallbackData = CommandNames.InputTrcCommand},
-                    new InlineKeyboardButton("BEP-20"){CallbackData = CommandNames.InputBepCommand},
+                    new InlineKeyboardButton(TelegramLoc.TrcButton){CallbackData = CommandNames.InputTrcCommand},
+                    new InlineKeyboardButton(TelegramLoc.BepButton){CallbackData = CommandNames.InputBepCommand},
                 }
             });
 

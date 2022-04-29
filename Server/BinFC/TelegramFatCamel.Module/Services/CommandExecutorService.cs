@@ -51,6 +51,9 @@ namespace TelegramFatCamel.Module.Services
                     case CommandNames.InputEmailCommand:
                         await ExecuteCommandAsync(CommandNames.InputEmailCommand, update);
                         return;
+                    case CommandNames.GetPrivateCommand:
+                        await ExecuteCommandAsync(CommandNames.GetPrivateCommand, update);
+                        return;
                 }
             }
 
