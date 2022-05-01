@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,20 +19,65 @@ namespace Storage.Module.Repositories
             _logger = logger;
         }
 
-        public async Task DataContextSaveChanges()
+        #region Controller methods
+
+        public IEnumerable<UserInfo> Get()
+        {
+            return _dataContext.UsersInfo;
+        }
+
+        public async Task<UserInfo> GetByIdAsync(long Id)
+        {
+            return await _dataContext.UsersInfo.FindAsync(Id);
+        }
+
+        public async Task<string> CreateAsync(UserInfo obj)
+        {
+            _dataContext.UsersInfo.Add(obj);
+
+            return await SaveChangesAsync();
+        }
+
+        public async Task<string> UpdateAsync(UserInfo obj, UserInfo newObj)
+        {
+            obj.ChatId = newObj.ChatId;
+            obj.UserId = newObj.UserId;
+            obj.UserName = newObj.UserName;
+            obj.UserEmail = newObj.UserEmail;
+            obj.TrcAddress = newObj.TrcAddress;
+            obj.BepAddress = newObj.BepAddress;
+            obj.UniqueString = newObj.UniqueString;
+
+            _dataContext.UsersInfo.Update(obj);
+
+            return await SaveChangesAsync();
+        }
+
+        public async Task<string> DeleteAsync(UserInfo obj)
+        {
+            _dataContext.UsersInfo.Remove(obj);
+
+            return await SaveChangesAsync();
+        }
+
+        public async Task<string> SaveChangesAsync()
         {
             try
             {
                 await _dataContext.SaveChangesAsync();
+                return null;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, string.Join("; ", _dataContext.ChangeTracker.Entries().Select(x => x.Entity.GetType().Name)));
                 _dataContext.ChangeTracker.Clear();
+                return ex.Message;
             }
         }
 
-        public async Task<UserInfo> GetUserInfoByChatId(long chatId, bool isNeedTracking = true)
+        #endregion
+
+        public async Task<UserInfo> GetUserInfoByChatIdAsync(long chatId, bool isNeedTracking = true)
         {
             if (isNeedTracking)
             {
@@ -48,7 +94,7 @@ namespace Storage.Module.Repositories
             }
         }
 
-        public async Task<UserInfo> GetUserInfoByUserId(long userId, bool isNeedTracking = true)
+        public async Task<UserInfo> GetUserInfoByUserIdAsync(long userId, bool isNeedTracking = true)
         {
             if (isNeedTracking)
             {

@@ -24,7 +24,7 @@ namespace TelegramFatCamel.Module.Commands
 
         public override async Task ExecuteAsync(Update update, dynamic param = null)
         {
-            var existedUser = await _userInfoRepository.GetUserInfoByChatId(update.Message.Chat.Id, false);
+            var existedUser = await _userInfoRepository.GetUserInfoByChatIdAsync(update.Message.Chat.Id, false);
 
             if (existedUser == null)
             {

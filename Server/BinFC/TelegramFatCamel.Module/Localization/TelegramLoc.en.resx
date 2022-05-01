@@ -138,6 +138,9 @@
   <data name="ChoosePurse" xml:space="preserve">
     <value>Choose a wallet.</value>
   </data>
+  <data name="ErrorTextToSendAdmin" xml:space="preserve">
+    <value>An error has occurred, contact the Administrator.</value>
+  </data>
   <data name="IdNotRegister" xml:space="preserve">
     <value>This Id is not registered in the database. Try again with the command: {0}</value>
   </data>

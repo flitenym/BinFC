@@ -36,12 +36,20 @@ namespace TelegramFatCamel.Module.Commands
                 return;
             }
 
-            var userInfo = await _userInfoRepository.GetUserInfoByChatId(update.Message.Chat.Id);
+            var userInfo = await _userInfoRepository.GetUserInfoByChatIdAsync(update.Message.Chat.Id);
 
             existedUserEmail = userInfo.UserEmail;
             userInfo.UserEmail = userEmail;
 
-            await _userInfoRepository.DataContextSaveChanges();
+            if (await _userInfoRepository.SaveChangesAsync() != null)
+            {
+                await _client.SendTextMessageAsync(
+                    update.Message.Chat.Id,
+                    TelegramLoc.ErrorTextToSendAdmin,
+                    replyMarkup: new ReplyKeyboardRemove());
+
+                return;
+            }
 
             if (string.IsNullOrEmpty(existedUserEmail))
             {

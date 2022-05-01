@@ -138,6 +138,9 @@
   <data name="ChoosePurse" xml:space="preserve">
     <value>Выберите кошелек.</value>
   </data>
+  <data name="ErrorTextToSendAdmin" xml:space="preserve">
+    <value>Произошла ошибка, обратитесь к Администратору.</value>
+  </data>
   <data name="IdNotRegister" xml:space="preserve">
     <value>Данный Id не зарегистрирован в базе. Попробуйте снова указав команду: {0}</value>
   </data>

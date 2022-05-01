@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FatCamel.Host\FatCamel.Host.csproj" />
+    <ProjectReference Include="..\Storage.Module\Storage.Module.csproj" />
+  </ItemGroup>
+
+</Project>

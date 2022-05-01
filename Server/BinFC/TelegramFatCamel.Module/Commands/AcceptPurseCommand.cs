@@ -24,7 +24,7 @@ namespace TelegramFatCamel.Module.Commands
 
         public override async Task ExecuteAsync(Update update, dynamic param = null)
         {
-            var userInfo = await _userInfoRepository.GetUserInfoByChatId(update.Message.Chat.Id);
+            var userInfo = await _userInfoRepository.GetUserInfoByChatIdAsync(update.Message.Chat.Id);
 
             if ((string)param == CommandNames.InputBepCommand)
             {
@@ -37,7 +37,15 @@ namespace TelegramFatCamel.Module.Commands
                 userInfo.TrcAddress = update.Message.Text;
             }
 
-            await _userInfoRepository.DataContextSaveChanges();
+            if (await _userInfoRepository.SaveChangesAsync() != null)
+            {
+                await _client.SendTextMessageAsync(
+                    update.Message.Chat.Id,
+                    TelegramLoc.ErrorTextToSendAdmin,
+                    replyMarkup: new ReplyKeyboardRemove());
+
+                return;
+            }
 
             await _client.SendTextMessageAsync(
                 update.Message.Chat.Id,

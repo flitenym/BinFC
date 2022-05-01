@@ -89,7 +89,7 @@ namespace TelegramFatCamel.Module.Services
                         if (!string.IsNullOrEmpty(inputedId) && long.TryParse(inputedId, out var inputedIdLong))
                         {
                             //введен ИД корректно, проверим его в БД
-                            var existedUserId = await _userInfoRepository.GetUserInfoByUserId(inputedIdLong, false);
+                            var existedUserId = await _userInfoRepository.GetUserInfoByUserIdAsync(inputedIdLong, false);
 
                             if (existedUserId == null)
                             {

@@ -15,7 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решен
 		publish.ps1 = publish.ps1
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinanceApi.Module", "BinanceApi.Module\BinanceApi.Module.csproj", "{CF38DB93-60F5-4014-9BB0-D0E2C0EAE113}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinanceApi.Module", "BinanceApi.Module\BinanceApi.Module.csproj", "{CF38DB93-60F5-4014-9BB0-D0E2C0EAE113}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerService.Module", "WorkerService.Module\WorkerService.Module.csproj", "{4F65E8D0-1C74-4981-A8BF-D38D2DAF7817}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{CF38DB93-60F5-4014-9BB0-D0E2C0EAE113}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF38DB93-60F5-4014-9BB0-D0E2C0EAE113}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF38DB93-60F5-4014-9BB0-D0E2C0EAE113}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F65E8D0-1C74-4981-A8BF-D38D2DAF7817}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F65E8D0-1C74-4981-A8BF-D38D2DAF7817}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F65E8D0-1C74-4981-A8BF-D38D2DAF7817}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F65E8D0-1C74-4981-A8BF-D38D2DAF7817}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

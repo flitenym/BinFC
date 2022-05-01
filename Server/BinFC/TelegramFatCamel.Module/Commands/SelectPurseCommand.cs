@@ -24,7 +24,7 @@ namespace TelegramFatCamel.Module.Commands
 
         public override async Task ExecuteAsync(Update update, dynamic param = null)
         {
-            var userInfo = await _userInfoRepository.GetUserInfoByUserId(long.Parse(update.Message.Text.Trim()));
+            var userInfo = await _userInfoRepository.GetUserInfoByUserIdAsync(long.Parse(update.Message.Text.Trim()));
 
             if (!userInfo.ChatId.HasValue)
             {
@@ -36,7 +36,15 @@ namespace TelegramFatCamel.Module.Commands
                 userInfo.UserName = string.Join(' ', update.Message.Chat.FirstName, update.Message.Chat.LastName);
             }
 
-            await _userInfoRepository.DataContextSaveChanges();
+            if (await _userInfoRepository.SaveChangesAsync() != null)
+            {
+                await _client.SendTextMessageAsync(
+                    update.Message.Chat.Id,
+                    TelegramLoc.ErrorTextToSendAdmin,
+                    replyMarkup: new ReplyKeyboardRemove());
+
+                return;
+            }
 
             var inlineKeyboard = new InlineKeyboardMarkup(new[]
             {

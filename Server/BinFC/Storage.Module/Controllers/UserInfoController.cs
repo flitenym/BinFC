@@ -1,36 +1,35 @@
-﻿using FatCamel.Host.Core;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Storage.Module.Controllers.Base;
 using Storage.Module.Entities;
-using System;
+using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Storage.Module.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserInfoController : ControllerBase
+    public class UserInfoController : BaseController
     {
-        private readonly DataContext _dataContext;
+        private readonly IUserInfoRepository _userInfoRepository;
         private readonly ILogger<UserInfoController> _logger;
-        public UserInfoController(DataContext dataContext, ILogger<UserInfoController> logger)
+        public UserInfoController(IUserInfoRepository userInfoRepository, ILogger<UserInfoController> logger)
         {
-            _dataContext = dataContext;
+            _userInfoRepository = userInfoRepository;
             _logger = logger;
         }
 
         [HttpGet]
         public IEnumerable<UserInfo> Get()
         {
-            return _dataContext.UsersInfo;
+            return _userInfoRepository.Get();
         }
 
         [HttpGet("{id}")]
         public async Task<UserInfo> Get(long Id)
         {
-            return await GetObj(Id);
+            return await _userInfoRepository.GetByIdAsync(Id);
         }
 
         [HttpPost]
@@ -41,72 +40,38 @@ namespace Storage.Module.Controllers
                 return BadRequest("Отправлена пустая сущность.");
             }
 
-            _dataContext.UsersInfo.Add(obj);
-
-            return await SaveChangesAsync();
+            return StringToResult(await _userInfoRepository.CreateAsync(obj));
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(long Id, [FromBody] UserInfo obj)
+        public async Task<IActionResult> Update(long Id, [FromBody] UserInfo newObj)
         {
-            if (obj == null || obj.Id != Id)
+            if (newObj == null || newObj.Id != Id)
             {
                 return BadRequest($"Отправлены разные значения у сущности и у переданного Id.");
             }
 
-            var findedObj = await GetObj(obj.Id);
+            var obj = await _userInfoRepository.GetByIdAsync(newObj.Id);
 
-            if (findedObj == null)
+            if (obj == null)
             {
-                return NotFound($"Не найден {nameof(UserInfo)} с Id = {obj.Id}.");
+                return NotFound($"Не найден {nameof(UserInfo)} с Id = {newObj.Id}.");
             }
 
-            findedObj.ChatId = obj.ChatId;
-            findedObj.UserId = obj.UserId;
-            findedObj.UserName = obj.UserName;
-            findedObj.UserEmail = obj.UserEmail;
-            findedObj.TrcAddress = obj.TrcAddress;
-            findedObj.BepAddress = obj.BepAddress;
-            findedObj.UniqueString = obj.UniqueString;
-
-            _dataContext.UsersInfo.Update(findedObj);
-
-            return await SaveChangesAsync();
+            return StringToResult(await _userInfoRepository.UpdateAsync(obj, newObj));
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(long Id)
         {
-            UserInfo obj = await GetObj(Id);
+            var obj = await _userInfoRepository.GetByIdAsync(Id);
 
             if (obj == null)
             {
                 return NotFound("Не найдена запись для удаления.");
             }
 
-            _dataContext.UsersInfo.Remove(obj);
-
-            return await SaveChangesAsync();
-        }
-
-        private async Task<UserInfo> GetObj(long Id)
-        {
-            return await _dataContext.UsersInfo.FindAsync(Id);
-        }
-
-        private async Task<IActionResult> SaveChangesAsync()
-        {
-            try
-            {
-                await _dataContext.SaveChangesAsync();
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, string.Join("; ", _dataContext.ChangeTracker.Entries().Select(x => x.Entity.GetType().Name)));
-                _dataContext.ChangeTracker.Clear();
-                return BadRequest($"Не удалось выполнить сохранение: {ex.Message}");
-            }
+            return StringToResult(await _userInfoRepository.DeleteAsync(obj));
         }
     }
 }
