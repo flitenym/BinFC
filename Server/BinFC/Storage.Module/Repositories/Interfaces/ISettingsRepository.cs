@@ -5,8 +5,8 @@ namespace Storage.Module.Repositories.Interfaces
 {
     public interface ISettingsRepository
     {
-        public Task DataContextSaveChanges();
-        public Task<(bool, T)> GetSettingsByKey<T>(string key, bool isNeedTracking = true);
-        public Task<bool> SetSettingsByKey(string key, object value);
+        public Task<string> SaveChangesAsync();
+        public Task<(bool, T)> GetSettingsByKeyAsync<T>(string key, bool isNeedTracking = true);
+        public Task<bool> SetSettingsByKeyAsync(string key, object value);
     }
 }

@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading.Tasks;
+using WorkerService.Module.Services;
+using WorkerService.Module.Services.Base;
+using WorkerService.Module.Services.Intrefaces;
 
 namespace WorkerService.Module
 {
@@ -17,7 +20,9 @@ namespace WorkerService.Module
 
         public Task ConfigureServicesAsync(IServiceCollection services)
         {
+            services.AddControllers().AddApplicationPart(typeof(Startup).Assembly);
 
+            services.AddScoped<CronJobBaseService<IBinanceSell>, BinanceSell>();
             return Task.CompletedTask;
         }
     }
