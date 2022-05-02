@@ -19,38 +19,46 @@ namespace WorkerService.Module.Services.Base
             _logger = logger;
         }
 
-        public virtual async Task StartAsync()
+        public virtual async Task<string> StartAsync()
         {
-            await ScheduleJob();
+            return await ScheduleJob();
         }
 
-        public virtual async Task StopAsync()
+        public virtual Task<string> StopAsync()
         {
             _timer?.Stop();
             _timer?.Dispose();
-            await Task.CompletedTask;
+
+            return Task.FromResult<string>(null);
         }
 
-        public virtual async Task RestartAsync()
+        public virtual async Task<string> RestartAsync()
         {
-            await StopAsync();
-            await StartAsync();
+            string stopError = await StopAsync();
+            if (!string.IsNullOrEmpty(stopError))
+            {
+                return stopError;
+            }
+
+            return await StartAsync();
         }
 
-        public virtual async Task DoWork()
+        public virtual async Task<string> DoWork()
         {
             await Task.Delay(5000);
+            return null;
         }
 
-        private async Task ScheduleJob()
+        private async Task<string> ScheduleJob()
         {
             (bool isSuccess, string cronExpression) =
                 await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false);
 
             if (!isSuccess)
             {
-                _logger.LogError("Не удалось запустить сервис продажи, т.к. не найдена cron запись в БД.");
-                return;
+                string error = "Не удалось запустить сервис продажи, т.к. не найдена cron запись в БД.";
+                _logger.LogError(error);
+                return error;
             }
 
             CronExpression expression = CronExpression.Parse(cronExpression);
@@ -75,7 +83,8 @@ namespace WorkerService.Module.Services.Base
                 };
                 _timer.Start();
             }
-            await Task.CompletedTask;
+
+            return await Task.FromResult<string>(null);
         }
     }
 }

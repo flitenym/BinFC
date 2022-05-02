@@ -18,50 +18,52 @@ namespace WorkerService.Module.Services
             _logger = logger;
         }
 
-        public override async Task StartAsync()
+        public override Task<string> StartAsync()
         {
             _logger.LogTrace($"Запуск службы {nameof(BinanceSell)}");
-            await base.StartAsync();
+            return base.StartAsync();
         }
 
-        public override Task StopAsync()
+        public override Task<string> StopAsync()
         {
             _logger?.LogTrace($"Остановка службы {nameof(BinanceSell)}");
             return base.StopAsync();
         }
 
-        public override Task RestartAsync()
+        public override Task<string> RestartAsync()
         {
             _logger?.LogTrace($"Перезапуск службы {nameof(BinanceSell)}");
             return base.RestartAsync();
         }
 
-        public override async Task DoWork()
+        public override async Task<string> DoWork()
         {
             _logger.LogTrace($"Запуск продажи");
             try
             {
-                bool isSuccess = await Sell();
+                (bool isSuccess, string sellError) = await Sell();
                 if (isSuccess)
                 {
                     _logger?.LogTrace($"Продажа прошла успешно");
+                    return null;
                 }
                 else
                 {
                     _logger?.LogInformation($"Продажа прошла неудачно");
+                    return sellError;
                 }
             }
             catch (Exception ex)
             {
-                _logger?.LogInformation(ex, $"Продажа прошла с ошибками {ex}");
+                string error = $"Продажа прошла с ошибками {ex}";
+                _logger?.LogInformation(ex, error);
+                return error;
             }
-
-            return;
         }
 
-        private async Task<bool> Sell()
+        private async Task<(bool isSuccess, string error)> Sell()
         {
-            return true;
+            return (true, null);
         }
     }
 }

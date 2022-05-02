@@ -22,21 +22,39 @@ namespace WorkerService.Module
         [HttpPost("restart")]
         public async Task<IActionResult> Restart()
         {
-            await _binanceSell.RestartAsync();
+            string restartError = await _binanceSell.RestartAsync();
+
+            if (!string.IsNullOrEmpty(restartError))
+            {
+                return BadRequest(restartError);
+            }
+
             return Ok();
         }
 
         [HttpPost("start")]
         public async Task<IActionResult> Start()
         {
-            await _binanceSell.StartAsync();
+            string startError = await _binanceSell.StartAsync();
+
+            if (!string.IsNullOrEmpty(startError))
+            {
+                return BadRequest(startError);
+            }
+
             return Ok();
         }
 
         [HttpPost("stop")]
         public async Task<IActionResult> Stop()
         {
-            await _binanceSell.StopAsync();
+            string stopError = await _binanceSell.StopAsync();
+
+            if (!string.IsNullOrEmpty(stopError))
+            {
+                return BadRequest(stopError);
+            }
+
             return Ok();
         }
     }
