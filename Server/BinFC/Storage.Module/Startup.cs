@@ -24,11 +24,10 @@ namespace Storage.Module
             _configuration = configuration;
         }
 
-        public Task ConfigureAsync(IApplicationBuilder app, IHostApplicationLifetime hal, IWebHostEnvironment env, IServiceProvider serviceProvider)
+        public async Task ConfigureAsync(IApplicationBuilder app, IHostApplicationLifetime hal, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
-            var _dataContext = serviceProvider.GetRequiredService<DataContext>();
-            _dataContext.Database.EnsureCreated();
-            return Task.CompletedTask;
+            var initialCreate = serviceProvider.GetRequiredService<IInitialCreateService>();
+            await initialCreate.InitialCreateValuesAsync();
         }
 
         public Task ConfigureServicesAsync(IServiceCollection services)
@@ -55,6 +54,7 @@ namespace Storage.Module
             }
 
             services.AddScoped<IDbSettingsService, DbSettingsService>();
+            services.AddScoped<IInitialCreateService, InitialCreateService>();
             services.AddScoped<IUserInfoRepository, UserInfoRepository>();
             services.AddScoped<ISettingsRepository, SettingsRepository>();
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -9,12 +10,11 @@ namespace WorkerService.Module.Services
 {
     public class BinanceSell : CronJobBaseService<IBinanceSell>
     {
-        private readonly ISettingsRepository _settingsRepository;
         private readonly ILogger<BinanceSell> _logger;
 
-        public BinanceSell(ISettingsRepository settingsRepository, ILogger<BinanceSell> logger) : base(settingsRepository, logger)
+        public BinanceSell(ISettingsRepository settingsRepository, IConfiguration configuration, ILogger<BinanceSell> logger) : 
+            base(settingsRepository, configuration, logger)
         {
-            _settingsRepository = settingsRepository;
             _logger = logger;
         }
 

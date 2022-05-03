@@ -51,14 +51,10 @@ namespace Storage.Module.Repositories
                    .FirstOrDefaultAsync();
             }
 
-            if (settingsByKey != null && settingsByKey?.Value != null)
+            if (settingsByKey != null)
             {
-                if (settingsByKey.Value is string settingsValueString)
-                {
-                    T settingsValue = (T)Convert.ChangeType(settingsValueString, typeof(T));
-
-                    return (true, settingsValue);
-                }
+                T settingsValue = (T)Convert.ChangeType(settingsByKey.Value, typeof(T));
+                return (true, settingsValue);
             }
 
             return (false, default(T));
@@ -72,7 +68,7 @@ namespace Storage.Module.Repositories
                .Where(x => x.Key == key)
                .FirstOrDefaultAsync();
 
-            if (settingsByKey != null && settingsByKey?.Value != null)
+            if (settingsByKey != null)
             {
                 settingsByKey.Value = value.ToString();
                 _dataContext.Add(settingsByKey);

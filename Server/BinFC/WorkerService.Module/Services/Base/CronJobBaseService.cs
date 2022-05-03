@@ -1,4 +1,5 @@
 ﻿using Cronos;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Repositories.Interfaces;
 using Storage.Module.StaticClasses;
@@ -11,11 +12,13 @@ namespace WorkerService.Module.Services.Base
     {
         private readonly ILogger _logger;
         private readonly ISettingsRepository _settingsRepository;
+        private readonly IConfiguration _configuration;
         private System.Timers.Timer _timer;
 
-        public CronJobBaseService(ISettingsRepository settingsRepository, ILogger logger)
+        public CronJobBaseService(ISettingsRepository settingsRepository, IConfiguration configuration, ILogger logger)
         {
             _settingsRepository = settingsRepository;
+            _configuration = configuration;
             _logger = logger;
         }
 
@@ -60,6 +63,8 @@ namespace WorkerService.Module.Services.Base
                 _logger.LogError(error);
                 return error;
             }
+
+            cronExpression ??= _configuration.GetSection("Cron:Expression").Get<string>();
 
             CronExpression expression = CronExpression.Parse(cronExpression);
 
