@@ -54,6 +54,21 @@ namespace WorkerService.Module.Services.Base
 
         private async Task<string> ScheduleJob()
         {
+            string sheduleJobError = null;
+            string workError = null;
+
+            if (!string.IsNullOrEmpty(sheduleJobError))
+            {
+                _logger.LogError(sheduleJobError);
+                return workError;
+            }
+
+            if (!string.IsNullOrEmpty(workError))
+            {
+                _logger.LogError(workError);
+                return workError;
+            }
+
             (bool isSuccess, string cronExpression) =
                 await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false);
 
@@ -74,15 +89,27 @@ namespace WorkerService.Module.Services.Base
                 var delay = next.Value - DateTimeOffset.Now;
                 if (delay.TotalMilliseconds <= 0)
                 {
-                    await ScheduleJob();
+                    sheduleJobError = await ScheduleJob();
+
+                    if (!string.IsNullOrEmpty(sheduleJobError))
+                    {
+                        return sheduleJobError;
+                    }
                 }
+
                 _timer = new System.Timers.Timer(delay.TotalMilliseconds);
                 _timer.Elapsed += async (sender, args) =>
                 {
                     _timer.Dispose();
                     _timer = null;
 
-                    await DoWork();
+                    workError = await DoWork();
+
+                    if (!string.IsNullOrEmpty(workError))
+                    {
+                        _timer.Stop();
+                        return;
+                    }
 
                     await ScheduleJob();
                 };

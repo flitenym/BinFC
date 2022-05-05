@@ -33,7 +33,7 @@ namespace Storage.Module.Repositories
             }
         }
 
-        public async Task<(bool, T)> GetSettingsByKeyAsync<T>(string key, bool isNeedTracking = true)
+        public async Task<(bool IsSuccess, T Value)> GetSettingsByKeyAsync<T>(string key, bool isNeedTracking = true)
         {
             Settings settingsByKey;
 
