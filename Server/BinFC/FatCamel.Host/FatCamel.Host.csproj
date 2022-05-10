@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <UserSecretsId>c78ab124-63e6-492a-9fbe-ee5f90a6c302</UserSecretsId>
   </PropertyGroup>
   
   <Import Project="..\Project.props" />

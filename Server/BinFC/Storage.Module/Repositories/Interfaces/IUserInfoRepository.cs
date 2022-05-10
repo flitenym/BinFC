@@ -7,6 +7,7 @@ namespace Storage.Module.Repositories.Interfaces
     public interface IUserInfoRepository
     {
         public IEnumerable<UserInfo> Get();
+        public Task<List<UserInfo>> GetAdminsAsync();
         public Task<UserInfo> GetByIdAsync(long Id);
         public Task<string> CreateAsync(UserInfo obj);
         public Task<string> UpdateAsync(UserInfo obj, UserInfo newObj);

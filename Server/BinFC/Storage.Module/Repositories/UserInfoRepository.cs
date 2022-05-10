@@ -26,6 +26,16 @@ namespace Storage.Module.Repositories
             return _dataContext.UsersInfo;
         }
 
+        public async Task<List<UserInfo>> GetAdminsAsync()
+        {
+            return await _dataContext
+                .UsersInfo
+                .AsNoTracking()
+                .Where(x => x.IsAdmin)
+                .Where(x => x.ChatId.HasValue)
+                .ToListAsync();
+        }
+
         public async Task<UserInfo> GetByIdAsync(long Id)
         {
             return await _dataContext.UsersInfo.FindAsync(Id);

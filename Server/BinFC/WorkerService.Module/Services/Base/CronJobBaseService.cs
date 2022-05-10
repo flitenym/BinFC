@@ -46,7 +46,7 @@ namespace WorkerService.Module.Services.Base
             return await StartAsync();
         }
 
-        public virtual async Task<string> DoWork()
+        public virtual async Task<string> DoWorkAsync()
         {
             await Task.Delay(5000);
             return null;
@@ -103,7 +103,7 @@ namespace WorkerService.Module.Services.Base
                     _timer.Dispose();
                     _timer = null;
 
-                    workError = await DoWork();
+                    workError = await DoWorkAsync();
 
                     if (!string.IsNullOrEmpty(workError))
                     {

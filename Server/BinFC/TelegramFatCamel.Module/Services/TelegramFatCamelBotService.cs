@@ -20,6 +20,8 @@ namespace TelegramFatCamel.Module.Services
 
         private TelegramBotClient _client;
 
+        private bool IsHandlersStarted = false;
+
         private CancellationTokenSource _cancellationToken;
 
         public TelegramFatCamelBotService(IServiceProvider serviceProvider, ITelegramSettingsService telegramSettingsService)
@@ -28,21 +30,33 @@ namespace TelegramFatCamel.Module.Services
             _telegramSettingsService = telegramSettingsService;
         }
 
-        public async Task<TelegramBotClient> GetTelegramBotAsync()
+        public async Task<TelegramBotClient> GetTelegramBotAsync(bool isNeedHandlers = true)
         {
             if (_client != null)
             {
+                if (isNeedHandlers && !IsHandlersStarted)
+                {
+                    await StartTelegramBotAsync();
+                }
+
                 return _client;
             }
 
-            await StartTelegramBotAsync();
+            if (isNeedHandlers)
+            {
+                _client = new TelegramBotClient(_telegramSettingsService.Token);
+                await StartTelegramBotAsync();
+            }
+            else
+            {
+                _client = new TelegramBotClient(_telegramSettingsService.Token);
+            }
 
             return _client;
         }
 
         private Task StartTelegramBotAsync()
         {
-            _client = new TelegramBotClient(_telegramSettingsService.Token);
             ReceiverOptions receiverOptions = new() { AllowedUpdates = { } };
 
             _cancellationToken = new CancellationTokenSource();

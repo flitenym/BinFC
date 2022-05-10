@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading.Tasks;
+using TelegramFatCamel.Module.Services;
+using TelegramFatCamel.Module.Services.Interfaces;
 using WorkerService.Module.Services;
 using WorkerService.Module.Services.Base;
 using WorkerService.Module.Services.Intrefaces;
@@ -23,6 +25,9 @@ namespace WorkerService.Module
             services.AddControllers().AddApplicationPart(typeof(Startup).Assembly);
 
             services.AddScoped<CronJobBaseService<IBinanceSell>, BinanceSell>();
+
+            services.AddScoped<ITelegramFatCamelBotService, TelegramFatCamelBotService>();
+
             return Task.CompletedTask;
         }
     }

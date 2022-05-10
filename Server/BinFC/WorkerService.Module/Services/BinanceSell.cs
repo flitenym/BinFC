@@ -1,4 +1,5 @@
 ﻿using Binance.Net.Objects.Models.Spot;
+using BinanceApi.Module.Classes;
 using BinanceApi.Module.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Telegram.Bot;
+using TelegramFatCamel.Module.Services.Interfaces;
 using WorkerService.Module.Services.Base;
 using WorkerService.Module.Services.Intrefaces;
 
@@ -16,14 +19,27 @@ namespace WorkerService.Module.Services
 {
     public class BinanceSell : CronJobBaseService<IBinanceSell>
     {
+        private const int AttemptsToSellCurrensies = 3;
+
         private readonly IBinanceApiService _binanceApiService;
         private readonly ISettingsRepository _settingsRepository;
+        private readonly IUserInfoRepository _userInfoRepository;
+        private readonly ITelegramFatCamelBotService _telegramFatCamelBotService;
         private readonly ILogger<BinanceSell> _logger;
 
-        public BinanceSell(IBinanceApiService binanceApiService, ISettingsRepository settingsRepository, IConfiguration configuration, ILogger<BinanceSell> logger) :
+        public BinanceSell(
+            IBinanceApiService binanceApiService,
+            IUserInfoRepository userInfoRepository,
+            ISettingsRepository settingsRepository,
+            ITelegramFatCamelBotService telegramFatCamelBotService,
+            IConfiguration configuration,
+            ILogger<BinanceSell> logger) :
             base(settingsRepository, configuration, logger)
         {
             _binanceApiService = binanceApiService;
+            _userInfoRepository = userInfoRepository;
+            _settingsRepository = settingsRepository;
+            _telegramFatCamelBotService = telegramFatCamelBotService;
             _logger = logger;
         }
 
@@ -45,12 +61,13 @@ namespace WorkerService.Module.Services
             return base.RestartAsync();
         }
 
-        public override async Task<string> DoWork()
+        public override async Task<string> DoWorkAsync()
         {
             _logger.LogTrace($"Запуск продажи");
             try
             {
-                (bool isSuccess, string sellError) = await SellAsync();
+                (bool isSuccess, string sellMessage) = await SellAsync();
+                await SendTelegramMessageAsync(sellMessage);
                 if (isSuccess)
                 {
                     _logger?.LogTrace($"Продажа прошла успешно");
@@ -59,7 +76,7 @@ namespace WorkerService.Module.Services
                 else
                 {
                     _logger?.LogInformation($"Продажа прошла неудачно");
-                    return sellError;
+                    return sellMessage;
                 }
             }
             catch (Exception ex)
@@ -70,15 +87,12 @@ namespace WorkerService.Module.Services
             }
         }
 
-        private async Task<(bool isSuccess, string error)> SellAsync()
+        private async Task<(bool isSuccess, string message)> SellAsync()
         {
             SettingsInfo settings = new SettingsInfo()
             {
                 ApiKey = (await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiKey, false)).Value,
                 ApiSecret = (await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiSecret, false)).Value,
-                Emails = (await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.Emails, false)).Value,
-                EmailLogin = (await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.EmailLogin, false)).Value,
-                EmailPassword = (await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.EmailPassword, false)).Value,
                 CronExpression = (await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false)).Value,
                 SellCurrency = (await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.SellCurrency, false)).Value
             };
@@ -90,13 +104,20 @@ namespace WorkerService.Module.Services
                 return (false, validError);
             }
 
-            bool transferIsSuccess = await TransferFuturesToSpotAsync(settings);
+            await TransferFuturesToSpotAsync(settings);
 
-
+            await SellAsync(settings);
 
             return (true, null);
         }
 
+        #region Продажа и перевод крипты
+
+        /// <summary>
+        /// Перевод фьючи в спот.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
         private async Task<bool> TransferFuturesToSpotAsync(SettingsInfo settings)
         {
             _logger.LogTrace("Начинаем перевод USDT из фьючерс в спот");
@@ -115,15 +136,18 @@ namespace WorkerService.Module.Services
             }
         }
 
+        /// <summary>
+        /// Продажа крипты.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
         private async Task<bool> SellAsync(SettingsInfo settings)
         {
-            List<string> finalCoins = new List<string>();
-
             (bool isSuccessGetExchangeInfo, BinanceExchangeInfo exchangeInfo) = await _binanceApiService.GetExchangeInfoAsync(settings);
 
             if (!isSuccessGetExchangeInfo || exchangeInfo == null)
             {
-                _logger.LogError("Ошибка получения информации минимальных требований по символам для перевода");
+                _logger.LogError("Ошибка получения информации минимальных требований по символам для перевода.");
                 return false;
             }
 
@@ -135,18 +159,32 @@ namespace WorkerService.Module.Services
                 return false;
             }
 
+            List<CurrencyInfo> currenciesInfo = new(currencies.Select(x => new CurrencyInfo(x.Asset, false, false)));
+
+            _logger.LogTrace($"Начинаем продажу монет {string.Join(", ", currenciesInfo.Select(x => x.Asset))}");
+
             #region Продажа криптовалют
 
-            _logger.LogTrace($"Начинаем продажу монет {string.Join(", ", currencies.Select(x => x.Asset))}");
-            // пройдем по всем валютам, которые есть на аккаунте и попробуем продать их
-            foreach (var currency in currencies)
+            for (int i = 0; i < AttemptsToSellCurrensies; i++)
             {
-                var finalCoin = await SellCoin(currency.Asset, exchangeInfo, settings: settings);
-                if (!string.IsNullOrEmpty(finalCoin) && finalCoin != "USDT" && !finalCoins.Contains(finalCoin))
+                if (!currenciesInfo.Where(x => !x.IsSuccess).Any())
                 {
-                    finalCoins.Add(finalCoin);
+                    break;
+                }
+
+                // пройдем по всем валютам, которые есть на аккаунте и попробуем продать их
+                for (int j = 0; j < currenciesInfo.Count; j++)
+                {
+                    if (!currenciesInfo[j].IsSuccess)
+                    {
+                        (bool isSuccessSellCoin, bool isSellCoin, bool isDustSellCoin) = await SellCoinAsync(currenciesInfo[j].Asset, exchangeInfo, settings: settings);
+
+                        currenciesInfo[j].IsSell = isSellCoin;
+                        currenciesInfo[j].IsDust = isDustSellCoin;
+                    }
                 }
             }
+
             _logger.LogTrace("Продажа монет выполнена");
 
             #endregion
@@ -154,61 +192,83 @@ namespace WorkerService.Module.Services
             #region Перевод монет с маленьким балансом в BNB
 
             _logger.LogTrace("Начинаем перевод монет с маленьким балансом в BNB");
-            if (!finalCoins.Contains("BNB"))
+
+            // перевод мелких монет в BNB
+            bool isSuccessTransferDust = await _binanceApiService.TransferDustAsync(currenciesInfo.Where(x => x.IsDust).Select(x => x.Asset).ToList(), settings: settings);
+
+            if (isSuccessTransferDust)
             {
-                finalCoins.Add("BNB");
+                _logger.LogTrace("Перевод монет с маленьким балансом в BNB закончен");
             }
-
-            (bool isSuccessGetAllAfterSellCurrencies, List<(string asset, decimal quantity, bool isDust)> currenciesAfterSell) = 
-                await _binanceApiService.GetAllCurrenciesWithoutUSDTWithQuantityAsync(exchangeInfo, settings: settings);
-
-            if (isSuccessGetAllAfterSellCurrencies)
+            else
             {
-                // перевод мелких монет в BNB
-                (bool isSuccessTransferDust, string messageTransferDust) = await _binanceApiService.TransferDustAsync(currenciesAfterSell, settings: settings);
-
-                if (!string.IsNullOrEmpty(messageTransferDust))
-                {
-                    _logger.LogTrace(messageTransferDust);
-                }
+                _logger.LogTrace("Перевод монет с маленьким балансом в BNB неудачен");
             }
-
-            _logger.LogTrace("Перевод монет с маленьким балансом в BNB закончен");
 
             #endregion
+
+            (bool isSuccessSellBNB, bool isSellCoinBNB, bool isDustSellBNB) = await SellCoinAsync("BNB", exchangeInfo, settings: settings);
 
             return true;
         }
 
-        private async Task<string> SellCoin(string currencyAsset, BinanceExchangeInfo exchangeInfo, SettingsInfo settings)
+        /// <summary>
+        /// Продажа одной валюты.
+        /// </summary>
+        /// <param name="currencyAsset"></param>
+        /// <param name="exchangeInfo"></param>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        private async Task<(bool IsSuccess, bool IsSell, bool IsDust)> SellCoinAsync(string currencyAsset, BinanceExchangeInfo exchangeInfo, SettingsInfo settings)
         {
             _logger.LogTrace($"Продажа {currencyAsset}");
 
-            if (string.IsNullOrEmpty(currencyAsset))
-            {
-                return null;
-            }
-
             // получим валюту и определим пыль или нет, если нет, то сразу продадим ее
-            (bool isSuccessCurrency, (string fromAsset, string toAsset, decimal quantity, bool isDust) currencyInfo) =
-                await _binanceApiService.GetСurrencyAsync(exchangeInfo, currencyAsset, settings: settings);
+            (bool isSuccessCurrency, AssetsInfo currencyInfo) = await _binanceApiService.GetСurrencyAsync(exchangeInfo, currencyAsset, settings: settings);
 
-            if (!isSuccessCurrency || currencyInfo == default || string.IsNullOrEmpty(currencyInfo.fromAsset) || string.IsNullOrEmpty(currencyInfo.toAsset))
+            if (!isSuccessCurrency || currencyInfo == default || string.IsNullOrEmpty(currencyInfo.FromAsset) || string.IsNullOrEmpty(currencyInfo.ToAsset))
             {
                 _logger.LogTrace($"Продажа {currencyAsset}: неудачное получение валюты.");
-                return null;
+                return default;
             }
 
-            if (!currencyInfo.isDust)
+            if (!currencyInfo.IsDust)
             {
                 _logger.LogTrace($"Продажа {currencyAsset}: выполним продажу.");
 
-                bool isSuccessSell = await _binanceApiService.SellCoinAsync(currencyInfo.quantity, currencyInfo.fromAsset, currencyInfo.toAsset, settings: settings);
+                bool isSuccessSell = await _binanceApiService.SellCoinAsync(currencyInfo.Quantity, currencyInfo.FromAsset, currencyInfo.ToAsset, settings: settings);
 
-                _logger.LogTrace($"Продажа {currencyAsset}:{(isSuccessSell ? "" : " не")} выполнилась продажа по {currencyInfo.toAsset}.");
+                _logger.LogTrace($"Продажа {currencyAsset}:{(isSuccessSell ? "" : " не")} выполнилась продажа по {currencyInfo.ToAsset}.");
+
+                return (true, isSuccessSell, false);
             }
 
-            return currencyInfo.toAsset;
+            return (true, false, true);
         }
+
+        #endregion
+
+        #region Отправка уведолмения в телеграме
+
+        private async Task SendTelegramMessageAsync(string message)
+        {
+            var admins = await _userInfoRepository.GetAdminsAsync();
+
+            if (!admins.Any())
+            {
+                _logger.LogTrace("Администраторов не найдено для отправки уведомления.");
+            }
+
+            TelegramBotClient _client = await _telegramFatCamelBotService.GetTelegramBotAsync(false);
+
+            foreach (var admin in admins)
+            {
+                await _client.SendTextMessageAsync(
+                admin.ChatId,
+                message);
+            }
+        }
+
+        #endregion
     }
 }

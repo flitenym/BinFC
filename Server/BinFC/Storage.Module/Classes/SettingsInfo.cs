@@ -4,9 +4,6 @@
     {
         public string ApiKey { get; set; }
         public string ApiSecret { get; set; }
-        public string Emails { get; set; }
-        public string EmailLogin { get; set; }
-        public string EmailPassword { get; set; }
         public string CronExpression { get; set; }
         public string SellCurrency { get; set; }
 
