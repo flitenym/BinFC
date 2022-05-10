@@ -17,6 +17,7 @@ namespace Storage.Module.Services
         {
             if (_dataContext.Database.EnsureCreated())
             {
+                // базовые настройки
                 foreach (string settingsKey in SettingsKeys.Settings)
                 {
                     Settings settings = new Settings()
@@ -26,6 +27,15 @@ namespace Storage.Module.Services
 
                     _dataContext.Add(settings);
                 }
+
+                // admin
+                Admin admin = new Admin()
+                {
+                    UserName = "admin",
+                    Password = "Qqwerty1234!"
+                };
+
+                _dataContext.Add(admin);
 
                 await _dataContext.SaveChangesAsync();
             }

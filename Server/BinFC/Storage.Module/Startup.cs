@@ -56,6 +56,7 @@ namespace Storage.Module
             services.AddScoped<IDbSettingsService, DbSettingsService>();
             services.AddScoped<IInitialCreateService, InitialCreateService>();
             services.AddScoped<IUserInfoRepository, UserInfoRepository>();
+            services.AddScoped<IAdminRepository, AdminRepository>();
             services.AddScoped<ISettingsRepository, SettingsRepository>();
 
             return Task.CompletedTask;

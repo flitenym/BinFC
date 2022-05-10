@@ -11,6 +11,7 @@ namespace Storage.Module
         }
 
         public DbSet<UserInfo> UsersInfo { get; set; }
+        public DbSet<Admin> Admins { get; set; }
         public DbSet<Settings> Settings { get; set; }
     }
 }
