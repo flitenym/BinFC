@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <Import Project="..\Project.props" />
+
+  <ItemGroup>
+    <Content Include="workerservicesettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Cronos" Version="0.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BinanceApi.Module\BinanceApi.Module.csproj" />
+    <ProjectReference Include="..\FatCamel.Host\FatCamel.Host.csproj" />
+    <ProjectReference Include="..\Storage.Module\Storage.Module.csproj" />
+    <ProjectReference Include="..\TelegramFatCamel.Module\TelegramFatCamel.Module.csproj" />
+  </ItemGroup>
+
+</Project>
