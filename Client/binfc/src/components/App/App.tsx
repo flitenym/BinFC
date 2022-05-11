@@ -1,12 +1,10 @@
 import React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import './App.scss';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Dashboard from '../Dashboard/Dashboard';
 import Login from '../Login/Login';
-import useToken from './useToken';
+import useToken from '../Auth/UseToken';
 
 function App() {
-  debugger
   const { token, setToken } = useToken();
 
   if(!token) {
@@ -14,16 +12,13 @@ function App() {
   }
 
   return (
-    <div className="wrapper">
-      <h1>Application</h1>
       <BrowserRouter>
         <Routes>
-          <Route path="/dashboard">
-            <Dashboard />
-          </Route>
+          <Route path="/dashboard" element={<Dashboard/>} />
+          <Route path="/" element={<Navigate replace to="/dashboard" />} />
+          <Route path="*" element={<Navigate to ="/dashboard" />}/>
         </Routes>
       </BrowserRouter>
-    </div>
   );
 }
 
