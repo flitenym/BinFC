@@ -46,6 +46,18 @@ namespace FatCamel.Host
 
             services.AddControllers();
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder =>
+                    {
+                        builder
+                          .AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                    });
+            });
+
             foreach (var m in _modules)
             {
                 m.ConfigureServicesAsync(services).Wait();
@@ -83,6 +95,8 @@ namespace FatCamel.Host
             }
 
             app.UseRouting();
+
+            app.UseCors("CorsPolicy");
 
             app.UseAuthentication();
 
