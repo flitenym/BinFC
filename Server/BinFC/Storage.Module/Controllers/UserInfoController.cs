@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Controllers.Base;
 using Storage.Module.Entities;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Storage.Module.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserInfoController : BaseController

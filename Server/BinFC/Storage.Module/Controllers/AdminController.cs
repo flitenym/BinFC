@@ -1,9 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FatCamel.Host.StaticClasses;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Storage.Module.Controllers.Base;
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Storage.Module.Controllers
@@ -20,18 +27,21 @@ namespace Storage.Module.Controllers
             _logger = logger;
         }
 
+        [Authorize]
         [HttpGet]
         public IEnumerable<Admin> Get()
         {
             return _adminRepository.Get();
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<Admin> Get(long Id)
         {
             return await _adminRepository.GetByIdAsync(Id);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Admin obj)
         {
@@ -53,14 +63,39 @@ namespace Storage.Module.Controllers
 
             if (await _adminRepository.LoginAsync(obj))
             {
-                return Ok();
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, obj.UserName)
+                };
+                ClaimsIdentity claimsIdentity =
+                new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
+                    ClaimsIdentity.DefaultRoleClaimType);
+
+                var now = DateTime.UtcNow;
+                // создаем JWT-токен
+                var jwt = new JwtSecurityToken(
+                        issuer: AuthOptions.ISSUER,
+                        audience: AuthOptions.AUDIENCE,
+                        notBefore: now,
+                        claims: claimsIdentity.Claims,
+                        expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
+                        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+                var response = new
+                {
+                    token = encodedJwt
+                };
+
+                return Ok(response);
             }
             else
             {
-                return NotFound("Неверно указаны логин или пароль");
+                return BadRequest("Неверно указаны логин или пароль");
             }
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(long Id, [FromBody] Admin newObj)
         {
@@ -79,6 +114,7 @@ namespace Storage.Module.Controllers
             return StringToResult(await _adminRepository.UpdateAsync(obj, newObj));
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(long Id)
         {
