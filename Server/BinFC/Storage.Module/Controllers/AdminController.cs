@@ -78,12 +78,12 @@ namespace Storage.Module.Controllers
                         audience: AuthOptions.AUDIENCE,
                         notBefore: now,
                         claims: claimsIdentity.Claims,
-                        expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
                         signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
                 var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
                 var response = new
                 {
+                    username = obj.UserName,
                     token = encodedJwt
                 };
 

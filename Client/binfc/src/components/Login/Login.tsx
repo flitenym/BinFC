@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -13,28 +12,42 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import AuthService from "../../services/auth.service";
+import { useNavigate } from "react-router-dom";
 
 const theme = createTheme();
 
-async function loginUser(username: string | null, password: string | null) {
- return fetch('http://localhost:7002/api/admin/Login', {
-   method: 'POST',
-   headers: {
-     'Content-Type': 'application/json'
-   },
-   body: JSON.stringify({username: username, password: password})
- })
-   .then(data => data.json())
-}
+export default function Login() {
+  const navigate = useNavigate();
 
-export default function Login(props: any) {
   const [username, setUserName] = useState<string | null>("");
   const [password, setPassword] = useState<string | null>("");
 
+  useEffect(() => {
+    const token = AuthService.getCurrentToken();
+    if (token != null){
+      navigate("/dashboard");
+      window.location.reload();
+    }
+  });
+  
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const token = await loginUser(username, password);
-    props.setToken(token);
+    if (username == null){
+      return;
+    }
+
+    if (password == null){
+      return;
+    }
+
+    await AuthService.login(username, password).then(
+      () => {
+        navigate("/dashboard");
+        window.location.reload();
+      }
+    );
   }
 
   return(
@@ -104,7 +117,3 @@ export default function Login(props: any) {
     </ThemeProvider>
   )
 }
-
-Login.propTypes = {
-  setToken: PropTypes.func.isRequired
-};
