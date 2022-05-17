@@ -1,4 +1,5 @@
 ﻿using Cronos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Controllers.Base;
@@ -9,6 +10,7 @@ using System.Linq;
 
 namespace WorkerService.Module
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CronJobController : BaseController
@@ -21,17 +23,17 @@ namespace WorkerService.Module
             _logger = logger;
         }
 
-        [HttpGet("{cron}")]
-        public IActionResult CronCheck(string cronExpression)
+        [HttpGet("check/{cron}")]
+        public IActionResult CronCheck(string cron)
         {
-            if (string.IsNullOrEmpty(cronExpression))
+            if (string.IsNullOrEmpty(cron))
             {
                 return BadRequest("Отправлена пустая сущность.");
             }
 
             try
             {
-                CronExpression expression = CronExpression.Parse(cronExpression);
+                CronExpression expression = CronExpression.Parse(cron);
 
                 return Ok();
             }
@@ -42,19 +44,19 @@ namespace WorkerService.Module
             }
         }
 
-        [HttpGet("{next}")]
-        public IEnumerable<string> GetOccurrences(string cronExpression)
+        [HttpGet("next/{next}")]
+        public IEnumerable<string> GetOccurrences(string next)
         {
-            if (string.IsNullOrEmpty(cronExpression))
+            if (string.IsNullOrEmpty(next))
             {
                 return null;
             }
 
             try
             {
-                CronExpression expression = CronExpression.Parse(cronExpression);
+                CronExpression expression = CronExpression.Parse(next);
 
-                return expression.GetOccurrences(DateTime.UtcNow, DateTime.UtcNow.AddMonths(2)).Take(20).Select(x=>x.ToString()).ToList();
+                return expression.GetOccurrences(DateTime.UtcNow, DateTime.UtcNow.AddMonths(2)).Take(20).Select(x => x.ToString()).ToList();
             }
             catch (Exception ex)
             {

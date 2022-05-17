@@ -257,6 +257,7 @@ namespace WorkerService.Module.Services
             if (!admins.Any())
             {
                 _logger.LogTrace("Администраторов не найдено для отправки уведомления.");
+                return;
             }
 
             TelegramBotClient _client = await _telegramFatCamelBotService.GetTelegramBotAsync(false);

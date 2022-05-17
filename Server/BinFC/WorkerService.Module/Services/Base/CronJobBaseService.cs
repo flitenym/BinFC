@@ -81,6 +81,13 @@ namespace WorkerService.Module.Services.Base
 
             cronExpression ??= _configuration.GetSection("Cron:Expression").Get<string>();
 
+            if (string.IsNullOrEmpty(cronExpression))
+            {
+                string error = "Не удалось получить cron запись.";
+                _logger.LogError(error);
+                return error;
+            }
+
             CronExpression expression = CronExpression.Parse(cronExpression);
 
             var next = expression.GetNextOccurrence(DateTimeOffset.Now, TimeZoneInfo.Utc);
@@ -107,13 +114,13 @@ namespace WorkerService.Module.Services.Base
 
                     if (!string.IsNullOrEmpty(workError))
                     {
-                        _timer.Stop();
+                        _timer?.Stop();
                         return;
                     }
 
                     await ScheduleJob();
                 };
-                _timer.Start();
+                _timer?.Start();
             }
 
             return await Task.FromResult<string>(null);

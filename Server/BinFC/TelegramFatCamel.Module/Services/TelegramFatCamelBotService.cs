@@ -67,6 +67,8 @@ namespace TelegramFatCamel.Module.Services
                 receiverOptions,
                 _cancellationToken.Token);
 
+            IsHandlersStarted = true;
+
             return Task.CompletedTask;
         }
 

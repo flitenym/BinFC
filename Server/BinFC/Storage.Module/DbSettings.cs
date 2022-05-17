@@ -10,7 +10,8 @@ namespace Storage.Module
 
         public DbProviderType DbProviderType { get; set; }
         public string ConnectionString { get; set; }
-
+        public int RetryAttemts { get; set; }
+        
         private DbSettings()
         {
         }
@@ -49,6 +50,7 @@ namespace Storage.Module
 
             dbSettings.DbProviderType = dbProviderType;
             dbSettings.ConnectionString = connectionString;
+            dbSettings.RetryAttemts = 2;
 
             return dbSettings;
         }

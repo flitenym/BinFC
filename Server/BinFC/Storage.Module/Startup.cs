@@ -40,7 +40,11 @@ namespace Storage.Module
             {
                 services.AddDbContext<DataContext>(
                     opt => opt.UseSqlServer(
-                        dbSettings.ConnectionString
+                        dbSettings.ConnectionString,
+                        sqlServerOptionsAction: sqlOptions =>
+                        {
+                            sqlOptions.EnableRetryOnFailure(dbSettings.RetryAttemts);
+                        }
                     )
                 );
             }
@@ -48,7 +52,11 @@ namespace Storage.Module
             {
                 services.AddDbContext<DataContext>(
                     opt => opt.UseNpgsql(
-                        dbSettings.ConnectionString
+                        dbSettings.ConnectionString,
+                        npgsqlOptionsAction: sqlOptions =>
+                        {
+                            sqlOptions.EnableRetryOnFailure(dbSettings.RetryAttemts);
+                        }
                     )
                 );
             }

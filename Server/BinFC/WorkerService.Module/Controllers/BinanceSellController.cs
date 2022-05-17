@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Controllers.Base;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using WorkerService.Module.Services.Intrefaces;
 
 namespace WorkerService.Module
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BinanceSellController : BaseController
@@ -19,7 +21,7 @@ namespace WorkerService.Module
             _logger = logger;
         }
 
-        [HttpPost("restart")]
+        [HttpGet("restart")]
         public async Task<IActionResult> Restart()
         {
             string restartError = await _binanceSell.RestartAsync();
@@ -32,7 +34,7 @@ namespace WorkerService.Module
             return Ok();
         }
 
-        [HttpPost("start")]
+        [HttpGet("start")]
         public async Task<IActionResult> Start()
         {
             string startError = await _binanceSell.StartAsync();
@@ -45,7 +47,7 @@ namespace WorkerService.Module
             return Ok();
         }
 
-        [HttpPost("stop")]
+        [HttpGet("stop")]
         public async Task<IActionResult> Stop()
         {
             string stopError = await _binanceSell.StopAsync();
