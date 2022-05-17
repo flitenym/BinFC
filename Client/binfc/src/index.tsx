@@ -1,9 +1,11 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './components/App/App';
 import axios from "axios";
 import { ToastContainer, toast } from 'material-react-toastify';
 import 'material-react-toastify/dist/ReactToastify.css';
+import React from "react";
+import ReactDOM from "react-dom";
+import { HashRouter, Route, Routes, Navigate } from "react-router-dom";
+import AuthLayout from "./layouts/auth";
+import AdminLayout from "./layouts/admin";
 
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 axios.defaults.headers.post['Content-Type'] = 'application/json';
@@ -24,12 +26,15 @@ axios.interceptors.response.use(function (response) {
   return Promise.reject(error);
 });
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <ToastContainer />
-    <App />
-  </React.StrictMode>
+ReactDOM.render(
+    <React.StrictMode>
+      <HashRouter>
+        <Routes>
+          <Route path={`/auth`} element={<AuthLayout/>} />
+          <Route path={`/admin`} element={<AdminLayout/>} />
+          <Route path="/" element={<Navigate replace to="/admin" />} />
+        </Routes>
+      </HashRouter>
+    </React.StrictMode>,
+  document.getElementById("root")
 );

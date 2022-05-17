@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 
 const theme = createTheme();
 
-export default function Login() {
+export default function Auth() {
   const navigate = useNavigate();
 
   const [username, setUserName] = useState<string | null>("");
