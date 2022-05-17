@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using TelegramFatCamel.Module.Services;
 using TelegramFatCamel.Module.Services.Interfaces;
 using WorkerService.Module.Services;
-using WorkerService.Module.Services.Base;
-using WorkerService.Module.Services.Intrefaces;
 
 namespace WorkerService.Module
 {
@@ -24,7 +22,8 @@ namespace WorkerService.Module
         {
             services.AddControllers().AddApplicationPart(typeof(Startup).Assembly);
 
-            services.AddScoped<CronJobBaseService<IBinanceSell>, BinanceSell>();
+            services.AddSingleton<BinanceSellService>();
+            services.AddHostedService(provider => provider.GetService<BinanceSellService>());
 
             services.AddScoped<ITelegramFatCamelBotService, TelegramFatCamelBotService>();
 

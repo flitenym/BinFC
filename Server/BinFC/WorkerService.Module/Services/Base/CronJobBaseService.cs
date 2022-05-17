@@ -1,19 +1,22 @@
 ﻿using Cronos;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Repositories.Interfaces;
 using Storage.Module.StaticClasses;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WorkerService.Module.Services.Base
 {
-    public abstract class CronJobBaseService<T>
+    public abstract class CronJobBaseService<T> : IHostedService, IDisposable
     {
         private readonly ILogger _logger;
         private readonly ISettingsRepository _settingsRepository;
         private readonly IConfiguration _configuration;
         private System.Timers.Timer _timer;
+        private CronExpression _expression;
 
         public CronJobBaseService(ISettingsRepository settingsRepository, IConfiguration configuration, ILogger logger)
         {
@@ -22,53 +25,30 @@ namespace WorkerService.Module.Services.Base
             _logger = logger;
         }
 
-        public virtual async Task<string> StartAsync()
+        public virtual async Task StartAsync(CancellationToken cancellationToken)
         {
-            return await ScheduleJob();
+            await ScheduleJobAsync(cancellationToken);
         }
 
-        public virtual Task<string> StopAsync()
+        public virtual Task StopAsync(CancellationToken cancellationToken)
         {
             _timer?.Stop();
-            _timer?.Dispose();
-
-            return Task.FromResult<string>(null);
+            return Task.CompletedTask;
         }
 
-        public virtual async Task<string> RestartAsync()
+        public virtual async Task RestartAsync(CancellationToken cancellationToken)
         {
-            string stopError = await StopAsync();
-            if (!string.IsNullOrEmpty(stopError))
-            {
-                return stopError;
-            }
-
-            return await StartAsync();
+            await StopAsync(cancellationToken);
+            await StartAsync(cancellationToken);
         }
 
-        public virtual async Task<string> DoWorkAsync()
+        public virtual async Task DoWorkAsync(CancellationToken cancellationToken)
         {
-            await Task.Delay(5000);
-            return null;
+            await Task.Delay(5000, cancellationToken);
         }
 
-        private async Task<string> ScheduleJob()
+        protected virtual async Task ScheduleJobAsync(CancellationToken cancellationToken)
         {
-            string sheduleJobError = null;
-            string workError = null;
-
-            if (!string.IsNullOrEmpty(sheduleJobError))
-            {
-                _logger.LogError(sheduleJobError);
-                return workError;
-            }
-
-            if (!string.IsNullOrEmpty(workError))
-            {
-                _logger.LogError(workError);
-                return workError;
-            }
-
             (bool isSuccess, string cronExpression) =
                 await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false);
 
@@ -76,54 +56,45 @@ namespace WorkerService.Module.Services.Base
             {
                 string error = "Не удалось запустить сервис продажи, т.к. не найдена cron запись в БД.";
                 _logger.LogError(error);
-                return error;
+                return;
             }
 
             cronExpression ??= _configuration.GetSection("Cron:Expression").Get<string>();
 
-            if (string.IsNullOrEmpty(cronExpression))
-            {
-                string error = "Не удалось получить cron запись.";
-                _logger.LogError(error);
-                return error;
-            }
+            _expression = CronExpression.Parse(cronExpression);
 
-            CronExpression expression = CronExpression.Parse(cronExpression);
-
-            var next = expression.GetNextOccurrence(DateTimeOffset.Now, TimeZoneInfo.Utc);
+            var next = _expression.GetNextOccurrence(DateTimeOffset.Now, TimeZoneInfo.Utc);
             if (next.HasValue)
             {
                 var delay = next.Value - DateTimeOffset.Now;
-                if (delay.TotalMilliseconds <= 0)
+                if (delay.TotalMilliseconds <= 0)   // prevent non-positive values from being passed into Timer
                 {
-                    sheduleJobError = await ScheduleJob();
-
-                    if (!string.IsNullOrEmpty(sheduleJobError))
-                    {
-                        return sheduleJobError;
-                    }
+                    await ScheduleJobAsync(cancellationToken);
                 }
-
                 _timer = new System.Timers.Timer(delay.TotalMilliseconds);
                 _timer.Elapsed += async (sender, args) =>
                 {
-                    _timer.Dispose();
+                    _timer.Dispose();  // reset and dispose timer
                     _timer = null;
 
-                    workError = await DoWorkAsync();
-
-                    if (!string.IsNullOrEmpty(workError))
+                    if (!cancellationToken.IsCancellationRequested)
                     {
-                        _timer?.Stop();
-                        return;
+                        await DoWorkAsync(cancellationToken);
                     }
 
-                    await ScheduleJob();
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        await ScheduleJobAsync(cancellationToken);    // reschedule next
+                    }
                 };
-                _timer?.Start();
+                _timer.Start();
             }
+            await Task.CompletedTask;
+        }
 
-            return await Task.FromResult<string>(null);
+        public virtual void Dispose()
+        {
+            _timer?.Dispose();
         }
     }
 }

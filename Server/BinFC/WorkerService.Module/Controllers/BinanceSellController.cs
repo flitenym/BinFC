@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Controllers.Base;
 using System.Threading.Tasks;
+using WorkerService.Module.Services;
 using WorkerService.Module.Services.Base;
 using WorkerService.Module.Services.Intrefaces;
 
@@ -13,50 +14,32 @@ namespace WorkerService.Module
     [ApiController]
     public class BinanceSellController : BaseController
     {
-        private readonly CronJobBaseService<IBinanceSell> _binanceSell;
+        private readonly CronJobBaseService<IBinanceSell> _binanceSellService;
         private readonly ILogger<BinanceSellController> _logger;
-        public BinanceSellController(CronJobBaseService<IBinanceSell> binanceSell, ILogger<BinanceSellController> logger)
+        public BinanceSellController(BinanceSellService binanceSellService, ILogger<BinanceSellController> logger)
         {
-            _binanceSell = binanceSell;
+            _binanceSellService = binanceSellService;
             _logger = logger;
         }
 
         [HttpGet("restart")]
         public async Task<IActionResult> Restart()
         {
-            string restartError = await _binanceSell.RestartAsync();
-
-            if (!string.IsNullOrEmpty(restartError))
-            {
-                return BadRequest(restartError);
-            }
-
+            await _binanceSellService.RestartAsync(default);
             return Ok();
         }
 
         [HttpGet("start")]
         public async Task<IActionResult> Start()
         {
-            string startError = await _binanceSell.StartAsync();
-
-            if (!string.IsNullOrEmpty(startError))
-            {
-                return BadRequest(startError);
-            }
-
+            await _binanceSellService.StartAsync(default);
             return Ok();
         }
 
         [HttpGet("stop")]
         public async Task<IActionResult> Stop()
         {
-            string stopError = await _binanceSell.StopAsync();
-
-            if (!string.IsNullOrEmpty(stopError))
-            {
-                return BadRequest(stopError);
-            }
-
+            await _binanceSellService.StopAsync(default);
             return Ok();
         }
     }
