@@ -16,7 +16,7 @@ namespace WorkerService.Module
     {
         private readonly CronJobBaseService<IBinanceSell> _binanceSellService;
         private readonly ILogger<BinanceSellController> _logger;
-        public BinanceSellController(BinanceSellService binanceSellService, ILogger<BinanceSellController> logger)
+        public BinanceSellController(CronJobBaseService<IBinanceSell> binanceSellService, ILogger<BinanceSellController> logger)
         {
             _binanceSellService = binanceSellService;
             _logger = logger;

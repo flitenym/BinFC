@@ -7,6 +7,7 @@ using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WorkerService.Module.Cronos;
 
 namespace WorkerService.Module
 {
@@ -23,7 +24,7 @@ namespace WorkerService.Module
             _logger = logger;
         }
 
-        [HttpGet("check/{cron}")]
+        [HttpGet("check")]
         public IActionResult CronCheck(string cron)
         {
             if (string.IsNullOrEmpty(cron))
@@ -33,7 +34,7 @@ namespace WorkerService.Module
 
             try
             {
-                CronExpression expression = CronExpression.Parse(cron);
+                CronExpression expression = CronParseHelper.GetCronExpression(cron);
 
                 return Ok();
             }
@@ -44,17 +45,17 @@ namespace WorkerService.Module
             }
         }
 
-        [HttpGet("next/{next}")]
-        public IEnumerable<string> GetOccurrences(string next)
+        [HttpGet("next")]
+        public IEnumerable<string> GetOccurrences(string cron)
         {
-            if (string.IsNullOrEmpty(next))
+            if (string.IsNullOrEmpty(cron))
             {
                 return null;
             }
 
             try
             {
-                CronExpression expression = CronExpression.Parse(next);
+                CronExpression expression = CronParseHelper.GetCronExpression(cron);
 
                 return expression.GetOccurrences(DateTime.UtcNow, DateTime.UtcNow.AddMonths(2)).Take(20).Select(x => x.ToString()).ToList();
             }

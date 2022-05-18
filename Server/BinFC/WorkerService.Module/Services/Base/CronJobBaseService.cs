@@ -7,6 +7,7 @@ using Storage.Module.StaticClasses;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using WorkerService.Module.Cronos;
 
 namespace WorkerService.Module.Services.Base
 {
@@ -61,7 +62,14 @@ namespace WorkerService.Module.Services.Base
 
             cronExpression ??= _configuration.GetSection("Cron:Expression").Get<string>();
 
-            _expression = CronExpression.Parse(cronExpression);
+            _expression = CronParseHelper.GetCronExpression(cronExpression);
+
+            if (_expression == null)
+            {
+                string error = "Не удалось получить cron запись.";
+                _logger.LogError(error);
+                return;
+            }
 
             var next = _expression.GetNextOccurrence(DateTimeOffset.Now, TimeZoneInfo.Utc);
             if (next.HasValue)
