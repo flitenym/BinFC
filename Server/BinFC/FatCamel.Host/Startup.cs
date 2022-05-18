@@ -25,7 +25,6 @@ namespace FatCamel.Host
         public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
-            System.Diagnostics.Debugger.Launch();
             _modules = StartupManager.Graph?.Select(m => m.CreateInstance(_configuration)).Where(m => m != null).Cast<IModule>().ToArray() ?? new IModule[0];
         }
 

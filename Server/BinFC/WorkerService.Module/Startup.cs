@@ -26,8 +26,6 @@ namespace WorkerService.Module
 
             services.AddSingleton<CronJobBaseService<IBinanceSell>, BinanceSellService>();
 
-            services.AddScoped<ITelegramFatCamelBotService, TelegramFatCamelBotService>();
-
             return Task.CompletedTask;
         }
     }

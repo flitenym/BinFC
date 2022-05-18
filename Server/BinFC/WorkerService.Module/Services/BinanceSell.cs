@@ -82,6 +82,7 @@ namespace WorkerService.Module.Services
             {
                 string error = $"Продажа прошла с ошибками {ex}";
                 _logger?.LogInformation(ex, error);
+                await SendTelegramMessageAsync(error);
             }
         }
 
@@ -255,6 +256,12 @@ namespace WorkerService.Module.Services
 
         private async Task SendTelegramMessageAsync(string message)
         {
+            if (_telegramFatCamelBotService == null)
+            {
+                _logger.LogInformation("Не найден модуль телеграм бота.");
+                return;
+            }
+
             var admins = await _userInfoRepository.GetAdminsAsync();
 
             if (!admins.Any())
@@ -270,6 +277,8 @@ namespace WorkerService.Module.Services
                 await _client.SendTextMessageAsync(
                 admin.ChatId,
                 message);
+
+                _logger.LogTrace($"Отправлено уведомление пользователю {admin.UserName} с chatId {admin.ChatId}: {message}.");
             }
         }
 
