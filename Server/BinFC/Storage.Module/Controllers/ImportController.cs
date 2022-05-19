@@ -22,14 +22,15 @@ namespace Storage.Module.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Get([FromForm] ImportDTO model)
+        public async Task<IActionResult> Import([FromForm] ImportDTO model)
         {
             if (!model.IsValid())
             {
                 return BadRequest("Ошибка проверки запроса.");
             }
 
-            (bool IsSuccess, string Error) = await _importService.ImportAsync(model.GetFileContent(model.File), model.ImportType);
+            (bool IsSuccess, string Error) = 
+                await _importService.ImportAsync(model.GetFileContent(model.File), model.File.FileName, model.ImportType);
 
             if (IsSuccess)
             {
