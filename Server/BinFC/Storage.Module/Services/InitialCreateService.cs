@@ -18,21 +18,47 @@ namespace Storage.Module.Services
             if (_dataContext.Database.EnsureCreated())
             {
                 // базовые настройки
-                foreach (string settingsKey in SettingsKeys.Settings)
+                Settings apiKey = new Settings()
                 {
-                    Settings settings = new Settings()
-                    {
-                        Key = settingsKey
-                    };
+                    Key = SettingsKeys.ApiKey,
+                    Value = null
+                };
+                _dataContext.Add(apiKey);
 
-                    _dataContext.Add(settings);
-                }
+                Settings apiSecret = new Settings()
+                {
+                    Key = SettingsKeys.ApiSecret,
+                    Value = null
+                };
+                _dataContext.Add(apiSecret);
+
+                Settings cronExpression = new Settings()
+                {
+                    Key = SettingsKeys.CronExpression,
+                    Value = "* * * * *"
+                };
+                _dataContext.Add(cronExpression);
+
+                Settings sellCurrency = new Settings()
+                {
+                    Key = SettingsKeys.SellCurrency,
+                    Value = "USDT"
+                };
+                _dataContext.Add(sellCurrency);
+
+                Settings isNotification = new Settings()
+                {
+                    Key = SettingsKeys.IsNotification,
+                    Value = bool.TrueString
+                };
+                _dataContext.Add(isNotification);
+                               
 
                 // admin
                 Admin admin = new Admin()
                 {
                     UserName = "admin",
-                    Password = "Qqwerty1234!"
+                    Password = "1111"
                 };
 
                 _dataContext.Add(admin);

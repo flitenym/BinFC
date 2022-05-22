@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Storage.Module.Import.Services;
 using Storage.Module.Import.Services.Interfaces;
 using Storage.Module.Repositories;
+using Storage.Module.Repositories.Base;
 using Storage.Module.Repositories.Interfaces;
 using Storage.Module.Services;
 using Storage.Module.Services.Interfaces;
@@ -51,9 +52,12 @@ namespace Storage.Module.Extensions
 
         public static void AddStorageRepositoryServices(this IServiceCollection services)
         {
+            services.AddScoped<IBaseRepository, BaseRepository>();
             services.AddScoped<IUserInfoRepository, UserInfoRepository>();
             services.AddScoped<IAdminRepository, AdminRepository>();
             services.AddScoped<ISettingsRepository, SettingsRepository>();
+            services.AddScoped<ISpotDataRepository, SpotDataRepository>();
+            services.AddScoped<IFuturesDataRepository, FuturesDataRepository>();
         }
 
         public static void AddStorageImportServices(this IServiceCollection services)

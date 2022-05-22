@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,10 +11,12 @@ namespace Storage.Module.Repositories
     public class AdminRepository : IAdminRepository
     {
         private readonly DataContext _dataContext;
+        private readonly IBaseRepository _baseRepository;
         private readonly ILogger<AdminRepository> _logger;
-        public AdminRepository(DataContext dataContext, ILogger<AdminRepository> logger)
+        public AdminRepository(DataContext dataContext, IBaseRepository baseRepository, ILogger<AdminRepository> logger)
         {
             _dataContext = dataContext;
+            _baseRepository = baseRepository;
             _logger = logger;
         }
 
@@ -64,19 +65,9 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
-        public async Task<string> SaveChangesAsync()
+        public Task<string> SaveChangesAsync()
         {
-            try
-            {
-                await _dataContext.SaveChangesAsync();
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, string.Join("; ", _dataContext.ChangeTracker.Entries().Select(x => x.Entity.GetType().Name)));
-                _dataContext.ChangeTracker.Clear();
-                return ex.Message;
-            }
+            return _baseRepository.SaveChangesAsync();
         }
 
         #endregion

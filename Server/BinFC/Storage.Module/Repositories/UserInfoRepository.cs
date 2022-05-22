@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,10 +11,12 @@ namespace Storage.Module.Repositories
     public class UserInfoRepository : IUserInfoRepository
     {
         private readonly DataContext _dataContext;
+        private readonly IBaseRepository _baseRepository;
         private readonly ILogger<UserInfoRepository> _logger;
-        public UserInfoRepository(DataContext dataContext, ILogger<UserInfoRepository> logger)
+        public UserInfoRepository(DataContext dataContext, IBaseRepository baseRepository, ILogger<UserInfoRepository> logger)
         {
             _dataContext = dataContext;
+            _baseRepository = baseRepository;
             _logger = logger;
         }
 
@@ -45,7 +46,7 @@ namespace Storage.Module.Repositories
         {
             _dataContext.UsersInfo.Add(obj);
 
-            return await SaveChangesAsync();
+            return await _baseRepository.SaveChangesAsync();
         }
 
         public async Task<string> UpdateAsync(UserInfo obj, UserInfo newObj)
@@ -56,33 +57,18 @@ namespace Storage.Module.Repositories
             obj.UserEmail = newObj.UserEmail;
             obj.TrcAddress = newObj.TrcAddress;
             obj.BepAddress = newObj.BepAddress;
-            obj.UniqueString = newObj.UniqueString;
+            obj.Unique = newObj.Unique;
 
             _dataContext.UsersInfo.Update(obj);
 
-            return await SaveChangesAsync();
+            return await _baseRepository.SaveChangesAsync();
         }
 
         public async Task<string> DeleteAsync(UserInfo obj)
         {
             _dataContext.UsersInfo.Remove(obj);
 
-            return await SaveChangesAsync();
-        }
-
-        public async Task<string> SaveChangesAsync()
-        {
-            try
-            {
-                await _dataContext.SaveChangesAsync();
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, string.Join("; ", _dataContext.ChangeTracker.Entries().Select(x => x.Entity.GetType().Name)));
-                _dataContext.ChangeTracker.Clear();
-                return ex.Message;
-            }
+            return await _baseRepository.SaveChangesAsync();
         }
 
         #endregion
@@ -119,6 +105,11 @@ namespace Storage.Module.Repositories
                     .Where(x => x.UserId == userId)
                     .FirstOrDefaultAsync();
             }
+        }
+
+        public Task<string> SaveChangesAsync()
+        {
+            return _baseRepository.SaveChangesAsync();
         }
     }
 }

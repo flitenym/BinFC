@@ -1,4 +1,5 @@
-﻿using Storage.Module.Entities;
+﻿using Microsoft.Extensions.Logging;
+using Storage.Module.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

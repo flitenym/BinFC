@@ -15,7 +15,7 @@ namespace Storage.Module.Entities
         public string UserEmail { get; set; }
         public string TrcAddress { get; set; }
         public string BepAddress { get; set; }
-        public bool? UniqueString { get; set; }
+        public Unique Unique { get; set; }
         public bool IsAdmin { get; set; }
     }
 }

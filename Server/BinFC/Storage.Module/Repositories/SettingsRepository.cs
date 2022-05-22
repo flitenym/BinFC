@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
+using Storage.Module.Repositories.Base;
 using Storage.Module.Repositories.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,26 +13,23 @@ namespace Storage.Module.Repositories
     public class SettingsRepository : ISettingsRepository
     {
         private readonly DataContext _dataContext;
+        private readonly IBaseRepository _baseRepository;
         private readonly ILogger<SettingsRepository> _logger;
-        public SettingsRepository(DataContext dataContext, ILogger<SettingsRepository> logger)
+        public SettingsRepository(DataContext dataContext, IBaseRepository baseRepository, ILogger<SettingsRepository> logger)
         {
             _dataContext = dataContext;
+            _baseRepository = baseRepository;
             _logger = logger;
         }
 
-        public async Task<string> SaveChangesAsync()
+        public IEnumerable<Settings> Get()
         {
-            try
-            {
-                await _dataContext.SaveChangesAsync();
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, string.Join("; ", _dataContext.ChangeTracker.Entries().Select(x => x.Entity.GetType().Name)));
-                _dataContext.ChangeTracker.Clear();
-                return ex.Message;
-            }
+            return _dataContext.Settings;
+        }
+
+        public Task<string> SaveChangesAsync()
+        {
+            return _baseRepository.SaveChangesAsync();
         }
 
         public async Task<(bool IsSuccess, T Value)> GetSettingsByKeyAsync<T>(string key, bool isNeedTracking = true)
@@ -60,7 +59,7 @@ namespace Storage.Module.Repositories
             return (false, default(T));
         }
 
-        public async Task<bool> SetSettingsByKeyAsync(string key, object value)
+        public async Task<string> SetSettingsByKeyAsync(string key, object value)
         {
             Settings settingsByKey;
 
@@ -71,13 +70,11 @@ namespace Storage.Module.Repositories
             if (settingsByKey != null)
             {
                 settingsByKey.Value = value.ToString();
-                _dataContext.Add(settingsByKey);
-
-                await SaveChangesAsync();
-                return true;
+                _dataContext.Update(settingsByKey);
+                return null;
             }
 
-            return false;
+            return $"Не найдены настройки с ключом {key}";
         }
     }
 }
