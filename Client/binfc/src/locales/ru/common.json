@@ -1,0 +1,14 @@
+{
+    "PayoutSettings": "Настройки выплат",
+    "Users": "Пользователи",
+    "Payout": "Выплата",
+    "PaymentHistory": "История оплаты",
+    "BinanceSettings": "Настройка Binance",
+    "PaymentDateSetting": "Настройка дат выплат",
+    "CheckDates": "Проверить даты",
+    "CommissionConversion": "Конвертация комиссии",
+    "Notifications": "Оповещения",
+    "EnableNofications": "Включить уведомления по выплатам в telegram",
+    "SaveSettings": "Сохранить настройки"
+}
+    
