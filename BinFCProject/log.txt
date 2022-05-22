@@ -1,8 +1,0 @@
-2022-05-20 18:45:08.2179|INFO|Microsoft.Hosting.Lifetime|Now listening on: http://localhost:7002
-2022-05-20 18:45:08.2576|INFO|Microsoft.Hosting.Lifetime|Application started. Press Ctrl+C to shut down.
-2022-05-20 18:45:08.2576|INFO|Microsoft.Hosting.Lifetime|Hosting environment: Production
-2022-05-20 18:45:08.2576|INFO|Microsoft.Hosting.Lifetime|Content root path: E:\Work\BinFCProject
-2022-05-20 18:59:28.7689|INFO|Microsoft.Hosting.Lifetime|Now listening on: http://0.0.0.0:7002
-2022-05-20 18:59:28.7886|INFO|Microsoft.Hosting.Lifetime|Application started. Press Ctrl+C to shut down.
-2022-05-20 18:59:28.7886|INFO|Microsoft.Hosting.Lifetime|Hosting environment: Production
-2022-05-20 18:59:28.7886|INFO|Microsoft.Hosting.Lifetime|Content root path: E:\Work\BinFCProject
