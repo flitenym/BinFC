@@ -29,6 +29,8 @@ namespace Storage.Module.Repositories
 
         public void Create(Data obj)
         {
+            _baseRepository.CreateUserInfo(obj.UserId);
+
             FuturesData newObj = new FuturesData()
             {
                 AgentEarnUsdt = obj.AgentEarnUsdt,

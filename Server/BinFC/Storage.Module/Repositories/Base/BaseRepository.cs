@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Linq;
@@ -29,6 +30,21 @@ namespace Storage.Module.Repositories.Base
                 _dataContext.ChangeTracker.Clear();
                 return ex.Message;
             }
+        }
+
+        public void CreateUserInfo(long userId)
+        {
+            if (IsNeedCreateUser(userId))
+            {
+                UserInfo userInfo = new UserInfo();
+                userInfo.UserId = userId;
+                _dataContext.UsersInfo.Add(userInfo);
+            }
+        }
+
+        private bool IsNeedCreateUser(long userId)
+        {
+            return _dataContext.UsersInfo.FirstOrDefault(x => x.UserId == userId) == null;
         }
     }
 }
