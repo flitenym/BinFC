@@ -1,0 +1,8 @@
+2022-05-12 00:36:06.8955|14|INFO|Microsoft.Hosting.Lifetime|Now listening on: http://localhost:7002 |url: |action: |Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync
+2022-05-12 00:36:06.9187|0|INFO|Microsoft.Hosting.Lifetime|Application started. Press Ctrl+C to shut down. |url: |action: |Microsoft.Extensions.Hosting.Internal.ConsoleLifetime.OnApplicationStarted
+2022-05-12 00:36:06.9187|0|INFO|Microsoft.Hosting.Lifetime|Hosting environment: Production |url: |action: |Microsoft.Extensions.Hosting.Internal.ConsoleLifetime.OnApplicationStarted
+2022-05-12 00:36:06.9187|0|INFO|Microsoft.Hosting.Lifetime|Content root path: E:\Work\BinFCProject |url: |action: |Microsoft.Extensions.Hosting.Internal.ConsoleLifetime.OnApplicationStarted
+2022-05-12 17:24:07.3082|14|INFO|Microsoft.Hosting.Lifetime|Now listening on: http://localhost:7002 |url: |action: |Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync
+2022-05-12 17:24:07.3434|0|INFO|Microsoft.Hosting.Lifetime|Application started. Press Ctrl+C to shut down. |url: |action: |Microsoft.Extensions.Hosting.Internal.ConsoleLifetime.OnApplicationStarted
+2022-05-12 17:24:07.3434|0|INFO|Microsoft.Hosting.Lifetime|Hosting environment: Production |url: |action: |Microsoft.Extensions.Hosting.Internal.ConsoleLifetime.OnApplicationStarted
+2022-05-12 17:24:07.3434|0|INFO|Microsoft.Hosting.Lifetime|Content root path: E:\Work\BinFCProject |url: |action: |Microsoft.Extensions.Hosting.Internal.ConsoleLifetime.OnApplicationStarted
