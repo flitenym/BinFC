@@ -10,7 +10,7 @@ namespace Storage.Module.Repositories.Interfaces
     {
         public IEnumerable<FuturesData> Get();
         public void Create(Data obj);
-        public Task<string> DeleteAsync();
+        public Task<string> DeleteAsync(IEnumerable<long> Ids);
         public Task<string> SaveChangesAsync();
     }
 }

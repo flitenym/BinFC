@@ -4,6 +4,7 @@ using Storage.Module.Entities.Base;
 using Storage.Module.Repositories.Base;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Storage.Module.Repositories
@@ -29,19 +30,26 @@ namespace Storage.Module.Repositories
 
         public void Create(Data obj)
         {
-            _baseRepository.CreateUserInfo(obj.UserId);
+            UserInfo userInfo = _baseRepository.GetOrCreateUserInfo(obj.UserId);
 
-            FuturesData newObj = new FuturesData()
+            FuturesData newObj = new()
             {
                 AgentEarnUsdt = obj.AgentEarnUsdt,
-                UserId = obj.UserId,
+                User = userInfo
             };
 
             _dataContext.FuturesData.Add(newObj);
         }
 
-        public async Task<string> DeleteAsync()
+        public async Task<string> DeleteAsync(IEnumerable<long> Ids)
         {
+            _dataContext
+                .SpotData
+                .RemoveRange(
+                    _dataContext
+                    .SpotData
+                    .Where(x => Ids.Contains(x.Id))
+                );
 
             return await SaveChangesAsync();
         }

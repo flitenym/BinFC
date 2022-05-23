@@ -24,13 +24,16 @@ namespace Storage.Module.Repositories
 
         public IEnumerable<UserInfo> Get()
         {
-            return _dataContext.UsersInfo;
+            return _dataContext
+                .UsersInfo
+                .Include(i => i.Unique);
         }
 
         public async Task<List<UserInfo>> GetAdminsAsync()
         {
             return await _dataContext
                 .UsersInfo
+                .Include(i => i.Unique)
                 .AsNoTracking()
                 .Where(x => x.IsAdmin)
                 .Where(x => x.ChatId.HasValue)
@@ -39,7 +42,10 @@ namespace Storage.Module.Repositories
 
         public async Task<UserInfo> GetByIdAsync(long Id)
         {
-            return await _dataContext.UsersInfo.FindAsync(Id);
+            return await _dataContext
+                .UsersInfo
+                .Include(i => i.Unique)
+                .FirstOrDefaultAsync(x => x.Id == Id);
         }
 
         public async Task<string> CreateAsync(UserInfo obj)

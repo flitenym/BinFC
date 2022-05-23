@@ -35,14 +35,14 @@ namespace Storage.Module.Services
                 Settings cronExpression = new Settings()
                 {
                     Key = SettingsKeys.CronExpression,
-                    Value = "* * * * *"
+                    Value = DefaultValues.Cron
                 };
                 _dataContext.Add(cronExpression);
 
                 Settings sellCurrency = new Settings()
                 {
                     Key = SettingsKeys.SellCurrency,
-                    Value = "USDT"
+                    Value = DefaultValues.SellCurrency
                 };
                 _dataContext.Add(sellCurrency);
 
@@ -52,16 +52,21 @@ namespace Storage.Module.Services
                     Value = bool.TrueString
                 };
                 _dataContext.Add(isNotification);
-                               
 
                 // admin
                 Admin admin = new Admin()
                 {
-                    UserName = "admin",
-                    Password = "1111"
+                    UserName = DefaultValues.AdminName,
+                    Password = DefaultValues.AdminPassword
                 };
-
                 _dataContext.Add(admin);
+
+                // unique
+                Unique unique = new Unique()
+                {
+                    Name = DefaultValues.UniqueName
+                };
+                _dataContext.Add(unique);
 
                 await _dataContext.SaveChangesAsync();
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Storage.Module.Entities
 {
@@ -22,10 +23,7 @@ namespace Storage.Module.Entities
 
         public long UserId { get; set; }
 
-        /// <summary>
-        /// Кому отправлено
-        /// </summary>
-        [Required]
+        [ForeignKey("UserId")]
         public UserInfo User { get; set; }
     }
 }

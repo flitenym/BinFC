@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
 using System;
@@ -32,19 +33,37 @@ namespace Storage.Module.Repositories.Base
             }
         }
 
-        public void CreateUserInfo(long userId)
+        public UserInfo GetOrCreateUserInfo(long userId)
         {
-            if (IsNeedCreateUser(userId))
+            var foundedUserInfo = GetUserInfo(userId);
+            if (foundedUserInfo == null)
             {
-                UserInfo userInfo = new UserInfo();
-                userInfo.UserId = userId;
-                _dataContext.UsersInfo.Add(userInfo);
+
+                UserInfo userInfo = new()
+                {
+                    UserId = userId,
+                    Unique = GetDefaultUnique()
+                };
+
+                return userInfo;
             }
+
+            return foundedUserInfo;
         }
 
-        private bool IsNeedCreateUser(long userId)
+        private UserInfo GetUserInfo(long userId)
         {
-            return _dataContext.UsersInfo.FirstOrDefault(x => x.UserId == userId) == null;
+            return _dataContext
+                .UsersInfo
+                .Include(i => i.Unique)
+                .FirstOrDefault(x => x.UserId == userId);
+        }
+
+        private Unique GetDefaultUnique()
+        {
+            return _dataContext
+                .Unique
+                .First(x => x.Name == DefaultValues.UniqueName);
         }
     }
 }
