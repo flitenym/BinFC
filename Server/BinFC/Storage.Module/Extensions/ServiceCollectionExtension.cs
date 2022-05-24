@@ -46,23 +46,23 @@ namespace Storage.Module.Extensions
 
         public static void AddStorageServices(this IServiceCollection services)
         {
-            services.AddScoped<IDbSettingsService, DbSettingsService>();
-            services.AddScoped<IInitialCreateService, InitialCreateService>();
+            services.AddTransient<IDbSettingsService, DbSettingsService>();
+            services.AddTransient<IInitialCreateService, InitialCreateService>();
         }
 
         public static void AddStorageRepositoryServices(this IServiceCollection services)
         {
-            services.AddScoped<IBaseRepository, BaseRepository>();
-            services.AddScoped<IUserInfoRepository, UserInfoRepository>();
-            services.AddScoped<IAdminRepository, AdminRepository>();
-            services.AddScoped<ISettingsRepository, SettingsRepository>();
-            services.AddScoped<ISpotDataRepository, SpotDataRepository>();
-            services.AddScoped<IFuturesDataRepository, FuturesDataRepository>();
+            services.AddTransient<IBaseRepository, BaseRepository>();
+            services.AddTransient<IUserInfoRepository, UserInfoRepository>();
+            services.AddTransient<IAdminRepository, AdminRepository>();
+            services.AddTransient<ISettingsRepository, SettingsRepository>();
+            services.AddTransient<ISpotDataRepository, SpotDataRepository>();
+            services.AddTransient<IFuturesDataRepository, FuturesDataRepository>();
         }
 
         public static void AddStorageImportServices(this IServiceCollection services)
         {
-            services.AddScoped<IImportService, ImportService>();
+            services.AddTransient<IImportService, ImportService>();
         }
     }
 }

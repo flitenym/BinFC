@@ -29,26 +29,26 @@ namespace TelegramFatCamel.Module
         {
             services.AddLocalization(options => options.ResourcesPath = "Localization");
 
-            services.AddSingleton<ICommandExecutorService, CommandExecutorService>();
             services.AddSingleton<ITelegramSettingsService, TelegramSettingsService>();
             services.AddSingleton<ITelegramFatCamelBotService, TelegramFatCamelBotService>();
 
+            services.AddScoped<ICommandExecutorService, CommandExecutorService>();
             // Commands
-            services.AddSingleton<BaseCommand, AcceptEmailCommand>();
-            services.AddSingleton<BaseCommand, AcceptNameCommand>();
-            services.AddSingleton<BaseCommand, AcceptPurseCommand>();
-            services.AddSingleton<BaseCommand, ChangePurseCommand>();
-            services.AddSingleton<BaseCommand, ErrorInputIdCommand>();
-            services.AddSingleton<BaseCommand, GetOperationsCommand>();
-            services.AddSingleton<BaseCommand, GetPrivateCommand>();            
-            services.AddSingleton<BaseCommand, InputBepCommand>();
-            services.AddSingleton<BaseCommand, InputEmailCommand>();
-            services.AddSingleton<BaseCommand, InputIdCommand>();
-            services.AddSingleton<BaseCommand, InputNameCommand>();
-            services.AddSingleton<BaseCommand, InputTrcCommand>();
-            services.AddSingleton<BaseCommand, NotExistIdCommand>();
-            services.AddSingleton<BaseCommand, SelectPurseCommand>();
-            services.AddSingleton<BaseCommand, StartCommand>();
+            services.AddScoped<BaseCommand, AcceptEmailCommand>();
+            services.AddScoped<BaseCommand, AcceptNameCommand>();
+            services.AddScoped<BaseCommand, AcceptPurseCommand>();
+            services.AddScoped<BaseCommand, ChangePurseCommand>();
+            services.AddScoped<BaseCommand, ErrorInputIdCommand>();
+            services.AddScoped<BaseCommand, GetOperationsCommand>();
+            services.AddScoped<BaseCommand, GetPrivateCommand>();            
+            services.AddScoped<BaseCommand, InputBepCommand>();
+            services.AddScoped<BaseCommand, InputEmailCommand>();
+            services.AddScoped<BaseCommand, InputIdCommand>();
+            services.AddScoped<BaseCommand, InputNameCommand>();
+            services.AddScoped<BaseCommand, InputTrcCommand>();
+            services.AddScoped<BaseCommand, NotExistIdCommand>();
+            services.AddScoped<BaseCommand, SelectPurseCommand>();
+            services.AddScoped<BaseCommand, StartCommand>();
 
             return Task.CompletedTask;
         }

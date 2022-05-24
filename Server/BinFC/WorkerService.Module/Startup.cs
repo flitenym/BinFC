@@ -24,7 +24,7 @@ namespace WorkerService.Module
         {
             services.AddControllers().AddApplicationPart(typeof(Startup).Assembly);
 
-            services.AddSingleton<CronJobBaseService<IBinanceSell>, BinanceSellService>();
+            services.AddScoped<CronJobBaseService<IBinanceSell>, BinanceSellService>();
 
             return Task.CompletedTask;
         }
