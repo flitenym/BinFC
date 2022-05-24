@@ -44,15 +44,20 @@ namespace TelegramFatCamel.Module.Services
 
             if (isNeedHandlers)
             {
-                _client = new TelegramBotClient(_telegramSettingsService.Token);
+                CreateTelegram();
                 await StartTelegramBotAsync();
             }
             else
             {
-                _client = new TelegramBotClient(_telegramSettingsService.Token);
+                CreateTelegram();
             }
 
             return _client;
+        }
+
+        private void CreateTelegram()
+        {
+            _client = new TelegramBotClient(_telegramSettingsService.Token);
         }
 
         private Task StartTelegramBotAsync()
