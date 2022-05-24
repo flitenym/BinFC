@@ -4,11 +4,23 @@
     "Payout": "Выплата",
     "PaymentHistory": "История оплаты",
     "BinanceSettings": "Настройка Binance",
+
+
     "PaymentDateSetting": "Настройка дат выплат",
     "CheckDates": "Проверить даты",
     "CommissionConversion": "Конвертация комиссии",
     "Notifications": "Оповещения",
     "EnableNofications": "Включить уведомления по выплатам в telegram",
-    "SaveSettings": "Сохранить настройки"
+    "SaveSettings": "Сохранить настройки",
+
+    "TableTitle": "Пользователи Futures (Аналогично для SPOT снизу + редактируется всё кроме ID)",
+    "TableId": "ID",
+    "TableName": "Имя",
+    "TableEmail": "Email",
+    "TableTrc": "TRC",
+    "TableBep": "BEP",
+    "TableComission": "Комиссия",
+    "TableUnique": "Unique",
+    "noData": "Нет данных"
 }
     

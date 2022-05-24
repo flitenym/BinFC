@@ -5,6 +5,9 @@ export const LOG_OUT_SUCCESS = 'LOG_OUT_SUCCESS';
 /* Language */
 export const LANGUAGE_CHANGE = 'LANGUAGE_CHANGE';
 
+/* Mode */
+export const MODE_CHANGE = 'MODE_CHANGE';
+
 export interface AuthActionTypes {
     type: typeof LOG_IN_SUCCESS | typeof LOG_OUT_SUCCESS;
     payload: Token
@@ -15,10 +18,18 @@ export interface LanguageActionTypes {
     payload: Language
 }
 
+export interface themeActionTypes {
+    type: typeof MODE_CHANGE;
+    payload: ThemeMode
+}
+
 export interface Language {
     locale: string | null;
 }
 
+export interface ThemeMode {
+    mode: string | null;
+}
 export interface Token {
     username?: string | null;
     token?: string | null;

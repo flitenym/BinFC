@@ -1,4 +1,4 @@
-import { FunctionComponent, useEffect } from "react"
+import { FunctionComponent } from "react"
 
 
 const PaymentHistory: FunctionComponent = () => {
