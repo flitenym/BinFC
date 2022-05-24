@@ -1,12 +1,13 @@
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useEffect } from 'react';
 import { Form, Input, Button, Layout, } from "antd";
 import { useDispatch, } from "react-redux";
 import "./LoginStyles.scss";
 import authService from '../../services/auth.service';
 import { useNavigate } from "react-router-dom";
-import { languageChange, logInSuccess } from '../../store/actions';
+import { logInSuccess } from '../../store/actions';
 import axios from "axios";
 import { useTranslation } from "react-i18next";
+import i18n from '../../i18n';
 
 interface IProps { }
 
@@ -16,6 +17,11 @@ const LoginPage: FunctionComponent<IProps> = () => {
   const navigate = useNavigate();
   const { t } = useTranslation("authentication");
   const token = localStorage.getItem("token");
+  const ruIsSelected = localStorage.getItem("i18nextLng") === "ru"
+
+  useEffect(() => {
+    i18n.changeLanguage(ruIsSelected ? "ru" : 'en')
+  }, [ruIsSelected])
 
   const onFinish = (values: any): any => {
     authService.login(values?.username, values?.password)
@@ -36,11 +42,11 @@ const LoginPage: FunctionComponent<IProps> = () => {
       if (token) {
           navigate("/dashboard");
       }
-  }, [])
+  }, [navigate, token])
 
   return (
     <Content
-      style={{ minHeight: "100vh", backgroundColor: "#FFF", display: "flex" }}
+      style={{ minHeight: "100vh", display: "flex" }}
     >
       <div className="login-form-wrapper">
         <Form

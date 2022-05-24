@@ -2,10 +2,13 @@ import {
     LOG_IN_SUCCESS,
     LOG_OUT_SUCCESS,
     LANGUAGE_CHANGE,
+    MODE_CHANGE,
+    ThemeMode,
     Token,
     Language,
     AuthActionTypes,
     LanguageActionTypes,
+    themeActionTypes
 } from './types';
 
 export const initCommonState: Token = {
@@ -15,6 +18,10 @@ export const initCommonState: Token = {
 
 export const languageState: Language = {
     locale: null,
+};
+
+export const themeState: ThemeMode = {
+    mode: null,
 };
 
 export const authReducer = (state = initCommonState, action: AuthActionTypes) => {
@@ -44,6 +51,19 @@ export const languageReducer = (state = languageState, action: LanguageActionTyp
             return {
                 ...state,
                 locale: action?.payload?.locale,
+            };
+        }
+        default:
+            return state;
+    }
+}
+
+export const themeReducer = (state = themeState, action: themeActionTypes) => {
+    switch (action.type) {
+        case MODE_CHANGE: {
+            return {
+                ...state,
+                mode: action?.payload?.mode,
             };
         }
         default:

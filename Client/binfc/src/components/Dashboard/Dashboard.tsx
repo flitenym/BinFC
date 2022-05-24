@@ -21,7 +21,7 @@ const DashBoard: FunctionComponent<IProps> = () => {
         } else {
             dispatch(logInSuccess({ username, token }));
         }
-    }, [])
+    }, [dispatch, navigate, token])
 
     return (
         <Layout style={{ display: "flex" }} >

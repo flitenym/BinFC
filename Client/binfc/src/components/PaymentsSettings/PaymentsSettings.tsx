@@ -1,6 +1,6 @@
 import { Button, Checkbox, Input, Radio, Space, Typography } from "antd";
 import { Content } from "antd/lib/layout/layout";
-import { FunctionComponent, useEffect, useRef, useState } from "react"
+import { FunctionComponent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next";
 import settingsService from "../../services/settings.servise";
 
@@ -22,7 +22,7 @@ interface ISellCurrency {
 
 interface IsNotification {
     key: string;
-    value: boolean | null;
+    value: boolean;
 }
 
 const PaymentsSettings: FunctionComponent = () => {
@@ -63,7 +63,7 @@ const PaymentsSettings: FunctionComponent = () => {
                 if (item?.key === "IsNotification") {
                     return setIsNotification({
                         key: item?.key,
-                        value: item?.value ? true : false,
+                        value: item?.value === "True",
                     })
                 }
             })
@@ -78,21 +78,15 @@ const PaymentsSettings: FunctionComponent = () => {
 
     }
 
-    const getFetchBody = (inputValue: any, sellCurrency: any, isNotification: any) => {
-        var formData = new FormData(); // Currently empty
-        // formData.append('settings[0].key', 'CronExpression');
-        // formData.append('settings[0].value', inputValue.toString());
-        // formData.append('settings[1].key', 'SellCurrency');
-        // formData.append('settings[1].value', sellCurrency?.value.toString());
-        // formData.append('settings[2].key', 'IsNotification');
-        // formData.append('settings[2].value', isNotification?.value.toString());
-        formData.append('username', 'Chris');
-        console.log(formData);
-        return formData
-    }
-
     const saveSettings = () => {
-        settingsService.saveSettings(getFetchBody(inputValue, sellCurrency, isNotification))
+        let formData = new FormData();
+        formData.append('settings[0].key', 'CronExpression');
+        formData.append('settings[0].value', inputValue);
+        formData.append('settings[1].key', 'SellCurrency');
+        formData.append('settings[1].value', `${sellCurrency?.value}`);
+        formData.append('settings[2].key', 'IsNotification');
+        formData.append('settings[2].value', `${isNotification?.value ? "True" : "False"}`);
+        return settingsService.saveSettings(formData)
     };
 
     return (
@@ -106,6 +100,7 @@ const PaymentsSettings: FunctionComponent = () => {
                     style={{ maxWidth: "225px" }}
                 />
                 <Button
+                    type="primary"
                     onClick={() => submitValue}
                     style={{ textAlign: "left", marginLeft: "30px" }}>
                     {t("common:CheckDates")}
@@ -143,7 +138,7 @@ const PaymentsSettings: FunctionComponent = () => {
                 {t("common:Notifications")}
                 <Checkbox
                     key={isNotification.key}
-                    defaultChecked={isNotification.value ?? false}
+                    defaultChecked={isNotification.value}
                     style={{ marginTop: "16px" }}
                     onChange={(event) => {
                         setIsNotification(
@@ -158,6 +153,7 @@ const PaymentsSettings: FunctionComponent = () => {
             </div>
             <div style={{ marginTop: "25px" }}>
                 <Button
+                    type="primary"
                     onClick={() => saveSettings()}
                     style={{ textAlign: "left" }}>
                     {t("common:SaveSettings")}

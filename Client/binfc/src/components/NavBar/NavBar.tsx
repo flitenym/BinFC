@@ -1,7 +1,7 @@
-import { FunctionComponent, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom";
+import { FunctionComponent, useEffect } from "react"
+import { Outlet, useNavigate } from "react-router-dom";
 import type { MenuProps } from 'antd';
-import { Menu, Button } from 'antd';
+import { Menu } from 'antd';
 import {
     UsergroupAddOutlined,
     SettingOutlined,
@@ -11,23 +11,19 @@ import {
 } from '@ant-design/icons';
 import { useTranslation } from "react-i18next";
 import "./Navbar.scss"
-import PaymentsSettings from "../PaymentsSettings";
 import { Content } from "antd/lib/layout/layout";
-import Users from "../Users";
-import Payout from "../Payout";
-import PaymentHistory from "../PaymentHistory";
-import BinanceSettings from "../BinanceSettings";
 
 type MenuItem = Required<MenuProps>['items'][number];
 
-const NavBar: FunctionComponent = ({ children }: any) => {
+const NavBar: FunctionComponent = () => {
     const { t } = useTranslation("common");
-    const [routeSelected, setRouteSelected] = useState<string>('/dashboard/PaymentsSettings')
     const navigate = useNavigate();
     const selectedItem = localStorage.getItem("selectedItem")
+    const selectedRouted = localStorage.getItem("selectedRouted")
+
     useEffect(() => {
-        { returnComponent(routeSelected) }
-    }, [])
+        navigate(selectedRouted ? selectedRouted : "/dashboard/PaymentsSettings")
+    }, [navigate, selectedRouted])
 
     function getItem(
         route?: string,
@@ -58,36 +54,20 @@ const NavBar: FunctionComponent = ({ children }: any) => {
     const onClick = (e: any) => {
         items.map((item: any) => {
             if (item?.key === e.key) {
-                setRouteSelected(item?.route)
-                localStorage.setItem("selectedItem", item?.route)
+                localStorage.setItem("selectedItem", item?.key)
+                localStorage.setItem("selectedRouted", item?.route)
                 return navigate(item?.route)
             }
+            return navigate(item?.route)
         });
     };
-
-    const returnComponent = (route: string) => {
-        switch (route) {
-            case "/dashboard/PaymentsSettings":
-                return <PaymentsSettings />
-            case "/dashboard/Users":
-                return <Users />
-            case "/dashboard/Payout":
-                return <Payout />
-            case "/dashboard/PaymentHistory":
-                return <PaymentHistory />
-            case "/dashboard/BinanceSettings":
-                return <BinanceSettings />
-            default:
-                return <PaymentsSettings />
-        }
-    }
-
 
     return (
         <div style={{ display: "flex" }}>
             <Menu
+                defaultActiveFirst
+                defaultSelectedKeys={[selectedItem ? selectedItem : "1"]}
                 mode="inline"
-                theme="dark"
                 style={{ width: "256px" }}
                 items={items}
                 onClick={(e) => onClick(e)}
@@ -99,7 +79,9 @@ const NavBar: FunctionComponent = ({ children }: any) => {
                     margin: 0,
                 }}
             >
-                {returnComponent(routeSelected)}
+                <div style={{ maxWidth: "1600px" }}>
+                    <Outlet />
+                </div>
             </Content>
         </div>
     );

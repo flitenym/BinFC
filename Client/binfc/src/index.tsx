@@ -1,16 +1,19 @@
 import axios from "axios";
-import 'material-react-toastify/dist/ReactToastify.css';
+// import 'material-react-toastify/dist/ReactToastify.css';
 import React from "react";
+import { ThemeSwitcherProvider } from "react-css-theme-switcher";
 import ReactDOM from 'react-dom/client';
-import { HashRouter, Route, Routes, Navigate } from "react-router-dom";
-import LoginPage from "./components/Login";
+import { HashRouter } from "react-router-dom";
 import "antd/dist/antd.variable.min.css";
 import { Provider } from "react-redux";
 import { store } from "./store/index";
 import { I18nextProvider } from "react-i18next";
 import i18n from "./i18n"
-import DashBoard from "./components/DashBoard";
-import PaymentsSettings from "./components/PaymentsSettings";
+import App from "./App";
+import "./themes/dark-theme.less"
+import "./themes/dark-theme.less"
+import "./styles.scss"
+const lightThemeIsSelected = localStorage.getItem("theme")
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.interceptors.request.use(function (config) {
@@ -28,23 +31,25 @@ axios.interceptors.response.use(function (response) {
   return Promise.reject(error);
 });
 
+const themes = {
+  dark: `${process.env.PUBLIC_URL}/dark-theme.css`,
+  light: `${process.env.PUBLIC_URL}/light-theme.css`,
+};
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-        <HashRouter>
-          <I18nextProvider i18n={i18n}>
-            <Routes>
-              <Route path="/" element={<Navigate replace to="/login" />} />
-              <Route path={`/dashboard/*`} element={<DashBoard/>} />
-              <Route path="/login" element={<LoginPage />} />
-            </Routes>
-          </I18nextProvider>
-        </HashRouter>
+      <HashRouter>
+        <I18nextProvider i18n={i18n}>
+          <ThemeSwitcherProvider themeMap={themes} defaultTheme={lightThemeIsSelected ? lightThemeIsSelected : "dark"}>
+            <App />
+          </ThemeSwitcherProvider>
+        </I18nextProvider>
+      </HashRouter>
     </Provider>
   </React.StrictMode>
 );

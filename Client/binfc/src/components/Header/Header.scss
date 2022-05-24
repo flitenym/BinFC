@@ -1,7 +1,13 @@
-.ant-page-header-heading-title {
-    color: #fff;
-}
-
 .ant-space.ant-space-horizontal.ant-space-align-center {
     gap: 20px !important
+}
+
+.btn {
+    background: none !important; 
+    border: none !important;
+    outline:  none !important;
+    box-shadow: none !important;
+    &::after, ::before {
+        content: none;
+    }
 }
