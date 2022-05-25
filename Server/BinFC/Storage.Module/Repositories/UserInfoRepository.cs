@@ -12,11 +12,17 @@ namespace Storage.Module.Repositories
     {
         private readonly DataContext _dataContext;
         private readonly IBaseRepository _baseRepository;
+        private readonly IUniqueRepository _uniqueRepository;
         private readonly ILogger<UserInfoRepository> _logger;
-        public UserInfoRepository(DataContext dataContext, IBaseRepository baseRepository, ILogger<UserInfoRepository> logger)
+        public UserInfoRepository(
+            DataContext dataContext, 
+            IBaseRepository baseRepository, 
+            IUniqueRepository uniqueRepository, 
+            ILogger<UserInfoRepository> logger)
         {
             _dataContext = dataContext;
             _baseRepository = baseRepository;
+            _uniqueRepository = uniqueRepository;
             _logger = logger;
         }
 
@@ -63,8 +69,16 @@ namespace Storage.Module.Repositories
             obj.UserEmail = newObj.UserEmail;
             obj.TrcAddress = newObj.TrcAddress;
             obj.BepAddress = newObj.BepAddress;
-            obj.Unique = newObj.Unique;
+             
+            var unique = await _uniqueRepository.GetByIdAsync(obj.UniqueId);
 
+            if (unique == null)
+            {
+                return "Не найден уникальный ключ у пользователя Unique.";
+            }
+
+            obj.UniqueId = newObj.UniqueId; 
+            
             _dataContext.UsersInfo.Update(obj);
 
             return await _baseRepository.SaveChangesAsync();

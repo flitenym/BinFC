@@ -46,23 +46,28 @@ namespace WorkerService.Module
         }
 
         [HttpGet("next")]
-        public IEnumerable<string> GetOccurrences(string cron)
+        public ActionResult<IEnumerable<string>> GetOccurrences(string cron)
         {
             if (string.IsNullOrEmpty(cron))
             {
-                return null;
+                return BadRequest("Отправлена пустая сущность.");
             }
 
             try
             {
                 CronExpression expression = CronParseHelper.GetCronExpression(cron);
 
+                if (expression == null)
+                {
+                    return BadRequest($"Неверный формат Cron: {cron}");
+                }
+
                 return expression.GetOccurrences(DateTime.UtcNow, DateTime.UtcNow.AddMonths(2)).Take(20).Select(x => x.ToString()).ToList();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка получения следующих дат.");
-                return null;
+                _logger.LogError(ex, "Ошибка получения следующих дат выполнения сервиса продажи.");
+                return BadRequest("Ошибка получения следующих дат выполнения сервиса продажи.");
             }
         }
     }

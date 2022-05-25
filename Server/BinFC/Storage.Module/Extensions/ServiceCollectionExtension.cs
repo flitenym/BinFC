@@ -54,6 +54,7 @@ namespace Storage.Module.Extensions
         {
             services.AddTransient<IBaseRepository, BaseRepository>();
             services.AddTransient<IUserInfoRepository, UserInfoRepository>();
+            services.AddTransient<IUniqueRepository, UniqueRepository>();
             services.AddTransient<IAdminRepository, AdminRepository>();
             services.AddTransient<ISettingsRepository, SettingsRepository>();
             services.AddTransient<ISpotDataRepository, SpotDataRepository>();
