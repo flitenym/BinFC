@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,6 +21,13 @@ namespace Storage.Module.Repositories
             _dataContext = dataContext;
             _baseRepository = baseRepository;
             _logger = logger;
+        }
+
+        public IEnumerable<TelegramUserInfo> Get()
+        {
+            return _dataContext
+                .TelegramUsersInfo
+                .OrderBy(x => x.Id);
         }
 
         public async Task<TelegramUserInfo> GetByChatIdAsync(long? chatId)

@@ -59,6 +59,8 @@ namespace Storage.Module.Extensions
             services.AddScoped<ISettingsRepository, SettingsRepository>();
             services.AddScoped<ISpotDataRepository, SpotDataRepository>();
             services.AddScoped<IFuturesDataRepository, FuturesDataRepository>();
+            services.AddScoped<IFuturesScaleRepository, FuturesScaleRepository>();
+            services.AddScoped<ISpotScaleRepository, SpotScaleRepository>();
             services.AddScoped<IPayHistoryRepository, PayHistoryRepository>();
             services.AddScoped<ITelegramUserInfoRepository, TelegramUserInfoRepository>();
         }
