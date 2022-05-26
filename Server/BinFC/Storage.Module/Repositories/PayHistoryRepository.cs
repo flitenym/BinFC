@@ -2,6 +2,7 @@
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Storage.Module.Repositories
@@ -20,7 +21,9 @@ namespace Storage.Module.Repositories
 
         public IEnumerable<PayHistory> Get()
         {
-            return _dataContext.PayHistory;
+            return _dataContext
+                .PayHistory
+                .OrderBy(x => x.Id);
         }
 
         public Task<string> SaveChangesAsync()

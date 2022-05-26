@@ -20,5 +20,6 @@ namespace Storage.Module
         public DbSet<SpotScale> SpotScale { get; set; }
         public DbSet<PayHistory> PayHistory { get; set; }
         public DbSet<Unique> Unique { get; set; }
+        public DbSet<TelegramUserInfo> TelegramUsersInfo { get; set; }
     }
 }

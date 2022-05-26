@@ -25,7 +25,9 @@ namespace Storage.Module.Repositories
 
         public IEnumerable<FuturesData> Get()
         {
-            return _dataContext.FuturesData;
+            return _dataContext
+                .FuturesData
+                .OrderBy(x => x.Id);
         }
 
         public void Create(Data obj)

@@ -23,8 +23,6 @@ namespace TelegramFatCamel.Module.Services
 
         private bool IsHandlersStarted = false;
 
-        private string _lastCommand = null;
-
         private CancellationTokenSource _cancellationToken;
 
         private string Token { get; set; }
@@ -97,7 +95,7 @@ namespace TelegramFatCamel.Module.Services
                         scope.ServiceProvider
                             .GetRequiredService<ICommandExecutorService>();
 
-                    _lastCommand = await scopedProcessingService.ExecuteAsync(botClient, _lastCommand, update);
+                    await scopedProcessingService.ExecuteAsync(botClient, update);
                 }
             }
             catch (Exception exception)

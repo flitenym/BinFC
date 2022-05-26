@@ -24,7 +24,9 @@ namespace Storage.Module.Repositories
 
         public IEnumerable<Settings> Get()
         {
-            return _dataContext.Settings;
+            return _dataContext
+                .Settings
+                .OrderBy(x => x.Id);
         }
 
         public Task<string> SaveChangesAsync()

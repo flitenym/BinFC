@@ -6,6 +6,6 @@ namespace TelegramFatCamel.Module.Services.Interfaces
 {
     public interface ICommandExecutorService
     {
-        Task<string> ExecuteAsync(ITelegramBotClient client, string lastCommand, Update update);
+        Task ExecuteAsync(ITelegramBotClient client, Update update);
     }
 }

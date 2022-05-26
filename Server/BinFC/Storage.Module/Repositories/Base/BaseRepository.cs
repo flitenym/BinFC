@@ -61,9 +61,16 @@ namespace Storage.Module.Repositories.Base
 
         private Unique GetDefaultUnique()
         {
-            return _dataContext
-                .Unique
-                .First(x => x.Id == DefaultValues.UniqueId);
+            return
+                _dataContext
+                    .Unique
+                    .FirstOrDefault(x => x.Id == DefaultValues.UniqueId) ??
+                _dataContext
+                    .Unique
+                    .FirstOrDefault(x => x.Name == DefaultValues.UniqueName) ??
+                _dataContext
+                    .Unique
+                    .FirstOrDefault();
         }
     }
 }

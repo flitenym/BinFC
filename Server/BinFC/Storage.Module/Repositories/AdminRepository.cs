@@ -24,7 +24,9 @@ namespace Storage.Module.Repositories
 
         public IEnumerable<Admin> Get()
         {
-            return _dataContext.Admins;
+            return _dataContext
+                .Admins
+                .OrderBy(x => x.Id);
         }
 
         public async Task<Admin> GetByIdAsync(long Id)

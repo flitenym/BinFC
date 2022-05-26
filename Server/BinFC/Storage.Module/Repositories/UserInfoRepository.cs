@@ -32,7 +32,8 @@ namespace Storage.Module.Repositories
         {
             return _dataContext
                 .UsersInfo
-                .Include(i => i.Unique);
+                .Include(i => i.Unique)
+                .OrderBy(x => x.Id);
         }
 
         public async Task<List<UserInfo>> GetAdminsAsync()
