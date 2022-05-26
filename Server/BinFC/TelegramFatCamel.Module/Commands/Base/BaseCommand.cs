@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace TelegramFatCamel.Module.Commands.Base
@@ -6,6 +7,6 @@ namespace TelegramFatCamel.Module.Commands.Base
     public abstract class BaseCommand
     {
         public abstract string Name { get; }
-        public abstract Task ExecuteAsync(Update update, dynamic param = null);
+        public abstract Task ExecuteAsync(ITelegramBotClient client, Update update, dynamic param = null);
     }
 }

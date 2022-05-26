@@ -6,23 +6,20 @@ using Telegram.Bot.Types.ReplyMarkups;
 using TelegramFatCamel.Module.Commands.Base;
 using TelegramFatCamel.Module.Commands.CommandSettings;
 using TelegramFatCamel.Module.Localization;
-using TelegramFatCamel.Module.Services.Interfaces;
 
 namespace TelegramFatCamel.Module.Commands
 {
     public class SelectPurseCommand : BaseCommand
     {
         private readonly IUserInfoRepository _userInfoRepository;
-        private readonly TelegramBotClient _client;
-        public SelectPurseCommand(ITelegramFatCamelBotService telegramFatCamelBotService, IUserInfoRepository userInfoRepository)
+        public SelectPurseCommand(IUserInfoRepository userInfoRepository)
         {
-            _client = telegramFatCamelBotService.GetTelegramBotAsync().Result;
             _userInfoRepository = userInfoRepository;
         }
 
         public override string Name => CommandNames.SelectPurseCommand;
 
-        public override async Task ExecuteAsync(Update update, dynamic param = null)
+        public override async Task ExecuteAsync(ITelegramBotClient client, Update update, dynamic param = null)
         {
             var userInfo = await _userInfoRepository.GetUserInfoByUserIdAsync(long.Parse(update.Message.Text.Trim()));
 
@@ -38,7 +35,7 @@ namespace TelegramFatCamel.Module.Commands
 
             if (await _userInfoRepository.SaveChangesAsync() != null)
             {
-                await _client.SendTextMessageAsync(
+                await client.SendTextMessageAsync(
                     update.Message.Chat.Id,
                     TelegramLoc.ErrorTextToSendAdmin,
                     replyMarkup: new ReplyKeyboardRemove());
@@ -55,7 +52,7 @@ namespace TelegramFatCamel.Module.Commands
                 }
             });
 
-            await _client.SendTextMessageAsync(
+            await client.SendTextMessageAsync(
                 update.Message.Chat.Id,
                 TelegramLoc.ChoosePurse,
                 replyMarkup: inlineKeyboard);

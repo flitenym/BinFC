@@ -16,21 +16,21 @@ namespace TelegramFatCamel.Module
     {
         public async Task ConfigureAsync(IApplicationBuilder app, IHostApplicationLifetime hal, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
-            await serviceProvider.GetRequiredService<ITelegramFatCamelBotService>().GetTelegramBotAsync();
+            await serviceProvider.GetRequiredService<TelegramFatCamelBotService>().GetTelegramBotAsync();
             hal.ApplicationStopping.Register(async () => await OnShutdownAsync(serviceProvider));
         }
 
         private async Task OnShutdownAsync(IServiceProvider serviceProvider)
         {
-            await serviceProvider.GetRequiredService<ITelegramFatCamelBotService>().StopTelegramBotAsync();
+            await serviceProvider.GetRequiredService<TelegramFatCamelBotService>().StopTelegramBotAsync();
         }
 
         public Task ConfigureServicesAsync(IServiceCollection services)
         {
             services.AddLocalization(options => options.ResourcesPath = "Localization");
 
-            services.AddSingleton<ITelegramSettingsService, TelegramSettingsService>();
-            services.AddSingleton<ITelegramFatCamelBotService, TelegramFatCamelBotService>();
+            services.AddSingleton<TelegramFatCamelBotService>();
+            services.AddHostedService(sp => sp.GetRequiredService<TelegramFatCamelBotService>());
 
             services.AddScoped<ICommandExecutorService, CommandExecutorService>();
             // Commands

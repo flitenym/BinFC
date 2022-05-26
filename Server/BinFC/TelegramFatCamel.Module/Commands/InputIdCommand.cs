@@ -5,23 +5,20 @@ using Telegram.Bot.Types.ReplyMarkups;
 using TelegramFatCamel.Module.Commands.Base;
 using TelegramFatCamel.Module.Commands.CommandSettings;
 using TelegramFatCamel.Module.Localization;
-using TelegramFatCamel.Module.Services.Interfaces;
 
 namespace TelegramFatCamel.Module.Commands
 {
     public class InputIdCommand : BaseCommand
     {
-        private readonly TelegramBotClient _client;
-        public InputIdCommand(ITelegramFatCamelBotService telegramFatCamelBotService)
+        public InputIdCommand()
         {
-            _client = telegramFatCamelBotService.GetTelegramBotAsync().Result;
         }
 
         public override string Name => CommandNames.InputIdCommand;
 
-        public override async Task ExecuteAsync(Update update, dynamic param = null)
+        public override async Task ExecuteAsync(ITelegramBotClient client, Update update, dynamic param = null)
         {
-            await _client.SendTextMessageAsync(
+            await client.SendTextMessageAsync(
                 update.Message.Chat.Id,
                 TelegramLoc.InputId,
                 replyMarkup: new ReplyKeyboardRemove());

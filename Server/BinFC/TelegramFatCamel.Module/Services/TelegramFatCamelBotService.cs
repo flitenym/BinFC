@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,24 +13,31 @@ using TelegramFatCamel.Module.Services.Interfaces;
 
 namespace TelegramFatCamel.Module.Services
 {
-    public class TelegramFatCamelBotService : ITelegramFatCamelBotService
+    public class TelegramFatCamelBotService : ITelegramFatCamelBotService, IHostedService, IDisposable
     {
-        private readonly ITelegramSettingsService _telegramSettingsService;
-
         private readonly IServiceProvider _serviceProvider;
 
-        private ICommandExecutorService _commandExecutorService;
+        private readonly ILogger<TelegramFatCamelBotService> _logger;
 
         private TelegramBotClient _client;
 
         private bool IsHandlersStarted = false;
 
+        private string _lastCommand = null;
+
         private CancellationTokenSource _cancellationToken;
 
-        public TelegramFatCamelBotService(IServiceProvider serviceProvider, ITelegramSettingsService telegramSettingsService)
+        private string Token { get; set; }
+
+        public TelegramFatCamelBotService(
+            IServiceProvider serviceProvider,
+            ILogger<TelegramFatCamelBotService> logger,
+            IConfiguration configuration)
         {
             _serviceProvider = serviceProvider;
-            _telegramSettingsService = telegramSettingsService;
+            _logger = logger;
+
+            Token = configuration.GetSection("Telegram:Token").Get<string>();
         }
 
         public async Task<TelegramBotClient> GetTelegramBotAsync(bool isNeedHandlers = true)
@@ -57,7 +67,7 @@ namespace TelegramFatCamel.Module.Services
 
         private void CreateTelegram()
         {
-            _client = new TelegramBotClient(_telegramSettingsService.Token);
+            _client = new TelegramBotClient(Token);
         }
 
         private Task StartTelegramBotAsync()
@@ -81,8 +91,14 @@ namespace TelegramFatCamel.Module.Services
         {
             try
             {
-                _commandExecutorService ??= _serviceProvider.GetRequiredService<ICommandExecutorService>();
-                await _commandExecutorService.ExecuteAsync(update);
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var scopedProcessingService =
+                        scope.ServiceProvider
+                            .GetRequiredService<ICommandExecutorService>();
+
+                    _lastCommand = await scopedProcessingService.ExecuteAsync(botClient, _lastCommand, update);
+                }
             }
             catch (Exception exception)
             {
@@ -94,11 +110,12 @@ namespace TelegramFatCamel.Module.Services
         {
             var ErrorMessage = exception switch
             {
-                ApiRequestException apiRequestException => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+                ApiRequestException apiRequestException =>
+                $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
                 _ => exception.ToString()
             };
 
-            Console.WriteLine(ErrorMessage);
+            _logger.LogError(ErrorMessage);
             return Task.CompletedTask;
         }
 
@@ -110,6 +127,21 @@ namespace TelegramFatCamel.Module.Services
             }
 
             return Task.CompletedTask;
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            await GetTelegramBotAsync(true);
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            await StopTelegramBotAsync();
+        }
+
+        public void Dispose()
+        {
+
         }
     }
 }

@@ -32,7 +32,7 @@ namespace WorkerService.Module.Services
             IBinanceApiService binanceApiService,
             IUserInfoRepository userInfoRepository,
             ISettingsRepository settingsRepository,
-            ITelegramFatCamelBotService telegramFatCamelBotService,
+            //ITelegramFatCamelBotService telegramFatCamelBotService,
             IConfiguration configuration,
             ILogger<BinanceSellService> logger) :
             base(settingsRepository, configuration, logger)
@@ -40,7 +40,7 @@ namespace WorkerService.Module.Services
             _binanceApiService = binanceApiService;
             _userInfoRepository = userInfoRepository;
             _settingsRepository = settingsRepository;
-            _telegramFatCamelBotService = telegramFatCamelBotService;
+            //_telegramFatCamelBotService = telegramFatCamelBotService;
             _logger = logger;
         }
 
