@@ -61,5 +61,17 @@ namespace Storage.Module.Controllers
 
             return StringToResult(await _futuresDataRepository.DeleteAsync(Ids));
         }
+
+        [HttpPost("deleteallspot")]
+        public async Task<IActionResult> DeleteAllSpot()
+        {
+            return StringToResult(await _spotDataRepository.DeleteAllAsync());
+        }
+
+        [HttpPost("deleteallfutures")]
+        public async Task<IActionResult> DeleteAllFutures()
+        {
+            return StringToResult(await _futuresDataRepository.DeleteAllAsync());
+        }
     }
 }

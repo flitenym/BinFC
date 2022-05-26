@@ -63,7 +63,7 @@ namespace Storage.Module.Repositories.Base
         {
             return _dataContext
                 .Unique
-                .First(x => x.Name == DefaultValues.UniqueName);
+                .First(x => x.Id == DefaultValues.UniqueId);
         }
     }
 }

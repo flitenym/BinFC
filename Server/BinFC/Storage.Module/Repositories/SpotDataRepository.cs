@@ -35,7 +35,8 @@ namespace Storage.Module.Repositories
             SpotData newObj = new()
             {
                 AgentEarnUsdt = obj.AgentEarnUsdt,
-                User = userInfo
+                User = userInfo,
+                LoadingDate = obj.LoadingDate
             };
 
             _dataContext.SpotData.Add(newObj);
@@ -49,6 +50,18 @@ namespace Storage.Module.Repositories
                     _dataContext
                     .SpotData
                     .Where(x => Ids.Contains(x.Id))
+                );
+
+            return await SaveChangesAsync();
+        }
+
+        public async Task<string> DeleteAllAsync()
+        {
+            _dataContext
+                .SpotData
+                .RemoveRange(
+                    _dataContext
+                    .SpotData.ToArray()
                 );
 
             return await SaveChangesAsync();

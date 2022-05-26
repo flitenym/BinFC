@@ -15,9 +15,9 @@ namespace Storage.Module.Repositories
         private readonly IUniqueRepository _uniqueRepository;
         private readonly ILogger<UserInfoRepository> _logger;
         public UserInfoRepository(
-            DataContext dataContext, 
-            IBaseRepository baseRepository, 
-            IUniqueRepository uniqueRepository, 
+            DataContext dataContext,
+            IBaseRepository baseRepository,
+            IUniqueRepository uniqueRepository,
             ILogger<UserInfoRepository> logger)
         {
             _dataContext = dataContext;
@@ -63,22 +63,45 @@ namespace Storage.Module.Repositories
 
         public async Task<string> UpdateAsync(UserInfo obj, UserInfo newObj)
         {
-            obj.ChatId = newObj.ChatId;
-            obj.UserId = newObj.UserId;
-            obj.UserName = newObj.UserName;
-            obj.UserEmail = newObj.UserEmail;
-            obj.TrcAddress = newObj.TrcAddress;
-            obj.BepAddress = newObj.BepAddress;
-             
-            var unique = await _uniqueRepository.GetByIdAsync(obj.UniqueId);
-
-            if (unique == null)
+            if (newObj.ChatId != null)
             {
-                return "Не найден уникальный ключ у пользователя Unique.";
+                obj.ChatId = newObj.ChatId;
             }
 
-            obj.UniqueId = newObj.UniqueId; 
-            
+            if (newObj.UserId != null)
+            {
+                obj.UserId = newObj.UserId;
+            }
+
+            if (newObj.UserName != null)
+            {
+                obj.UserName = newObj.UserName;
+            }
+
+            if (newObj.UserEmail != null)
+            {
+                obj.UserEmail = newObj.UserEmail;
+            }
+
+            if (newObj.TrcAddress != null)
+            {
+                obj.TrcAddress = newObj.TrcAddress;
+            }
+
+            if (newObj.BepAddress != null)
+            {
+                obj.BepAddress = newObj.BepAddress;
+            }
+
+            obj.IsAdmin = newObj.IsAdmin;
+
+            var unique = await _uniqueRepository.GetByIdAsync(newObj.UniqueId);
+
+            if (unique != null)
+            {
+                obj.UniqueId = newObj.UniqueId;
+            }
+
             _dataContext.UsersInfo.Update(obj);
 
             return await _baseRepository.SaveChangesAsync();

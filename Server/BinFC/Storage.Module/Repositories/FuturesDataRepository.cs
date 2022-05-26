@@ -35,7 +35,8 @@ namespace Storage.Module.Repositories
             FuturesData newObj = new()
             {
                 AgentEarnUsdt = obj.AgentEarnUsdt,
-                User = userInfo
+                User = userInfo,
+                LoadingDate = obj.LoadingDate
             };
 
             _dataContext.FuturesData.Add(newObj);
@@ -44,11 +45,23 @@ namespace Storage.Module.Repositories
         public async Task<string> DeleteAsync(IEnumerable<long> Ids)
         {
             _dataContext
-                .SpotData
+                .FuturesData
                 .RemoveRange(
                     _dataContext
-                    .SpotData
+                    .FuturesData
                     .Where(x => Ids.Contains(x.Id))
+                );
+
+            return await SaveChangesAsync();
+        }
+
+        public async Task<string> DeleteAllAsync()
+        {
+            _dataContext
+                .FuturesData
+                .RemoveRange(
+                    _dataContext
+                    .FuturesData.ToArray()
                 );
 
             return await SaveChangesAsync();

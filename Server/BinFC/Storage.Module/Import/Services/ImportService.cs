@@ -3,6 +3,7 @@ using Storage.Module.Entities.Base;
 using Storage.Module.Import.Enums;
 using Storage.Module.Import.Services.Interfaces;
 using Storage.Module.Repositories.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -71,12 +72,15 @@ namespace Storage.Module.Import.Services
 
             var table = dataSet.Tables[0];
 
+            DateTime loadingDate = DateTime.UtcNow;
+
             foreach (DataRow row in table.Rows)
             {
                 Data data = new Data();
 
                 data.UserId = long.Parse(row[row.Table.Columns[1].ColumnName].ToString());
                 data.AgentEarnUsdt = decimal.Parse(row[row.Table.Columns[3].ColumnName].ToString().Replace(",", "").Replace('.', ','));
+                data.LoadingDate = loadingDate;
 
                 importData.Add(data);
             }

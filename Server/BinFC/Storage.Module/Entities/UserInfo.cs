@@ -17,7 +17,7 @@ namespace Storage.Module.Entities
         public string TrcAddress { get; set; }
         public string BepAddress { get; set; }
         public bool IsAdmin { get; set; } = false;
-        public long UniqueId { get; set; } = 0;
+        public long UniqueId { get; set; } = DefaultValues.UniqueId;
 
 
         [ForeignKey("UniqueId")]
