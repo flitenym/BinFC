@@ -1,10 +1,414 @@
-import { FunctionComponent } from "react"
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button, Input, InputRef, Modal, Space, Switch, Table, Tabs, Upload } from "antd";
+import { ColumnType, FilterConfirmProps, TablePaginationConfig } from "antd/lib/table/interface";
+import { t } from "i18next";
+import { FunctionComponent, useEffect, useRef, useState } from "react"
+import Highlighter from "react-highlight-words";
+import dataService from "../../services/data.service";
+import SearchOutlined from '@ant-design/icons';
+import { UploadOutlined } from '@ant-design/icons';
+import { importService } from "../../services/import.service";
+import { useTranslation } from "react-i18next";
+import moment from "moment";
 
+const { TabPane } = Tabs;
 
 const Payout: FunctionComponent = () => {
+    const [isModalSpotVisible, setIsModalSpotVisible] = useState(false);
+    const [isModalFutureVisible, setIsModalFutureVisible] = useState(false);
+    const [forceReload, setForceReload] = useState<boolean>(false);
+    const { i18n } = useTranslation("common");
+    const [spotFile, setSpotFile] = useState<any>(null);
+    const [futuresFile, setFuturesFile] = useState<any>(null);
+    const [spotData, setSpotData] = useState<any>([])
+    const [futuresData, setFuturesData] = useState<any>([])
+    const [searchText, setSearchText] = useState('');
+    const [searchedColumn, setSearchedColumn] = useState('');
+    const searchInput = useRef<InputRef>(null);
+    const [selectedSpotsId, setSelectedSpotsId] = useState({
+        selectedRowKeys: [],
+        loading: false
+    });
+    const [selectedFuturesId, setSelectedFuturesId] = useState({
+        selectedRowKeysFutures: [],
+        loading: false
+    });
+    const [paginationSpotTable, setPaginationSpotTable] = useState<TablePaginationConfig>({
+        current: 1,
+        pageSize: 10,
+    });
+    const [paginationFutureTable, setPaginationFutureTable] = useState<TablePaginationConfig>({
+        current: 1,
+        pageSize: 10,
+    });
+
+
+    useEffect(() => {
+        const resultSpot: any[] = [];
+        const resultFutures: any[] = [];
+        dataService.getSpotData().then((data) => {
+            data.length && data?.map((item: any) => {
+                resultSpot.push(
+                    {
+                        id: item?.id,
+                        agentEarnUsdt: item?.agentEarnUsdt ? item?.agentEarnUsdt : t("common:noData"),
+                        isPaid: item?.isPaid ? item?.isPaid : t("common:noData"),
+                        loadingDate: item?.loadingDate ? `${moment.utc(item?.loadingDate).format('YYYY-MM-DD HH:mm:ss')}` : t("common:noData"),
+                        user: item?.user ? item?.user : t("common:noData"),
+                        userId: item?.userId ? item?.userId : t("common:noData"),
+                        userName: item?.userName ? item?.userName : t("common:noData"),
+                        key: item?.id,
+                    }
+                )
+            })
+            setPaginationSpotTable({
+                total: resultSpot?.length,
+            });
+            setSpotData(resultSpot)
+        })
+        dataService.getFuturesData().then((data) => {
+            data.map((item: any) => {
+                resultFutures.push(
+                    {
+                        id: item?.id,
+                        agentEarnUsdt: item?.agentEarnUsdt ? item?.agentEarnUsdt : t("common:noData"),
+                        isPaid: item?.isPaid ? item?.isPaid : t("common:noData"),
+                        loadingDate: item?.loadingDate ? `${moment.utc(item?.loadingDate).format('YYYY-MM-DD HH:mm:ss')}` : t("common:noData"),
+                        user: item?.user ? item?.user : t("common:noData"),
+                        userId: item?.userId ? item?.userId : t("common:noData"),
+                        userName: item?.userName ? item?.userName : t("common:noData"),
+                        key: item?.id,
+                    }
+                )
+            })
+            setPaginationFutureTable({
+                total: resultFutures?.length,
+            });
+            setFuturesData(resultFutures)
+            setForceReload(false)
+        })
+    }, [forceReload])
+
+    const handleSearch = (
+        selectedKeys: string[],
+        confirm: (param?: FilterConfirmProps) => void,
+        dataIndex: any,
+    ) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
+
+    const handleReset = (clearFilters: () => void) => {
+        clearFilters();
+        setSearchText('');
+    };
+
+    const getColumnSearchProps = (dataIndex: any,): ColumnType<any> => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+            <div style={{ padding: 8 }}>
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+                    style={{ marginBottom: 8, display: 'block' }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+                        icon={<SearchOutlined color="#fff" />}
+                        size="small"
+                        style={{ width: 90 }}
+                    >
+                        Search
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            clearFilters && handleReset(clearFilters)
+                            handleSearch([''], confirm, dataIndex)
+                        }}
+                        size="small"
+                        style={{ width: 90 }}
+                    >
+                        Reset
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: () => (
+            <FontAwesomeIcon icon={faSearch} />
+        ),
+        onFilter: (value, record) =>
+            record[dataIndex]
+                .toString()
+                .includes((value as string)),
+        onFilterDropdownVisibleChange: visible => {
+            if (visible) {
+                setTimeout(() => searchInput.current?.select(), 100);
+            }
+        },
+        render: text =>
+            searchedColumn === dataIndex ? (
+                <Highlighter
+                    highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+                    searchWords={[searchText]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ''}
+                />
+            ) : (
+                text
+            ),
+    });
+
+    const columnSpot = [
+        {
+            title: "ID",
+            dataIndex: "userId",
+            key: "userId",
+            ...getColumnSearchProps('userId'),
+        },
+        { title: t("common:TableName"), dataIndex: "userName", key: "userName", ...getColumnSearchProps('userName') },
+        { title: t("common:TableUSDT"), dataIndex: "agentEarnUsdt", key: "agentEarnUsdt", ...getColumnSearchProps('agentEarnUsdt') },
+        { title: t("common:LoadingTime"), dataIndex: "loadingDate", key: "loadingDate", ...getColumnSearchProps('loadingDate',) },
+        { title: t("common:Paid"), dataIndex: "isPaid", key: "isPaid", ...getColumnSearchProps('isPaid') },
+    ]
+
+    const columnFutures = [
+        {
+            title: "ID",
+            dataIndex: "userId",
+            key: "userId",
+            ...getColumnSearchProps('userId'),
+        },
+        { title: t("common:TableName"), dataIndex: "userName", key: "userName", ...getColumnSearchProps('userName') },
+        { title: t("common:TableUSDT"), dataIndex: "agentEarnUsdt", key: "agentEarnUsdt", ...getColumnSearchProps('agentEarnUsdt') },
+        { title: t("common:LoadingTime"), dataIndex: "loadingDate", key: "loadingDate", ...getColumnSearchProps('loadingDate',) },
+        { title: t("common:Paid"), dataIndex: "isPaid", key: "isPaid", ...getColumnSearchProps('isPaid') },
+    ]
+
+    const { selectedRowKeys } = selectedSpotsId;
+    const { selectedRowKeysFutures } = selectedFuturesId;
+
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (selectedRowKeys: any) => {
+            setSelectedSpotsId({
+                ...selectedSpotsId,
+                selectedRowKeys: selectedRowKeys
+            });
+        }
+    };
+
+    const rowSelectionFutures = {
+        selectedRowKeysFutures,
+        onChange: (selectedRowKeysFutures: any) => {
+            setSelectedFuturesId({
+                ...selectedFuturesId,
+                selectedRowKeysFutures: selectedRowKeysFutures
+            });
+        }
+    };
+
+    const removeSpots = (array: any) => {
+        const arrayWithoutDeleteElements = spotData.reduce((acc: any[], item: { id: any; }) => {
+            if (!array.includes(item.id)) {
+                acc.push(item)
+            };
+            return acc;
+        }, []);
+        setPaginationSpotTable({
+            total: arrayWithoutDeleteElements?.length,
+        });
+        setSpotData(arrayWithoutDeleteElements)
+        dataService.deleteSpotData(array)
+    }
+
+    const removeAllSpots = () => {
+        setSpotData([])
+        setPaginationSpotTable({
+            total: 0,
+        });
+        dataService.deleteAllSpotData()
+    }
+
+    const removeFutures = (array: any) => {
+        const arrayWithoutDeleteElements = futuresData.reduce((acc: any[], item: { id: any; }) => {
+            if (!array.includes(item.id)) {
+                acc.push(item)
+            };
+            return acc;
+        }, []);
+        setPaginationFutureTable({
+            total: arrayWithoutDeleteElements?.length,
+        });
+        setFuturesData(arrayWithoutDeleteElements)
+        dataService.deleteFuturesData(array)
+    }
+
+    const removeAllFutures = () => {
+        setFuturesData([])
+        setPaginationFutureTable({
+            total: 0,
+        });
+        dataService.deleteAllFuturesData()
+    }
+
+    const handleChangeSpotTable = (pagination: any, filters: any, sorter: any, extra: { currentDataSource: Array<any>[] }) => {
+        setPaginationSpotTable({
+            total: extra?.currentDataSource?.length
+        });
+    }
+
+    const handleChangeFutureTable = (pagination: any, filters: any, sorter: any, extra: { currentDataSource: Array<any>[] }) => {
+        setPaginationFutureTable({
+            total: extra?.currentDataSource?.length
+        });
+    }
+
+    const importSpotData = (data: any) => {
+        const formData = new FormData();
+        formData.append("file", data)
+        formData.append("importType", "0")
+        importService.importData(formData)
+        setIsModalSpotVisible(false)
+        setTimeout(() => {
+            setForceReload(true)
+        }, 800)
+    }
+
+    const importFuturesData = (data: any) => {
+        const formData = new FormData();
+        formData.append("file", data)
+        formData.append("importType", "1")
+        importService.importData(formData)
+        setIsModalFutureVisible(false)
+        setTimeout(() => {
+            setForceReload(true)
+        }, 800)
+    }
 
     return (
-        <div>Payout</div>
+        <Tabs defaultActiveKey="1" type="card" >
+            <TabPane tab="Spot" key="1">
+                <Table
+                    key={3}
+                    rowSelection={rowSelection}
+                    columns={columnSpot}
+                    dataSource={spotData}
+                    onChange={handleChangeSpotTable}
+                    pagination={paginationSpotTable}
+                    scroll={{ y: 600 }}
+                />
+                <Space key={4}>
+                    <Button
+                        key={5}
+                        style={{ marginTop: "16px" }}
+                        type="primary"
+                        onClick={() => removeSpots(selectedSpotsId?.selectedRowKeys)}
+                    >{`${t("common:ButtonDelete")}`}</Button>
+                    <Button
+                        key={228}
+                        style={{ marginTop: "16px" }}
+                        type="dashed"
+                        onClick={() => removeAllSpots()}
+                    >
+                        {`${t("common:ButtonDeleteAll")}`}
+                    </Button>
+                    <Upload key={6} showUploadList={false}
+                        beforeUpload={file => {
+                            setIsModalSpotVisible(true)
+                            setSpotFile(file);
+                            return false;
+                        }} accept={".xls, .xlsx, .csv"}
+                    >
+                        <Button
+                            key={7}
+                            style={{ marginTop: "16px" }}
+                        >
+                            <UploadOutlined />
+                            {`${t("common:ImportFile")}`}
+                        </Button>
+                    </Upload>
+                    <Modal
+                        key={32}
+                        title={`${t("common:ImportSpotFile")}`}
+                        visible={isModalSpotVisible}
+                        onOk={() => importSpotData(spotFile)}
+                        okText={`${t("common:Yes")}`}
+                        cancelText={`${t("common:No")}`}
+                        onCancel={
+                            () => {
+                                setSpotFile(null)
+                                setIsModalSpotVisible(false)
+                            }
+                        }>
+                        {`${t("common:ConfirmImoportFile")} "${spotFile?.name}" ? `}
+                    </Modal>
+                </Space>
+            </TabPane>
+            <TabPane tab="Futures" key="2">
+                <Table key={8}
+                    rowSelection={rowSelectionFutures}
+                    columns={columnFutures}
+                    dataSource={futuresData}
+                    pagination={paginationFutureTable}
+                    onChange={handleChangeFutureTable}
+                    scroll={{ y: 600 }}
+                />
+                <Space key={4}>
+                    <Button
+                        key={5}
+                        style={{ marginTop: "16px" }}
+                        type="primary"
+                        onClick={() => removeFutures(selectedFuturesId?.selectedRowKeysFutures)}
+                    >
+                        {`${t("common:ButtonDelete")}`}
+                    </Button>
+                    <Button
+                        key={322}
+                        style={{ marginTop: "16px" }}
+                        type="dashed"
+                        onClick={() => removeAllFutures()}
+                    >
+                        {`${t("common:ButtonDeleteAll")}`}
+                    </Button>
+                    <Upload key={6} showUploadList={false}
+                        beforeUpload={file => {
+                            setIsModalFutureVisible(true)
+                            setFuturesFile(file);
+                            return false;
+                        }} accept={".xls, .xlsx, .csv"}
+                    >
+                        <Button
+                            key={7}
+                            style={{ marginTop: "16px" }}
+                        >
+                            <UploadOutlined />
+                            {`${t("common:ImportFile")}`}
+                        </Button>
+                    </Upload>
+                    <Modal
+                        key={33}
+                        title={`${t("common:ImportFutureFile")}`}
+                        visible={isModalFutureVisible}
+                        onOk={() => importFuturesData(futuresFile)}
+                        okText={`${t("common:Yes")}`}
+                        cancelText={`${t("common:No")}`}
+                        onCancel={
+                            () => {
+                                setFuturesFile(null)
+                                setIsModalFutureVisible(false)
+                            }
+                        }>
+                        {`${t("common:ConfirmImoportFile")} "${futuresFile?.name}" ? `}
+                    </Modal>
+                </Space>
+            </TabPane>
+        </Tabs >
     );
 
 }

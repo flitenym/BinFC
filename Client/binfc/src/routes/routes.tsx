@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import DashBoard from "../components/DashBoard";
 import Login from "../components/Login";
-import PaymentsSettings from "../components/PaymentsSettings";
+import PaymentsSettings from "../components/Settings";
 
 const Routers = () => {
   return (

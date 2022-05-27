@@ -1,7 +1,8 @@
-import { Button, Checkbox, Input, Radio, Space, Typography } from "antd";
+import { Button, Checkbox, Input, List, Modal, Radio, Space, Typography } from "antd";
 import { Content } from "antd/lib/layout/layout";
 import { FunctionComponent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next";
+import cronService from "../../services/cronjob.service";
 import settingsService from "../../services/settings.servise";
 
 interface IData {
@@ -13,57 +14,69 @@ interface IData {
 interface ICronExpression {
     key: string;
     value: string | null;
+    isChanged: boolean;
 }
 
 interface ISellCurrency {
     key: string;
     value: string | null;
+    isChanged: boolean;
 }
 
 interface IsNotification {
     key: string;
     value: boolean;
+    isChanged: boolean;
 }
 
-const PaymentsSettings: FunctionComponent = () => {
+const Settings: FunctionComponent = () => {
     const { t } = useTranslation("common");
     const [inputValue, setInputValue] = useState('');
+    const [modalDatesVisible, setModalDatesVisible] = useState(false);
+    const [modalData, setModalData] = useState<any>([]);
     const [cronExpression, setCronExpression] = useState<ICronExpression>({
         key: '',
-        value: ''
+        value: '',
+        isChanged: false,
     });
     const [sellCurrency, setSellCurrency] = useState<ISellCurrency>({
         key: '',
-        value: ''
+        value: '',
+        isChanged: false,
     });
     const [isNotification, setIsNotification] = useState<IsNotification>({
         key: '',
-        value: false
+        value: false,
+        isChanged: false,
     });
 
     useEffect(() => {
         settingsService.getSettings().then((data) => {
-            data.filter((item: IData) => {
+            data.length && data?.filter((item: IData) => {
                 if (item?.key === "CronExpression") {
+                    setInputValue(item?.value ?? '')
                     return setCronExpression({
                         key: item?.key,
                         value: item?.value,
+                        isChanged: false,
                     })
                 }
             })
-            data.filter((item: IData) => {
+            data.length && data?.filter((item: IData) => {
                 if (item?.key === "SellCurrency") {
                     return setSellCurrency({
                         key: item?.key,
                         value: item?.value,
+                        isChanged: false,
                     })
                 }
             })
-            data.filter((item: IData) => {
+            data.length && data?.filter((item: IData) => {
                 if (item?.key === "IsNotification") {
                     return setIsNotification({
                         key: item?.key,
                         value: item?.value === "True",
+                        isChanged: false,
                     })
                 }
             })
@@ -72,21 +85,50 @@ const PaymentsSettings: FunctionComponent = () => {
 
     const onChangeValue = (value: string) => {
         setInputValue(value);
+        cronExpression.isChanged = true;
+        setCronExpression(cronExpression)
     }
 
-    const submitValue = (value?: string) => {
-
+    const checkDates = (cronExpression?: string) => {
+        cronService.next(cronExpression ?? '').then((response) => {
+            if (response.status !== 200) {
+                return Promise.reject(response);
+            } else {
+                setModalData(response.data)
+                setModalDatesVisible(true)
+            }
+        })
     }
 
     const saveSettings = () => {
-        let formData = new FormData();
-        formData.append('settings[0].key', 'CronExpression');
-        formData.append('settings[0].value', inputValue);
-        formData.append('settings[1].key', 'SellCurrency');
-        formData.append('settings[1].value', `${sellCurrency?.value}`);
-        formData.append('settings[2].key', 'IsNotification');
-        formData.append('settings[2].value', `${isNotification?.value ? "True" : "False"}`);
-        return settingsService.saveSettings(formData)
+        cronService.check(inputValue).then((response) => {
+            if (response !== 200) {
+
+            } else {
+                let formData = new FormData();
+                let i = 0;
+                if (cronExpression.isChanged) {
+                    formData.append(`settings[${i}].key`, 'CronExpression');
+                    formData.append(`settings[${i}].value`, inputValue);
+                    i++;
+                }
+                if (sellCurrency.isChanged) {
+                    formData.append(`settings[${i}].key`, 'SellCurrency');
+                    formData.append(`settings[${i}].value`, `${sellCurrency?.value}`);
+                    i++;
+                }
+                if (isNotification.isChanged) {
+                    formData.append(`settings[${i}].key`, 'IsNotification');
+                    formData.append(`settings[${i}].value`, `${isNotification?.value ? "True" : "False"}`);
+                    i++;
+                }
+                if (cronExpression.isChanged || sellCurrency.isChanged || isNotification.isChanged) {
+                    cronExpression.isChanged = sellCurrency.isChanged = isNotification.isChanged = false;
+                    return settingsService.saveSettings(formData)
+                }
+            }
+        })
+
     };
 
     return (
@@ -101,7 +143,7 @@ const PaymentsSettings: FunctionComponent = () => {
                 />
                 <Button
                     type="primary"
-                    onClick={() => submitValue}
+                    onClick={() => checkDates(inputValue)}
                     style={{ textAlign: "left", marginLeft: "30px" }}>
                     {t("common:CheckDates")}
                 </Button>
@@ -119,6 +161,7 @@ const PaymentsSettings: FunctionComponent = () => {
                             {
                                 value: event.target.value,
                                 key: event.target.value,
+                                isChanged: true,
                             }
                         )
                     }}
@@ -145,6 +188,7 @@ const PaymentsSettings: FunctionComponent = () => {
                             {
                                 value: event.target.checked,
                                 key: event.target.value,
+                                isChanged: true,
                             }
                         )
                     }}>
@@ -159,9 +203,27 @@ const PaymentsSettings: FunctionComponent = () => {
                     {t("common:SaveSettings")}
                 </Button>
             </div>
+            <Modal
+                title={t("common:Dates")}
+                centered
+                visible={modalDatesVisible}
+                footer={null}
+                onCancel={() => setModalDatesVisible(false)}
+            >
+                <List
+                    size="small"
+                    bordered
+                    split
+                    dataSource={modalData}
+                    renderItem={(item: any, index: number) =>
+                        <List.Item key={index + 1} style={{ padding: "6px 16px" }}>
+                            {(index + 1) + "." + " " + item}
+                        </List.Item>}
+                />
+            </Modal>
         </Content >
     );
 
 }
 
-export default PaymentsSettings;
+export default Settings;

@@ -1,9 +1,8 @@
 {
-    "PayoutSettings": "Настройки выплат",
+    "Settings": "Настройки",
     "Users": "Пользователи",
     "Payout": "Выплата",
     "PaymentHistory": "История оплаты",
-    "BinanceSettings": "Настройка Binance",
 
 
     "PaymentDateSetting": "Настройка дат выплат",
@@ -21,6 +20,25 @@
     "TableBep": "BEP",
     "TableComission": "Комиссия",
     "TableUnique": "Unique",
-    "noData": "Нет данных"
+    "noData": "Нет данных",
+    "UserName": "Имя пользователя",
+    "ButtonSave": "Сохранить",
+    "ButtonClose": "Закрыть",
+    "TableUSDT": "USDT",
+    "LoadingTime": "Время загрузки",
+    "TableBUSD": "BUSD",
+    "Paid": "Оплачено",
+    "ButtonDelete": "Удалить",
+    "ButtonDeleteAll": "Удалить все",
+    "ImportFile": "Импортировать файл",
+    "ImportSpotFile": "Импорт spot файла",
+    "ImportFutureFile": "Импорт future файла",
+    "ConfirmImoportFile": "Вы хотите импортировать файл",
+    "Yes": "Да",
+    "No": "Нет",
+    "Russian": "Русский",
+    "English": "Английский",
+    "Page": "Страница",
+    "Dates": "Даты"
 }
     

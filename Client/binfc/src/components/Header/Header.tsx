@@ -3,7 +3,6 @@ import {
     Dropdown,
     Menu,
     PageHeader,
-    Space,
     Switch,
     Typography
 } from 'antd';
@@ -16,6 +15,9 @@ import authService from '../../services/auth.service';
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import IconSun from './IconSun';
 import IconMoon from './IconMoon';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import { t } from 'i18next';
 
 const Header: FunctionComponent = () => {
     const [language, setLanguage] = useState<string | null>();
@@ -72,40 +74,74 @@ const Header: FunctionComponent = () => {
             items={[
                 {
                     label: (
-                        <a onClick={() => authService?.logout()} href="/login">
+                        <Link key={21} onClick={() => authService?.logout()} to={"/login"}>
                             Logout
-                        </a>
+                        </Link>
                     ),
-                    key: 8
+                    key: 20
                 },
+            ]}
+        />
+    );
+
+    const languageMenu = (
+        <Menu
+            items={[
+                {
+                    label: (
+                        <Typography.Text key={48} onClick={() =>
+                            changeLanguage('en')}>
+                            {`${t("common:Russian")}`}
+                        </Typography.Text>
+                    ),
+                    key: 22
+                },
+                {
+                    label: (
+                        <Typography.Text key={49} onClick={() =>
+                            changeLanguage('ru')}>
+                            {`${t("common:English")}`}
+                        </Typography.Text>
+                    ),
+                    key: 21
+                }
             ]}
         />
     );
 
     return (
         <PageHeader
+            key={25}
             ghost={false}
             title={
-                <Typography.Text >
-                    {"FAT CAMEL"}
+                <Typography.Text key={16}>
+                    {<>
+                        <b style={{ fontSize: "24px"}}>
+                            FAT
+                        </b>
+                        <span
+                            style={{
+                                marginLeft: "6px",
+                                fontSize: "24px"
+                            }}>
+                            CAMEL
+                        </span>
+                    </>}
                 </Typography.Text>}
             extra={[
-                <>
-                    <Switch
-                        key="10"
-                        onClick={() =>
-                            changeLanguage(language)
-                        }
-                        style={{
-                            marginRight: "20px",
-                        }}
-                        checkedChildren="RU"
-                        unCheckedChildren="EN"
-                        defaultChecked={ruIsSelected ? true : false}
-                    />
+                <React.Fragment key={27}>
+                    <Dropdown
+                        key={10}
+                        placement="bottomLeft"
+                        arrow
+                        overlay={languageMenu}>
+                        <a style={{ fontSize: "16px"}} key={47} onClick={e => e.preventDefault()}>
+                            {ruIsSelected ? `${t("common:Russian")}` : `${t("common:English")}`}
+                        </a>
+                    </Dropdown>
                     <Button
                         className='btn'
-                        key="11"
+                        key={11}
                         type='link'
                         style={{
                             border: "none",
@@ -115,19 +151,19 @@ const Header: FunctionComponent = () => {
                         }} onClick={() =>
                             changeMode(mode)
                         } icon={lightThemeIsSelected
-                            ? <IconSun key="12" />
-                            : <IconMoon key="13" />}>
+                            ? <IconSun key={12} />
+                            : <IconMoon key={13} />}>
                     </Button>
                     <Dropdown
-                        key="14" 
-                        placement="bottomLeft" 
+                        key={14}
+                        placement="bottomLeft"
                         arrow
                         overlay={menu}>
-                        <a onClick={e => e.preventDefault()}>
+                        <a style={{ fontSize: "16px"}} key={15} onClick={e => e.preventDefault()}>
                             {username}
                         </a>
                     </Dropdown>
-                </>
+                </React.Fragment>
             ]}
         />
     )
