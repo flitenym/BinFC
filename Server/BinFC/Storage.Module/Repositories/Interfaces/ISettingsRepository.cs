@@ -1,12 +1,14 @@
 ﻿using Storage.Module.Entities;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Storage.Module.Repositories.Interfaces
 {
     public interface ISettingsRepository
     {
+        public IEnumerable<Settings> Get();
         public Task<string> SaveChangesAsync();
         public Task<(bool IsSuccess, T Value)> GetSettingsByKeyAsync<T>(string key, bool isNeedTracking = true);
-        public Task<bool> SetSettingsByKeyAsync(string key, object value);
+        public Task<string> SetSettingsByKeyAsync(string key, object value);
     }
 }

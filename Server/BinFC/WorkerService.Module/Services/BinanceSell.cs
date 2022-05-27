@@ -2,6 +2,7 @@
 using BinanceApi.Module.Classes;
 using BinanceApi.Module.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Classes;
 using Storage.Module.Repositories.Interfaces;
@@ -9,6 +10,7 @@ using Storage.Module.StaticClasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using TelegramFatCamel.Module.Services.Interfaces;
@@ -17,51 +19,51 @@ using WorkerService.Module.Services.Intrefaces;
 
 namespace WorkerService.Module.Services
 {
-    public class BinanceSell : CronJobBaseService<IBinanceSell>
+    public class BinanceSellService : CronJobBaseService<IBinanceSell>
     {
         private const int AttemptsToSellCurrensies = 3;
 
+        private readonly IServiceProvider _serviceProvider;
         private readonly IBinanceApiService _binanceApiService;
         private readonly ISettingsRepository _settingsRepository;
         private readonly IUserInfoRepository _userInfoRepository;
-        private readonly ITelegramFatCamelBotService _telegramFatCamelBotService;
-        private readonly ILogger<BinanceSell> _logger;
+        private readonly ILogger<BinanceSellService> _logger;
 
-        public BinanceSell(
+        public BinanceSellService(
+            IServiceProvider serviceProvider,
             IBinanceApiService binanceApiService,
             IUserInfoRepository userInfoRepository,
             ISettingsRepository settingsRepository,
-            ITelegramFatCamelBotService telegramFatCamelBotService,
             IConfiguration configuration,
-            ILogger<BinanceSell> logger) :
+            ILogger<BinanceSellService> logger) :
             base(settingsRepository, configuration, logger)
         {
+            _serviceProvider = serviceProvider;
             _binanceApiService = binanceApiService;
             _userInfoRepository = userInfoRepository;
             _settingsRepository = settingsRepository;
-            _telegramFatCamelBotService = telegramFatCamelBotService;
             _logger = logger;
         }
 
-        public override Task<string> StartAsync()
+        public override Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogTrace($"Запуск службы {nameof(BinanceSell)}");
-            return base.StartAsync();
+            _logger.LogTrace($"Запуск службы {nameof(BinanceSellService)}");
+            return base.StartAsync(cancellationToken);
         }
 
-        public override Task<string> StopAsync()
+        public override Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger?.LogTrace($"Остановка службы {nameof(BinanceSell)}");
-            return base.StopAsync();
+            _logger?.LogTrace($"Остановка службы {nameof(BinanceSellService)}");
+            return base.StopAsync(cancellationToken);
         }
 
-        public override Task<string> RestartAsync()
+        public override Task RestartAsync(CancellationToken cancellationToken)
         {
-            _logger?.LogTrace($"Перезапуск службы {nameof(BinanceSell)}");
-            return base.RestartAsync();
+            _logger?.LogTrace($"Перезапуск службы {nameof(BinanceSellService)}");
+            return base.RestartAsync(cancellationToken);
         }
 
-        public override async Task<string> DoWorkAsync()
+        public override async Task DoWorkAsync(CancellationToken cancellationToken)
         {
             _logger.LogTrace($"Запуск продажи");
             try
@@ -71,30 +73,33 @@ namespace WorkerService.Module.Services
                 if (isSuccess)
                 {
                     _logger?.LogTrace($"Продажа прошла успешно");
-                    return null;
                 }
                 else
                 {
                     _logger?.LogInformation($"Продажа прошла неудачно");
-                    return sellMessage;
                 }
             }
             catch (Exception ex)
             {
                 string error = $"Продажа прошла с ошибками {ex}";
                 _logger?.LogInformation(ex, error);
-                return error;
+                await SendTelegramMessageAsync(error);
             }
         }
 
         private async Task<(bool isSuccess, string message)> SellAsync()
         {
+            var _apiKey = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiKey, false);
+            var _apiSecret = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiSecret, false);
+            var _cronExpression = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false);
+            var _sellCurrency = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.SellCurrency, false);
+
             SettingsInfo settings = new SettingsInfo()
             {
-                ApiKey = (await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiKey, false)).Value,
-                ApiSecret = (await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiSecret, false)).Value,
-                CronExpression = (await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false)).Value,
-                SellCurrency = (await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.SellCurrency, false)).Value
+                ApiKey = _apiKey.Value,
+                ApiSecret = _apiSecret.Value,
+                CronExpression = _cronExpression.Value,
+                SellCurrency = _sellCurrency.Value,
             };
 
             (bool isValid, string validError) = settings.IsValid();
@@ -252,20 +257,50 @@ namespace WorkerService.Module.Services
 
         private async Task SendTelegramMessageAsync(string message)
         {
+            var isNotification = await _settingsRepository.GetSettingsByKeyAsync<bool>(SettingsKeys.IsNotification, false);
+
+            if (!isNotification.IsSuccess)
+            {
+                _logger.LogError($"Неудачное получение {SettingsKeys.IsNotification}");
+                return;
+            }
+
+            if (!isNotification.Value)
+            {
+                _logger.LogTrace("Уведомления отключены.");
+                return;
+            }
+
             var admins = await _userInfoRepository.GetAdminsAsync();
 
             if (!admins.Any())
             {
                 _logger.LogTrace("Администраторов не найдено для отправки уведомления.");
+                return;
+            }
+
+            ITelegramFatCamelBotService _telegramFatCamelBotService = null;
+
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                _telegramFatCamelBotService =
+                    scope.ServiceProvider
+                        .GetService<ITelegramFatCamelBotService>();
+            }
+
+            if (_telegramFatCamelBotService == null)
+            {
+                _logger.LogInformation("Не найден модуль телеграм бота.");
+                return;
             }
 
             TelegramBotClient _client = await _telegramFatCamelBotService.GetTelegramBotAsync(false);
 
             foreach (var admin in admins)
             {
-                await _client.SendTextMessageAsync(
-                admin.ChatId,
-                message);
+                await _client.SendTextMessageAsync(admin.ChatId, message);
+
+                _logger.LogTrace($"Отправлено уведомление пользователю {admin.UserName} с chatId {admin.ChatId}: {message}.");
             }
         }
 

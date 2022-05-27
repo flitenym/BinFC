@@ -25,7 +25,6 @@ namespace FatCamel.Host
         public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
-            System.Diagnostics.Debugger.Launch();
             _modules = StartupManager.Graph?.Select(m => m.CreateInstance(_configuration)).Where(m => m != null).Cast<IModule>().ToArray() ?? new IModule[0];
         }
 
@@ -49,7 +48,7 @@ namespace FatCamel.Host
                             // установка потребителя токена
                             ValidAudience = AuthOptions.AUDIENCE,
                             // будет ли валидироваться время существования
-                            ValidateLifetime = true,
+                            ValidateLifetime = false,
 
                             // установка ключа безопасности
                             IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),

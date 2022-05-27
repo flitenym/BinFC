@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using TelegramFatCamel.Module.Commands.Base;
@@ -15,44 +17,60 @@ namespace TelegramFatCamel.Module.Services
     public class CommandExecutorService : ICommandExecutorService
     {
         private readonly IUserInfoRepository _userInfoRepository;
+        private readonly ITelegramUserInfoRepository _telegramUserInfoRepository;
         private readonly List<BaseCommand> _commands;
-        private BaseCommand _lastCommand;
 
-        public CommandExecutorService(IUserInfoRepository userInfoRepository, IServiceProvider serviceProvider)
+        public CommandExecutorService(
+            IUserInfoRepository userInfoRepository,
+            ITelegramUserInfoRepository telegramUserInfoRepository,
+            IServiceProvider serviceProvider)
         {
             _userInfoRepository = userInfoRepository;
+            _telegramUserInfoRepository = telegramUserInfoRepository;
             _commands = serviceProvider.GetServices<BaseCommand>().ToList();
         }
 
-        public async Task ExecuteAsync(Update update)
+        public async Task ExecuteAsync(ITelegramBotClient client, Update update)
         {
             if (update?.Message?.Chat == null && update?.CallbackQuery == null)
                 return;
+
+            long? chatId = update.Message?.Chat?.Id ?? update?.CallbackQuery?.Message?.Chat?.Id;
+
+            TelegramUserInfo telegramUserInfo =
+                await _telegramUserInfoRepository.GetByChatIdAsync(chatId);
+
+            if (telegramUserInfo == null)
+            {
+                var newTelegramUserInfo = new TelegramUserInfo();
+                newTelegramUserInfo.ChatId = chatId;
+                await _telegramUserInfoRepository.CreateAsync(newTelegramUserInfo);
+            }
 
             if (update.Type == UpdateType.Message)
             {
                 switch (update.Message?.Text)
                 {
                     case CommandNames.StartCommand:
-                        await ExecuteCommandAsync(CommandNames.StartCommand, update);
+                        await ExecuteCommandAsync(client, CommandNames.StartCommand, update);
                         return;
                     case CommandNames.GetOperationsCommand:
-                        await ExecuteCommandAsync(CommandNames.GetOperationsCommand, update);
+                        await ExecuteCommandAsync(client, CommandNames.GetOperationsCommand, update);
                         return;
                     case CommandNames.ChangePurseCommand:
-                        await ExecuteCommandAsync(CommandNames.ChangePurseCommand, update);
+                        await ExecuteCommandAsync(client, CommandNames.ChangePurseCommand, update);
                         return;
                     case CommandNames.InputIdCommand:
-                        await ExecuteCommandAsync(CommandNames.InputIdCommand, update);
+                        await ExecuteCommandAsync(client, CommandNames.InputIdCommand, update);
                         return;
                     case CommandNames.InputNameCommand:
-                        await ExecuteCommandAsync(CommandNames.InputNameCommand, update);
+                        await ExecuteCommandAsync(client, CommandNames.InputNameCommand, update);
                         return;
                     case CommandNames.InputEmailCommand:
-                        await ExecuteCommandAsync(CommandNames.InputEmailCommand, update);
+                        await ExecuteCommandAsync(client, CommandNames.InputEmailCommand, update);
                         return;
                     case CommandNames.GetPrivateCommand:
-                        await ExecuteCommandAsync(CommandNames.GetPrivateCommand, update);
+                        await ExecuteCommandAsync(client, CommandNames.GetPrivateCommand, update);
                         return;
                 }
             }
@@ -61,26 +79,26 @@ namespace TelegramFatCamel.Module.Services
             {
                 if (update.CallbackQuery.Data.Contains(CommandNames.InputTrcCommand))
                 {
-                    await ExecuteCommandAsync(CommandNames.InputTrcCommand, update);
+                    await ExecuteCommandAsync(client, CommandNames.InputTrcCommand, update);
                     return;
                 }
                 else if (update.CallbackQuery.Data.Contains(CommandNames.InputBepCommand))
                 {
-                    await ExecuteCommandAsync(CommandNames.InputBepCommand, update);
+                    await ExecuteCommandAsync(client, CommandNames.InputBepCommand, update);
                     return;
                 }
             }
 
-            switch (_lastCommand?.Name)
+            switch (telegramUserInfo?.LastCommand)
             {
                 case CommandNames.InputNameCommand:
                     {
-                        await ExecuteCommandAsync(CommandNames.AcceptNameCommand, update);
+                        await ExecuteCommandAsync(client, CommandNames.AcceptNameCommand, update);
                         return;
                     }
                 case CommandNames.InputEmailCommand:
                     {
-                        await ExecuteCommandAsync(CommandNames.AcceptEmailCommand, update);
+                        await ExecuteCommandAsync(client, CommandNames.AcceptEmailCommand, update);
                         return;
                     }
                 case CommandNames.InputIdCommand:
@@ -94,7 +112,7 @@ namespace TelegramFatCamel.Module.Services
                             if (existedUserId == null)
                             {
                                 // выведем сообщение, что "Данный id не зарегистрирован в базе, попробуйте снова"
-                                await ExecuteCommandAsync(CommandNames.NotExistIdCommand, update);
+                                await ExecuteCommandAsync(client, CommandNames.NotExistIdCommand, update);
                                 return;
                             }
                             else
@@ -102,13 +120,13 @@ namespace TelegramFatCamel.Module.Services
                                 if (string.IsNullOrEmpty(existedUserId.TrcAddress ?? existedUserId.BepAddress))
                                 {
                                     // т.к. кошельки пустые, можем перейти на установку кошелька
-                                    await ExecuteCommandAsync(CommandNames.SelectPurseCommand, update);
+                                    await ExecuteCommandAsync(client, CommandNames.SelectPurseCommand, update);
                                     return;
                                 }
                                 else
                                 {
                                     // т.к. один из кошельков не пустой, тогда выполним команду смены кошелька
-                                    await ExecuteCommandAsync(CommandNames.ChangePurseCommand, update);
+                                    await ExecuteCommandAsync(client, CommandNames.ChangePurseCommand, update);
                                     return;
                                 }
                             }
@@ -116,26 +134,27 @@ namespace TelegramFatCamel.Module.Services
                         else
                         {
                             // выведем сообщение, что "Неверно введен Id."
-                            await ExecuteCommandAsync(CommandNames.ErrorInputIdCommand, update);
+                            await ExecuteCommandAsync(client, CommandNames.ErrorInputIdCommand, update);
                             return;
                         }
                     }
                 case CommandNames.InputTrcCommand:
                 case CommandNames.InputBepCommand:
                     {
-                        await ExecuteCommandAsync(CommandNames.AcceptPurseCommand, update, _lastCommand.Name);
+                        await ExecuteCommandAsync(client, CommandNames.AcceptPurseCommand, update, telegramUserInfo?.LastCommand);
                         return;
                     }
             }
 
             // по дефолту просто пропишем операции.
-            await ExecuteCommandAsync(CommandNames.GetOperationsCommand, update);
+            await ExecuteCommandAsync(client, CommandNames.GetOperationsCommand, update);
         }
 
-        private async Task ExecuteCommandAsync(string commandName, Update update, dynamic param = null)
+        private async Task ExecuteCommandAsync(ITelegramBotClient client, string commandName, Update update, dynamic param = null)
         {
-            _lastCommand = _commands.First(x => x.Name == commandName);
-            await _lastCommand.ExecuteAsync(update, param);
+            var lastCommandService = _commands.First(x => x.Name == commandName);
+            await _telegramUserInfoRepository.UpdateAsync(update.Message?.Chat?.Id ?? update?.CallbackQuery?.Message?.Chat?.Id, lastCommandService.Name);
+            await lastCommandService.ExecuteAsync(client, update, param);
         }
     }
 }

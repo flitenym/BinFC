@@ -48,7 +48,12 @@ namespace Storage.Module.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(long Id, [FromBody] UserInfo newObj)
         {
-            if (newObj == null || newObj.Id != Id)
+            if (newObj == null)
+            {
+                return BadRequest("Отправлена пустая сущность.");
+            }
+
+            if (newObj.Id != Id)
             {
                 return BadRequest($"Отправлены разные значения у сущности и у переданного Id.");
             }

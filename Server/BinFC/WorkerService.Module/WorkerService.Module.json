@@ -1,9 +1,6 @@
 ﻿{
   "Name": "WorkerService.Module",
   "Version": "1.0.0",
-  "Dependencies": {
-    "BinanceApi.Module": "1.0.0"
-  },
   "Extra Settings": [
     "workerservicesettings.json"
   ]

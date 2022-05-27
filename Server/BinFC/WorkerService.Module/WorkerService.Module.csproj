@@ -18,7 +18,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BinanceApi.Module\BinanceApi.Module.csproj" />
-    <ProjectReference Include="..\FatCamel.Host\FatCamel.Host.csproj" />
+    <ProjectReference Include="..\FatCamel.Host\FatCamel.Host.csproj">
+		<Private>false</Private>
+		<ExcludeAssets>runtime</ExcludeAssets>
+	</ProjectReference>
     <ProjectReference Include="..\Storage.Module\Storage.Module.csproj" />
     <ProjectReference Include="..\TelegramFatCamel.Module\TelegramFatCamel.Module.csproj" />
   </ItemGroup>

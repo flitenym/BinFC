@@ -1,4 +1,5 @@
 ﻿using Cronos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Controllers.Base;
@@ -6,9 +7,11 @@ using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WorkerService.Module.Cronos;
 
 namespace WorkerService.Module
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CronJobController : BaseController
@@ -21,17 +24,17 @@ namespace WorkerService.Module
             _logger = logger;
         }
 
-        [HttpGet("{cron}")]
-        public IActionResult CronCheck(string cronExpression)
+        [HttpGet("check")]
+        public IActionResult CronCheck(string cron)
         {
-            if (string.IsNullOrEmpty(cronExpression))
+            if (string.IsNullOrEmpty(cron))
             {
                 return BadRequest("Отправлена пустая сущность.");
             }
 
             try
             {
-                CronExpression expression = CronExpression.Parse(cronExpression);
+                CronExpression expression = CronParseHelper.GetCronExpression(cron);
 
                 return Ok();
             }
@@ -42,24 +45,29 @@ namespace WorkerService.Module
             }
         }
 
-        [HttpGet("{next}")]
-        public IEnumerable<string> GetOccurrences(string cronExpression)
+        [HttpGet("next")]
+        public ActionResult<IEnumerable<string>> GetOccurrences(string cron)
         {
-            if (string.IsNullOrEmpty(cronExpression))
+            if (string.IsNullOrEmpty(cron))
             {
-                return null;
+                return BadRequest("Отправлена пустая сущность.");
             }
 
             try
             {
-                CronExpression expression = CronExpression.Parse(cronExpression);
+                CronExpression expression = CronParseHelper.GetCronExpression(cron);
 
-                return expression.GetOccurrences(DateTime.UtcNow, DateTime.UtcNow.AddMonths(2)).Take(20).Select(x=>x.ToString()).ToList();
+                if (expression == null)
+                {
+                    return BadRequest($"Неверный формат Cron: {cron}");
+                }
+
+                return expression.GetOccurrences(DateTime.UtcNow, DateTime.UtcNow.AddMonths(2)).Take(20).Select(x => x.ToString()).ToList();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка получения следующих дат.");
-                return null;
+                _logger.LogError(ex, "Ошибка получения следующих дат выполнения сервиса продажи.");
+                return BadRequest("Ошибка получения следующих дат выполнения сервиса продажи.");
             }
         }
     }
