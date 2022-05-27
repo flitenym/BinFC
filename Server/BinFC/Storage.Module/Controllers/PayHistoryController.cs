@@ -5,6 +5,7 @@ using Storage.Module.Controllers.Base;
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Storage.Module.Controllers
 {
@@ -25,6 +26,23 @@ namespace Storage.Module.Controllers
         public IEnumerable<PayHistory> Get()
         {
             return _payHistoryRepository.Get();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] PayHistory obj)
+        {
+            if (obj == null)
+            {
+                return BadRequest("Отправлена пустая сущность.");
+            }
+
+            return StringToResult(await _payHistoryRepository.CreateAsync(obj));
+        }
+
+        [HttpPost("deleteall")]
+        public async Task<IActionResult> DeleteAllSpot()
+        {
+            return StringToResult(await _payHistoryRepository.DeleteAllAsync());
         }
     }
 }

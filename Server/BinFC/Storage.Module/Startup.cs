@@ -34,6 +34,7 @@ namespace Storage.Module
             services.AddStorageServices();
             services.AddStorageRepositoryServices();
             services.AddStorageImportServices();
+            services.AddStorageExportServices();
 
             return Task.CompletedTask;
         }

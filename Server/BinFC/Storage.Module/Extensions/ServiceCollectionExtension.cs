@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Storage.Module.Export.Services;
+using Storage.Module.Export.Services.Interfaces;
 using Storage.Module.Import.Services;
 using Storage.Module.Import.Services.Interfaces;
 using Storage.Module.Repositories;
@@ -68,6 +70,11 @@ namespace Storage.Module.Extensions
         public static void AddStorageImportServices(this IServiceCollection services)
         {
             services.AddScoped<IImportService, ImportService>();
+        }
+
+        public static void AddStorageExportServices(this IServiceCollection services)
+        {
+            services.AddScoped<IExportPayHistoryService, ExportPayHistoryService>();
         }
     }
 }
