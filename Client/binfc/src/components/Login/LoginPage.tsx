@@ -26,6 +26,9 @@ const LoginPage: FunctionComponent<IProps> = () => {
   const onFinish = (values: any): any => {
     authService.login(values?.username, values?.password)
       .then((response) => {
+        if (response.status !== 200) {
+          return
+        }
         if (response.data) {
           const { token, username } = response?.data
           dispatch(logInSuccess({ username, token }));
@@ -39,9 +42,9 @@ const LoginPage: FunctionComponent<IProps> = () => {
   };
 
   useEffect(() => {
-      if (token) {
-          navigate("/dashboard");
-      }
+    if (token) {
+      navigate("/dashboard");
+    }
   }, [navigate, token])
 
   return (

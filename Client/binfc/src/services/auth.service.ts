@@ -4,7 +4,7 @@ const API_URL = "admin";
 
 const login = async (username: string, password: string) => {
   return axios
-    .post(API_URL + "/Login", {
+    .post(API_URL + "/login", {
       username,
       password,
     })

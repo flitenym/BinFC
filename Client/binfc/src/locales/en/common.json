@@ -1,9 +1,8 @@
 {
-    "PayoutSettings": "Payout settings",
+    "Settings": "Settings",
     "Users": "Users",
     "Payout": "Payout",
     "PaymentHistory": "Payment History",
-    "BinanceSettings": "Binance Settings",
 
 
     "PaymentDateSetting": "Payment Date Setting",
@@ -21,6 +20,25 @@
     "TableBep": "BEP",
     "TableComission": "Comission",
     "TableUnique": "Unique",
-    "noData": "No data"
+    "noData": "No data",
+    "UserName": "Username",
+    "ButtonSave": "Save",
+    "ButtonClose": "Close",
+    "TableUSDT": "USDT",
+    "LoadingTime": "Loading time",
+    "TableBUSD": "BUSD",
+    "Paid": "Paid",
+    "ButtonDelete": "Delete",
+    "ButtonDeleteAll": "Delete all",
+    "ImportFile": "Import file",
+    "ImportSpotFile": "Import spot file",
+    "ImportFutureFile": "Import future file",
+    "ConfirmImoportFile": "Do you want import file",
+    "Yes": "Yes",
+    "No": "No",
+    "Russian": "Russian",
+    "English": "English",
+    "Page": "Page",
+    "Dates": "Dates"
 }
     

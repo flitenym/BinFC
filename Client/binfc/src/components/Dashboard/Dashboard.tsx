@@ -24,9 +24,9 @@ const DashBoard: FunctionComponent<IProps> = () => {
     }, [dispatch, navigate, token])
 
     return (
-        <Layout style={{ display: "flex" }} >
-            <Header />
-            <NavBar />
+        <Layout key={1} style={{ display: "flex" }} >
+            <Header key={3} />
+            <NavBar key={2} />
         </Layout>
     )
 }

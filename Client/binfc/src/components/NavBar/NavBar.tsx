@@ -22,7 +22,7 @@ const NavBar: FunctionComponent = () => {
     const selectedRouted = localStorage.getItem("selectedRouted")
 
     useEffect(() => {
-        navigate(selectedRouted ? selectedRouted : "/dashboard/PaymentsSettings")
+        navigate(selectedRouted ? selectedRouted : "/dashboard/Settings")
     }, [navigate, selectedRouted])
 
     function getItem(
@@ -44,11 +44,10 @@ const NavBar: FunctionComponent = () => {
     }
 
     const items: MenuItem[] = [
-        getItem('/dashboard/PaymentsSettings', t("common:PayoutSettings"), '1', <SettingOutlined />),
+        getItem('/dashboard/Settings', t("common:Settings"), '1', <SettingOutlined />),
         getItem('/dashboard/Users', t("common:Users"), '2', <UsergroupAddOutlined />),
         getItem('/dashboard/Payout', t("common:Payout"), '3', <DollarCircleOutlined />),
         getItem('/dashboard/PaymentHistory', t("common:PaymentHistory"), '4', <HistoryOutlined />),
-        getItem('/dashboard/BinanceSettings', t("common:BinanceSettings"), '5', <RadiusSettingOutlined />),
     ];
 
     const onClick = (e: any) => {
@@ -65,7 +64,6 @@ const NavBar: FunctionComponent = () => {
     return (
         <div style={{ display: "flex" }}>
             <Menu
-                defaultActiveFirst
                 defaultSelectedKeys={[selectedItem ? selectedItem : "1"]}
                 mode="inline"
                 style={{ width: "256px" }}
@@ -75,7 +73,8 @@ const NavBar: FunctionComponent = () => {
             </Menu>
             <Content
                 style={{
-                    padding: 24,
+                    padding: "24px 0px 24px 24px",
+                    marginBottom: 8,
                     margin: 0,
                 }}
             >
