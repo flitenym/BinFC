@@ -53,6 +53,13 @@ namespace Storage.Module.Services
                 };
                 _dataContext.Add(isNotification);
 
+                Settings binanceSellEnable = new Settings()
+                {
+                    Key = SettingsKeys.BinanceSellEnable,
+                    Value = bool.FalseString
+                };
+                _dataContext.Add(binanceSellEnable);
+
                 // admin
                 Admin admin = new Admin()
                 {

@@ -12,13 +12,10 @@ namespace Storage.Module.Export.Services
     public class ExportPayHistoryService : IExportPayHistoryService
     {
         private readonly IPayHistoryRepository _payHistoryRepository;
-        private readonly IBaseRepository _baseRepository;
         public ExportPayHistoryService(
-            IPayHistoryRepository payHistoryRepository,
-            IBaseRepository baseRepository)
+            IPayHistoryRepository payHistoryRepository)
         {
             _payHistoryRepository = payHistoryRepository;
-            _baseRepository = baseRepository;
         }
 
         public IEnumerable<ExportPayHistoryModel> GetPayHistories(long[] ids)
@@ -46,7 +43,9 @@ namespace Storage.Module.Export.Services
                 builder.AppendLine($"{item.UserId},{item.UserName},{item.SendedSum},{item.SendedTime.ToString("dd.MM.yyyy")},{item.NumberPay}");
             }
 
-            return Encoding.UTF8.GetBytes(builder.ToString());
+            var data = Encoding.UTF8.GetBytes(builder.ToString());
+
+            return Encoding.UTF8.GetPreamble().Concat(data).ToArray();
         }
 
         public Task<(bool IsSuccess, string Error, byte[] FileContent)> ExportAsync(long[] ids)

@@ -24,6 +24,8 @@ namespace Storage.Module
         {
             var initialCreate = serviceProvider.GetRequiredService<IInitialCreateService>();
             await initialCreate.InitialCreateValuesAsync();
+
+            app.UseWebSockets();
         }
 
         public Task ConfigureServicesAsync(IServiceCollection services)
