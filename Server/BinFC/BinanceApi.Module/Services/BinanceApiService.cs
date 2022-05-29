@@ -17,16 +17,14 @@ namespace BinanceApi.Module.Services
 {
     public class BinanceApiService : IBinanceApiService
     {
-        private readonly ISettingsRepository _settingsRepository;
         private readonly ILogger<BinanceApiService> _logger;
 
         public const HttpStatusCode SuccessCode = HttpStatusCode.OK;
         public const int DustTransferSixHours = 32110;
         public const string USDT = "USDT";
 
-        public BinanceApiService(ISettingsRepository settingsRepository, ILogger<BinanceApiService> logger)
+        public BinanceApiService(ILogger<BinanceApiService> logger)
         {
-            _settingsRepository = settingsRepository;
             _logger = logger;
         }
 
