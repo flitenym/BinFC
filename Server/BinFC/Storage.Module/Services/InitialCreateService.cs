@@ -71,7 +71,8 @@ namespace Storage.Module.Services
                 // unique
                 Unique unique = new Unique()
                 {
-                    Name = DefaultValues.UniqueName
+                    Name = DefaultValues.UniqueName,
+                    IsDefault = true
                 };
                 _dataContext.Add(unique);
 

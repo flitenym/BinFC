@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,16 +14,19 @@ namespace Storage.Module.Repositories
         private readonly DataContext _dataContext;
         private readonly IBaseRepository _baseRepository;
         private readonly IUniqueRepository _uniqueRepository;
+        private readonly ITelegramMessageQueueRepository _telegramMessageQueueRepository;
         private readonly ILogger<UserInfoRepository> _logger;
         public UserInfoRepository(
             DataContext dataContext,
             IBaseRepository baseRepository,
             IUniqueRepository uniqueRepository,
+            ITelegramMessageQueueRepository telegramMessageQueueRepository,
             ILogger<UserInfoRepository> logger)
         {
             _dataContext = dataContext;
             _baseRepository = baseRepository;
             _uniqueRepository = uniqueRepository;
+            _telegramMessageQueueRepository = telegramMessageQueueRepository;
             _logger = logger;
         }
 
@@ -33,6 +37,15 @@ namespace Storage.Module.Repositories
             return _dataContext
                 .UsersInfo
                 .Include(i => i.Unique)
+                .OrderBy(x => x.Id);
+        }
+
+        public IEnumerable<UserInfo> Get(DateTime beforeDate)
+        {
+            return _dataContext
+                .UsersInfo
+                .Include(i => i.Unique)
+                .Where(x => x.Created < beforeDate)
                 .OrderBy(x => x.Id);
         }
 
@@ -47,19 +60,26 @@ namespace Storage.Module.Repositories
                 .ToListAsync();
         }
 
-        public async Task<UserInfo> GetByIdAsync(long Id)
+        public async Task<UserInfo> GetByIdAsync(long id)
         {
             return await _dataContext
                 .UsersInfo
                 .Include(i => i.Unique)
-                .FirstOrDefaultAsync(x => x.Id == Id);
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<string> CreateAsync(UserInfo obj)
         {
+            if (!obj.UniqueId.HasValue)
+            {
+                Unique defaultUnique = await _baseRepository.GetDefaultUniqueAsync();
+
+                obj.UniqueId = defaultUnique.Id;
+            }
+
             _dataContext.UsersInfo.Add(obj);
 
-            return await _baseRepository.SaveChangesAsync();
+            return await SaveChangesAsync();
         }
 
         public async Task<string> UpdateAsync(UserInfo obj, UserInfo newObj)
@@ -96,23 +116,70 @@ namespace Storage.Module.Repositories
 
             obj.IsAdmin = newObj.IsAdmin;
 
-            var unique = await _uniqueRepository.GetByIdAsync(newObj.UniqueId);
-
-            if (unique != null)
+            if (newObj.UniqueId.HasValue)
             {
-                obj.UniqueId = newObj.UniqueId;
+                var unique = await _uniqueRepository.GetByIdAsync(newObj.UniqueId.Value);
+
+                if (unique != null)
+                {
+                    obj.UniqueId = newObj.UniqueId;
+                }
             }
 
             _dataContext.UsersInfo.Update(obj);
 
-            return await _baseRepository.SaveChangesAsync();
+            return await SaveChangesAsync();
         }
 
         public async Task<string> DeleteAsync(UserInfo obj)
         {
             _dataContext.UsersInfo.Remove(obj);
 
-            return await _baseRepository.SaveChangesAsync();
+            return await SaveChangesAsync();
+        }
+
+        public async Task<string> ApproveAsync(IEnumerable<long> ids)
+        {
+            foreach(var id in ids)
+            {
+                var userInfoById = await GetByIdAsync(id);
+
+                userInfoById.IsApproved = true;
+
+                if (userInfoById.ChatId != null)
+                {
+                    _telegramMessageQueueRepository.Create(new TelegramMessageQueue()
+                    {
+                        ChatId = userInfoById.ChatId,
+                        Message = $"Ваш id ({userInfoById.UserId}) подтвержден Администратором."
+                    });
+                }
+            }
+
+            return await SaveChangesAsync();
+        }
+
+        public async Task<string> NotApproveAsync(IEnumerable<long> ids)
+        {
+            foreach (var id in ids)
+            {
+                var userInfoById = await GetByIdAsync(id);
+
+                userInfoById.IsApproved = false;
+
+                if (userInfoById.ChatId != null)
+                {
+                    _telegramMessageQueueRepository.Create(new TelegramMessageQueue()
+                    {
+                        ChatId = userInfoById.ChatId,
+                        Message = $"Ваш id ({userInfoById.UserId}) не подтвержден Администратором."
+                    });
+                }
+
+                _dataContext.Remove(userInfoById);
+            }
+
+            return await SaveChangesAsync();
         }
 
         #endregion

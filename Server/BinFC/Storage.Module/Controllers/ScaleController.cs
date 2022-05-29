@@ -41,15 +41,15 @@ namespace Storage.Module.Controllers
         }
 
         [HttpGet("spot/{id}")]
-        public async Task<SpotScale> GetSpotById(long Id)
+        public async Task<SpotScale> GetSpotById(long id)
         {
-            return await _spotScaleRepository.GetByIdAsync(Id);
+            return await _spotScaleRepository.GetByIdAsync(id);
         }
 
         [HttpGet("futures/{id}")]
-        public async Task<FuturesScale> GetFuturesById(long Id)
+        public async Task<FuturesScale> GetFuturesById(long id)
         {
-            return await _futuresScaleRepository.GetByIdAsync(Id);
+            return await _futuresScaleRepository.GetByIdAsync(id);
         }
 
         [HttpPost("createspot")]
@@ -75,31 +75,31 @@ namespace Storage.Module.Controllers
         }
 
         [HttpPost("deletespot")]
-        public async Task<IActionResult> DeleteSpot([FromBody] IEnumerable<long> Ids)
+        public async Task<IActionResult> DeleteSpot([FromBody] IEnumerable<long> ids)
         {
-            if (Ids == null || !Ids.Any())
+            if (ids == null || !ids.Any())
             {
                 return BadRequest("Не указаны значения.");
             }
 
-            return StringToResult(await _spotScaleRepository.DeleteAsync(Ids));
+            return StringToResult(await _spotScaleRepository.DeleteAsync(ids));
         }
 
         [HttpPost("deletefutures")]
-        public async Task<IActionResult> DeleteFutures([FromBody] IEnumerable<long> Ids)
+        public async Task<IActionResult> DeleteFutures([FromBody] IEnumerable<long> ids)
         {
-            if (Ids == null || !Ids.Any())
+            if (ids == null || !ids.Any())
             {
                 return BadRequest("Не указаны значения.");
             }
 
-            return StringToResult(await _futuresScaleRepository.DeleteAsync(Ids));
+            return StringToResult(await _futuresScaleRepository.DeleteAsync(ids));
         }
 
         [HttpPut("updatespot/{id}")]
-        public async Task<IActionResult> UpdateSpot(long Id, [FromBody] SpotScale newObj)
+        public async Task<IActionResult> UpdateSpot(long id, [FromBody] SpotScale newObj)
         {
-            if (newObj == null || newObj.Id != Id)
+            if (newObj == null || newObj.Id != id)
             {
                 return BadRequest($"Отправлены разные значения у сущности и у переданного Id.");
             }
@@ -115,9 +115,9 @@ namespace Storage.Module.Controllers
         }
 
         [HttpPut("updatefutures/{id}")]
-        public async Task<IActionResult> UpdateFutures(long Id, [FromBody] FuturesScale newObj)
+        public async Task<IActionResult> UpdateFutures(long id, [FromBody] FuturesScale newObj)
         {
-            if (newObj == null || newObj.Id != Id)
+            if (newObj == null || newObj.Id != id)
             {
                 return BadRequest($"Отправлены разные значения у сущности и у переданного Id.");
             }

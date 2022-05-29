@@ -33,16 +33,16 @@ namespace Storage.Module.Repositories.Base
             }
         }
 
-        public UserInfo GetOrCreateUserInfo(long userId)
+        public async Task<UserInfo> GetOrCreateUserInfoAsync(long userId)
         {
             var foundedUserInfo = GetUserInfo(userId);
             if (foundedUserInfo == null)
             {
-
+                Unique defaultUnique = await GetDefaultUniqueAsync();
                 UserInfo userInfo = new()
                 {
                     UserId = userId,
-                    Unique = GetDefaultUnique()
+                    Unique = defaultUnique
                 };
 
                 return userInfo;
@@ -59,18 +59,12 @@ namespace Storage.Module.Repositories.Base
                 .FirstOrDefault(x => x.UserId == userId);
         }
 
-        private Unique GetDefaultUnique()
+        public async Task<Unique> GetDefaultUniqueAsync()
         {
             return
-                _dataContext
+                await _dataContext
                     .Unique
-                    .FirstOrDefault(x => x.Id == DefaultValues.UniqueId) ??
-                _dataContext
-                    .Unique
-                    .FirstOrDefault(x => x.Name == DefaultValues.UniqueName) ??
-                _dataContext
-                    .Unique
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync(x => x.IsDefault);
         }
     }
 }

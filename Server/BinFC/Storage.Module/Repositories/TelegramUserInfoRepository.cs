@@ -48,7 +48,7 @@ namespace Storage.Module.Repositories
         {
             _dataContext.TelegramUsersInfo.Add(obj);
 
-            return await _baseRepository.SaveChangesAsync();
+            return await SaveChangesAsync();
         }
 
         public async Task<string> UpdateAsync(long? chatId, string lastCommand)
@@ -79,7 +79,7 @@ namespace Storage.Module.Repositories
                 _dataContext.TelegramUsersInfo.Add(telegramUserInfo);
             }
 
-            return await _baseRepository.SaveChangesAsync();
+            return await SaveChangesAsync();
         }
 
         public async Task<string> SaveChangesAsync()

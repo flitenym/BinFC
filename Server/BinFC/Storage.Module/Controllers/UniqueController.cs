@@ -29,9 +29,9 @@ namespace Storage.Module.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<Unique> Get(long Id)
+        public async Task<Unique> Get(long id)
         {
-            return await _uniqueRepository.GetByIdAsync(Id);
+            return await _uniqueRepository.GetByIdAsync(id);
         }
 
         [HttpPost]
@@ -46,9 +46,9 @@ namespace Storage.Module.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(long Id, [FromBody] Unique newObj)
+        public async Task<IActionResult> Update(long id, [FromBody] Unique newObj)
         {
-            if (newObj == null || newObj.Id != Id)
+            if (newObj == null || newObj.Id != id)
             {
                 return BadRequest($"Отправлены разные значения у сущности и у переданного Id.");
             }
@@ -64,9 +64,9 @@ namespace Storage.Module.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(long Id)
+        public async Task<IActionResult> Delete(long id)
         {
-            var obj = await _uniqueRepository.GetByIdAsync(Id);
+            var obj = await _uniqueRepository.GetByIdAsync(id);
 
             if (obj == null)
             {

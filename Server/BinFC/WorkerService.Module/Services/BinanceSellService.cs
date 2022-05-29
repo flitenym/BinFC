@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
+using TelegramFatCamel.Module.Services;
 using TelegramFatCamel.Module.Services.Interfaces;
 using WorkerService.Module.Services.Base;
 using WorkerService.Module.Services.Intrefaces;
@@ -24,17 +25,20 @@ namespace WorkerService.Module.Services
     {
         private const int AttemptsToSellCurrensies = 3;
 
+        private readonly TelegramFatCamelBotService _telegramFatCamelBotService;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IBinanceApiService _binanceApiService;
         private readonly ILogger<BinanceSellService> _logger;
 
         public BinanceSellService(
+            TelegramFatCamelBotService telegramFatCamelBotService,
             IServiceScopeFactory scopeFactory,
             IBinanceApiService binanceApiService,
             IConfiguration configuration,
             ILogger<BinanceSellService> logger) :
             base(scopeFactory, configuration, logger)
         {
+            _telegramFatCamelBotService = telegramFatCamelBotService;
             _scopeFactory = scopeFactory;
             _binanceApiService = binanceApiService;
             _logger = logger;
@@ -266,6 +270,7 @@ namespace WorkerService.Module.Services
 
         private async Task SendTelegramMessageAsync(SettingsInfo settings, string message)
         {
+            _logger.LogTrace(message);
             if (!settings.IsNotification)
             {
                 _logger.LogTrace("Уведомления отключены.");
@@ -289,21 +294,14 @@ namespace WorkerService.Module.Services
                 return;
             }
 
-            using (var scope = _scopeFactory.CreateScope())
+            TelegramBotClient _client = await _telegramFatCamelBotService.GetTelegramBotAsync(false);
+
+            foreach (var admin in admins)
             {
-                ITelegramFatCamelBotService _telegramFatCamelBotService =
-                    scope.ServiceProvider
-                        .GetService<ITelegramFatCamelBotService>();
+                await _client.SendTextMessageAsync(admin.ChatId, message);
 
-                TelegramBotClient _client = await _telegramFatCamelBotService.GetTelegramBotAsync(false);
-
-                foreach (var admin in admins)
-                {
-                    await _client.SendTextMessageAsync(admin.ChatId, message);
-
-                    _logger.LogTrace($"Отправлено уведомление пользователю {admin.UserName} с chatId {admin.ChatId}: {message}.");
-                }
-            }            
+                _logger.LogTrace($"Отправлено уведомление пользователю {admin.UserName} с chatId {admin.ChatId}: {message}.");
+            }
         }
 
         #endregion

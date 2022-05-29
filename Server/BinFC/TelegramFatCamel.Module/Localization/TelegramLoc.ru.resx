@@ -142,7 +142,7 @@
     <value>Произошла ошибка, обратитесь к Администратору.</value>
   </data>
   <data name="IdNotRegister" xml:space="preserve">
-    <value>Данный Id не зарегистрирован в базе. Попробуйте снова указав команду: {0}</value>
+    <value>Данный Id не зарегистрирован в базе. Администратор проверит данные и вам придет сообщение.</value>
   </data>
   <data name="IdUnspecified" xml:space="preserve">
     <value>Id не указан, привяжите сперва Id. Указать Id можно написав команду: {0}</value>

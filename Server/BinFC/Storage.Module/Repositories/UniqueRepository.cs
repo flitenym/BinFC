@@ -29,18 +29,18 @@ namespace Storage.Module.Repositories
                 .OrderBy(x=>x.Id);
         }
 
-        public async Task<Unique> GetByIdAsync(long Id)
+        public async Task<Unique> GetByIdAsync(long id)
         {
             return await _dataContext
                 .Unique
-                .FirstOrDefaultAsync(x => x.Id == Id);
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<string> CreateAsync(Unique obj)
         {
             _dataContext.Unique.Add(obj);
 
-            return await _baseRepository.SaveChangesAsync();
+            return await SaveChangesAsync();
         }
 
         public async Task<string> UpdateAsync(Unique obj, Unique newObj)
@@ -49,14 +49,14 @@ namespace Storage.Module.Repositories
 
             _dataContext.Unique.Update(obj);
 
-            return await _baseRepository.SaveChangesAsync();
+            return await SaveChangesAsync();
         }
 
         public async Task<string> DeleteAsync(Unique obj)
         {
             _dataContext.Unique.Remove(obj);
 
-            return await _baseRepository.SaveChangesAsync();
+            return await SaveChangesAsync();
         }
 
         #endregion

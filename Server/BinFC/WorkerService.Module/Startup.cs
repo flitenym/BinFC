@@ -24,6 +24,9 @@ namespace WorkerService.Module
 
             services.AddSingleton<CronJobBaseService<IBinanceSellService>, BinanceSellService>();
 
+            services.AddSingleton<HostedService>();
+            services.AddHostedService(sp => sp.GetRequiredService<HostedService>());
+
             return Task.CompletedTask;
         }
     }

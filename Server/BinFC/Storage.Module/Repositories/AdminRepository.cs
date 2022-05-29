@@ -29,9 +29,9 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
-        public async Task<Admin> GetByIdAsync(long Id)
+        public async Task<Admin> GetByIdAsync(long id)
         {
-            return await _dataContext.Admins.FindAsync(Id);
+            return await _dataContext.Admins.FindAsync(id);
         }
 
         public async Task<bool> LoginAsync(Admin obj)

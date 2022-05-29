@@ -41,25 +41,25 @@ namespace Storage.Module.Controllers
         }
 
         [HttpPost("deletespot")]
-        public async Task<IActionResult> DeleteSpot([FromBody] IEnumerable<long> Ids)
+        public async Task<IActionResult> DeleteSpot([FromBody] IEnumerable<long> ids)
         {
-            if (Ids == null || !Ids.Any())
+            if (ids == null || !ids.Any())
             {
                 return BadRequest("Не указаны значения.");
             }
 
-            return StringToResult(await _spotDataRepository.DeleteAsync(Ids));
+            return StringToResult(await _spotDataRepository.DeleteAsync(ids));
         }
 
         [HttpPost("deletefutures")]
-        public async Task<IActionResult> DeleteFutures([FromBody] IEnumerable<long> Ids)
+        public async Task<IActionResult> DeleteFutures([FromBody] IEnumerable<long> ids)
         {
-            if (Ids == null || !Ids.Any())
+            if (ids == null || !ids.Any())
             {
                 return BadRequest("Не указаны значения.");
             }
 
-            return StringToResult(await _futuresDataRepository.DeleteAsync(Ids));
+            return StringToResult(await _futuresDataRepository.DeleteAsync(ids));
         }
 
         [HttpPost("deleteallspot")]

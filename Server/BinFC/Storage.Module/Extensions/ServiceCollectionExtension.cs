@@ -65,6 +65,7 @@ namespace Storage.Module.Extensions
             services.AddScoped<ISpotScaleRepository, SpotScaleRepository>();
             services.AddScoped<IPayHistoryRepository, PayHistoryRepository>();
             services.AddScoped<ITelegramUserInfoRepository, TelegramUserInfoRepository>();
+            services.AddScoped<ITelegramMessageQueueRepository, TelegramMessageQueueRepository>();            
         }
 
         public static void AddStorageImportServices(this IServiceCollection services)

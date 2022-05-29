@@ -142,7 +142,7 @@
     <value>An error has occurred, contact the Administrator.</value>
   </data>
   <data name="IdNotRegister" xml:space="preserve">
-    <value>This Id is not registered in the database. Try again with the command: {0}</value>
+    <value>This Id is not registered in the database. The administrator will check the data and you will receive a message.</value>
   </data>
   <data name="IdUnspecified" xml:space="preserve">
     <value>Id is not specified, bind Id first. You can specify Id by writing the command: {0}</value>

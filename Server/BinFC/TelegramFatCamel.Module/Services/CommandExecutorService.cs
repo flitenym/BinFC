@@ -112,7 +112,7 @@ namespace TelegramFatCamel.Module.Services
                             if (existedUserId == null)
                             {
                                 // выведем сообщение, что "Данный id не зарегистрирован в базе, попробуйте снова"
-                                await ExecuteCommandAsync(client, CommandNames.NotExistIdCommand, update);
+                                await ExecuteCommandAsync(client, CommandNames.NotExistIdCommand, update, inputedIdLong);
                                 return;
                             }
                             else

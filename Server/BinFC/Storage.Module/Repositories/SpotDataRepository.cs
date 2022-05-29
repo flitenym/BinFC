@@ -30,9 +30,9 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
-        public void Create(Data obj)
+        public async Task CreateAsync(Data obj)
         {
-            UserInfo userInfo = _baseRepository.GetOrCreateUserInfo(obj.UserId);
+            UserInfo userInfo = await _baseRepository.GetOrCreateUserInfoAsync(obj.UserId);
 
             SpotData newObj = new()
             {
@@ -44,14 +44,14 @@ namespace Storage.Module.Repositories
             _dataContext.SpotData.Add(newObj);
         }
 
-        public async Task<string> DeleteAsync(IEnumerable<long> Ids)
+        public async Task<string> DeleteAsync(IEnumerable<long> ids)
         {
             _dataContext
                 .SpotData
                 .RemoveRange(
                     _dataContext
                     .SpotData
-                    .Where(x => Ids.Contains(x.Id))
+                    .Where(x => ids.Contains(x.Id))
                 );
 
             return await SaveChangesAsync();

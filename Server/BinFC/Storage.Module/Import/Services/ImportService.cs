@@ -96,12 +96,12 @@ namespace Storage.Module.Import.Services
                 {
                     case ImportType.Spot:
                         {
-                            _spotDataRepository.Create(data);
+                            await _spotDataRepository.CreateAsync(data);
                             break;
                         }
                     case ImportType.Futures:
                         {
-                            _futuresDataRepository.Create(data);
+                            await _futuresDataRepository.CreateAsync(data);
                             break;
                         }
                 }
