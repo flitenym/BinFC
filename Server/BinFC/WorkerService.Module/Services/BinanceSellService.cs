@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Classes;
+using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
 using Storage.Module.StaticClasses;
 using System;
@@ -19,29 +20,23 @@ using WorkerService.Module.Services.Intrefaces;
 
 namespace WorkerService.Module.Services
 {
-    public class BinanceSellService : CronJobBaseService<IBinanceSell>
+    public class BinanceSellService : CronJobBaseService<IBinanceSellService>
     {
         private const int AttemptsToSellCurrensies = 3;
 
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IBinanceApiService _binanceApiService;
-        private readonly ISettingsRepository _settingsRepository;
-        private readonly IUserInfoRepository _userInfoRepository;
         private readonly ILogger<BinanceSellService> _logger;
 
         public BinanceSellService(
-            IServiceProvider serviceProvider,
+            IServiceScopeFactory scopeFactory,
             IBinanceApiService binanceApiService,
-            IUserInfoRepository userInfoRepository,
-            ISettingsRepository settingsRepository,
             IConfiguration configuration,
             ILogger<BinanceSellService> logger) :
-            base(settingsRepository, configuration, logger)
+            base(scopeFactory, configuration, logger)
         {
-            _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;
             _binanceApiService = binanceApiService;
-            _userInfoRepository = userInfoRepository;
-            _settingsRepository = settingsRepository;
             _logger = logger;
         }
 
@@ -68,8 +63,9 @@ namespace WorkerService.Module.Services
             _logger.LogTrace($"Запуск продажи");
             try
             {
-                (bool isSuccess, string sellMessage) = await SellAsync();
-                await SendTelegramMessageAsync(sellMessage);
+                var settings = await GetSettingsInfoAsync();
+                (bool isSuccess, string sellMessage) = await SellAsync(settings);
+                await SendTelegramMessageAsync(settings, sellMessage);
                 if (isSuccess)
                 {
                     _logger?.LogTrace($"Продажа прошла успешно");
@@ -83,25 +79,38 @@ namespace WorkerService.Module.Services
             {
                 string error = $"Продажа прошла с ошибками {ex}";
                 _logger?.LogInformation(ex, error);
-                await SendTelegramMessageAsync(error);
             }
         }
 
-        private async Task<(bool isSuccess, string message)> SellAsync()
+        private async Task<SettingsInfo> GetSettingsInfoAsync()
         {
-            var _apiKey = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiKey, false);
-            var _apiSecret = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiSecret, false);
-            var _cronExpression = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false);
-            var _sellCurrency = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.SellCurrency, false);
-
-            SettingsInfo settings = new SettingsInfo()
+            using (var scope = _scopeFactory.CreateScope())
             {
-                ApiKey = _apiKey.Value,
-                ApiSecret = _apiSecret.Value,
-                CronExpression = _cronExpression.Value,
-                SellCurrency = _sellCurrency.Value,
-            };
+                ISettingsRepository _settingsRepository =
+                    scope.ServiceProvider
+                        .GetRequiredService<ISettingsRepository>();
 
+                var _apiKey = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiKey, false);
+                var _apiSecret = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiSecret, false);
+                var _cronExpression = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false);
+                var _sellCurrency = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.SellCurrency, false);
+                var _isNotification = await _settingsRepository.GetSettingsByKeyAsync<bool>(SettingsKeys.IsNotification, false);
+                var _binanceSellEnable = await _settingsRepository.GetSettingsByKeyAsync<bool>(SettingsKeys.BinanceSellEnable, false);
+
+                return new SettingsInfo()
+                {
+                    ApiKey = _apiKey.Value,
+                    ApiSecret = _apiSecret.Value,
+                    CronExpression = _cronExpression.Value,
+                    SellCurrency = _sellCurrency.Value,
+                    IsNotification = _isNotification.Value,
+                    BinanceSellEnable = _binanceSellEnable.Value,
+                };
+            }
+        }
+
+        private async Task<(bool isSuccess, string message)> SellAsync(SettingsInfo settings)
+        {
             (bool isValid, string validError) = settings.IsValid();
 
             if (!isValid)
@@ -111,7 +120,7 @@ namespace WorkerService.Module.Services
 
             await TransferFuturesToSpotAsync(settings);
 
-            await SellAsync(settings);
+            await SellCurrenciesAsync(settings);
 
             return (true, null);
         }
@@ -146,7 +155,7 @@ namespace WorkerService.Module.Services
         /// </summary>
         /// <param name="settings"></param>
         /// <returns></returns>
-        private async Task<bool> SellAsync(SettingsInfo settings)
+        private async Task<bool> SellCurrenciesAsync(SettingsInfo settings)
         {
             (bool isSuccessGetExchangeInfo, BinanceExchangeInfo exchangeInfo) = await _binanceApiService.GetExchangeInfoAsync(settings);
 
@@ -255,23 +264,24 @@ namespace WorkerService.Module.Services
 
         #region Отправка уведолмения в телеграме
 
-        private async Task SendTelegramMessageAsync(string message)
+        private async Task SendTelegramMessageAsync(SettingsInfo settings, string message)
         {
-            var isNotification = await _settingsRepository.GetSettingsByKeyAsync<bool>(SettingsKeys.IsNotification, false);
-
-            if (!isNotification.IsSuccess)
-            {
-                _logger.LogError($"Неудачное получение {SettingsKeys.IsNotification}");
-                return;
-            }
-
-            if (!isNotification.Value)
+            if (!settings.IsNotification)
             {
                 _logger.LogTrace("Уведомления отключены.");
                 return;
             }
 
-            var admins = await _userInfoRepository.GetAdminsAsync();
+            List<UserInfo> admins;
+
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                IUserInfoRepository _userInfoRepository =
+                    scope.ServiceProvider
+                        .GetRequiredService<IUserInfoRepository>();
+
+                admins = await _userInfoRepository.GetAdminsAsync();
+            }
 
             if (!admins.Any())
             {
@@ -279,29 +289,21 @@ namespace WorkerService.Module.Services
                 return;
             }
 
-            ITelegramFatCamelBotService _telegramFatCamelBotService = null;
-
-            using (var scope = _serviceProvider.CreateScope())
+            using (var scope = _scopeFactory.CreateScope())
             {
-                _telegramFatCamelBotService =
+                ITelegramFatCamelBotService _telegramFatCamelBotService =
                     scope.ServiceProvider
                         .GetService<ITelegramFatCamelBotService>();
-            }
 
-            if (_telegramFatCamelBotService == null)
-            {
-                _logger.LogInformation("Не найден модуль телеграм бота.");
-                return;
-            }
+                TelegramBotClient _client = await _telegramFatCamelBotService.GetTelegramBotAsync(false);
 
-            TelegramBotClient _client = await _telegramFatCamelBotService.GetTelegramBotAsync(false);
+                foreach (var admin in admins)
+                {
+                    await _client.SendTextMessageAsync(admin.ChatId, message);
 
-            foreach (var admin in admins)
-            {
-                await _client.SendTextMessageAsync(admin.ChatId, message);
-
-                _logger.LogTrace($"Отправлено уведомление пользователю {admin.UserName} с chatId {admin.ChatId}: {message}.");
-            }
+                    _logger.LogTrace($"Отправлено уведомление пользователю {admin.UserName} с chatId {admin.ChatId}: {message}.");
+                }
+            }            
         }
 
         #endregion

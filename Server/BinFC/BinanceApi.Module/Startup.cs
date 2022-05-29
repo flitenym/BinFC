@@ -19,7 +19,7 @@ namespace BinanceApi.Module
 
         public Task ConfigureServicesAsync(IServiceCollection services)
         {
-            services.AddScoped<IBinanceApiService, BinanceApiService>();
+            services.AddSingleton<IBinanceApiService, BinanceApiService>();
 
             return Task.CompletedTask;
         }

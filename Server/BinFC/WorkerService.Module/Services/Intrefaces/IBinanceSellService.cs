@@ -1,6 +1,6 @@
 ﻿namespace WorkerService.Module.Services.Intrefaces
 {
-    public interface IBinanceSell
+    public interface IBinanceSellService
     {
     }
 }

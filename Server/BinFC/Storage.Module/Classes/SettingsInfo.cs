@@ -6,6 +6,9 @@
         public string ApiSecret { get; set; }
         public string CronExpression { get; set; }
         public string SellCurrency { get; set; }
+        public bool IsNotification { get; set; }
+        public bool BinanceSellEnable { get; set; }
+
 
         public (bool IsValid, string ValidError) IsValid()
         {

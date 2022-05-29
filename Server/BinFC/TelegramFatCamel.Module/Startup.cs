@@ -14,15 +14,9 @@ namespace TelegramFatCamel.Module
 {
     public class Startup : IModule
     {
-        public async Task ConfigureAsync(IApplicationBuilder app, IHostApplicationLifetime hal, IWebHostEnvironment env, IServiceProvider serviceProvider)
+        public Task ConfigureAsync(IApplicationBuilder app, IHostApplicationLifetime hal, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
-            await serviceProvider.GetRequiredService<TelegramFatCamelBotService>().GetTelegramBotAsync();
-            hal.ApplicationStopping.Register(async () => await OnShutdownAsync(serviceProvider));
-        }
-
-        private async Task OnShutdownAsync(IServiceProvider serviceProvider)
-        {
-            await serviceProvider.GetRequiredService<TelegramFatCamelBotService>().StopTelegramBotAsync();
+            return Task.CompletedTask;
         }
 
         public Task ConfigureServicesAsync(IServiceCollection services)
