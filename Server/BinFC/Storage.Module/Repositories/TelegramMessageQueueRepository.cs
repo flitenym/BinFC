@@ -30,6 +30,13 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
+        public async Task<TelegramMessageQueue> GetByIdAsync(long id)
+        {
+            return await _dataContext
+                .TelegramMessagesQueue
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
         public async Task<string> CreateAsync(TelegramMessageQueue obj)
         {
             _dataContext.TelegramMessagesQueue.Add(obj);
