@@ -31,12 +31,14 @@ namespace TelegramFatCamel.Module
             services.AddScoped<BaseCommand, AcceptEmailCommand>();
             services.AddScoped<BaseCommand, AcceptNameCommand>();
             services.AddScoped<BaseCommand, AcceptPurseCommand>();
+            services.AddScoped<BaseCommand, AlreadyInputIdCommand>();
             services.AddScoped<BaseCommand, ChangePurseCommand>();
             services.AddScoped<BaseCommand, ErrorInputIdCommand>();
             services.AddScoped<BaseCommand, GetOperationsCommand>();
             services.AddScoped<BaseCommand, GetPrivateCommand>();            
             services.AddScoped<BaseCommand, InputBepCommand>();
             services.AddScoped<BaseCommand, InputEmailCommand>();
+            services.AddScoped<BaseCommand, InputIdAlreadyExistChatCommand>();
             services.AddScoped<BaseCommand, InputIdCommand>();
             services.AddScoped<BaseCommand, InputNameCommand>();
             services.AddScoped<BaseCommand, InputTrcCommand>();

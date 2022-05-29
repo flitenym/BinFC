@@ -61,8 +61,20 @@ namespace TelegramFatCamel.Module.Services
                         await ExecuteCommandAsync(client, CommandNames.ChangePurseCommand, update);
                         return;
                     case CommandNames.InputIdCommand:
-                        await ExecuteCommandAsync(client, CommandNames.InputIdCommand, update);
-                        return;
+                        {
+                            var userInfo = await _userInfoRepository.GetUserInfoByChatIdAsync(update.Message.Chat.Id, false);
+
+                            if (userInfo != null)
+                            {
+                                await ExecuteCommandAsync(client, CommandNames.AlreadyInputIdCommand, update);
+                                return;
+                            }
+                            else
+                            {
+                                await ExecuteCommandAsync(client, CommandNames.InputIdCommand, update);
+                                return;
+                            }
+                        }
                     case CommandNames.InputNameCommand:
                         await ExecuteCommandAsync(client, CommandNames.InputNameCommand, update);
                         return;
@@ -111,8 +123,13 @@ namespace TelegramFatCamel.Module.Services
 
                             if (existedUserId == null)
                             {
-                                // выведем сообщение, что "Данный id не зарегистрирован в базе, попробуйте снова"
                                 await ExecuteCommandAsync(client, CommandNames.NotExistIdCommand, update, inputedIdLong);
+                                return;
+                            }
+                            // данный ид уже занят
+                            else if (existedUserId.ChatId.HasValue)
+                            {
+                                await ExecuteCommandAsync(client, CommandNames.InputIdAlreadyExistChat, update);
                                 return;
                             }
                             else

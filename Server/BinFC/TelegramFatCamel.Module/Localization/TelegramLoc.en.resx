@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AcceptedPurse" xml:space="preserve">
-    <value>Wallet accepted. The administrator will check the data and you will receive a message.</value>
+    <value>Wallet accepted.</value>
   </data>
   <data name="AcceptEmail" xml:space="preserve">
     <value>Your specified e-mail has been accepted.</value>
@@ -132,8 +132,14 @@
   <data name="AcceptNameWithExisted" xml:space="preserve">
     <value>Your specified SN is accepted. SN was specified: {0}</value>
   </data>
+  <data name="AlreadyInputIdCommand" xml:space="preserve">
+    <value>You are already connected to the base. Specify the command to view the cabinet: {0}</value>
+  </data>
   <data name="BepButton" xml:space="preserve">
     <value>BEP-20</value>
+  </data>
+  <data name="ChatIdExist" xml:space="preserve">
+    <value>The specified identifier is already registered in the database. Try again with command: {0}</value>
   </data>
   <data name="ChoosePurse" xml:space="preserve">
     <value>Choose a wallet.</value>
@@ -197,6 +203,12 @@ Private area: {4}</value>
   <data name="StartCommand" xml:space="preserve">
     <value>Welcome! I will help register Fat Camel!
 To get a list of commands type "{0}" or click the button.</value>
+  </data>
+  <data name="StatusApprove" xml:space="preserve">
+    <value>Status: approved.</value>
+  </data>
+  <data name="StatusNotApprove" xml:space="preserve">
+    <value>Status: not approved.</value>
   </data>
   <data name="TrcButton" xml:space="preserve">
     <value>TRC-20</value>

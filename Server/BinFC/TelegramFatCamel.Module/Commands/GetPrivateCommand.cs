@@ -43,6 +43,7 @@ namespace TelegramFatCamel.Module.Commands
             privateInfo.Add(string.IsNullOrEmpty(existedUser.BepAddress) ?
                                 string.IsNullOrEmpty(existedUser.TrcAddress) ? string.Empty : string.Format(TelegramLoc.PrivateTrc, existedUser.TrcAddress) :
                                 string.Format(TelegramLoc.PrivateBep, existedUser.BepAddress)); //purse
+            privateInfo.Add(existedUser.IsApproved ? TelegramLoc.StatusApprove : TelegramLoc.StatusNotApprove); // status
 
             await client.SendTextMessageAsync(
                 update.Message.Chat.Id,

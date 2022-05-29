@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AcceptedPurse" xml:space="preserve">
-    <value>Кошелек принят. Администратор проверит данные и вам придет сообщение.</value>
+    <value>Кошелек принят.</value>
   </data>
   <data name="AcceptEmail" xml:space="preserve">
     <value>Ваш указанный e-mail принят.</value>
@@ -132,8 +132,14 @@
   <data name="AcceptNameWithExisted" xml:space="preserve">
     <value>Ваше указанное ФИ принято. ФИ было указано: {0}</value>
   </data>
+  <data name="AlreadyInputIdCommand" xml:space="preserve">
+    <value>Вы уже привязаны к базе. Укажите команду для просмотра кабинета: {0}</value>
+  </data>
   <data name="BepButton" xml:space="preserve">
     <value>BEP-20</value>
+  </data>
+  <data name="ChatIdExist" xml:space="preserve">
+    <value>Указанный Id уже зарегестрирован в базе. Повторите снова, указав команду: {0}</value>
   </data>
   <data name="ChoosePurse" xml:space="preserve">
     <value>Выберите кошелек.</value>
@@ -197,6 +203,12 @@
   <data name="StartCommand" xml:space="preserve">
     <value>Добро пожаловать! Я буду помогать в регистрации Fat Camel!
 Для получения списка комманд напишите "{0}" или нажмите на кнопку.</value>
+  </data>
+  <data name="StatusApprove" xml:space="preserve">
+    <value>Статус: активирован.</value>
+  </data>
+  <data name="StatusNotApprove" xml:space="preserve">
+    <value>Статус: неактивирован.</value>
   </data>
   <data name="TrcButton" xml:space="preserve">
     <value>TRC-20</value>
