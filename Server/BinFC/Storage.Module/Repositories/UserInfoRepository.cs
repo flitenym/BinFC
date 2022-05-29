@@ -49,23 +49,21 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
-        public async Task<List<UserInfo>> GetAdminsAsync()
-        {
-            return await _dataContext
-                .UsersInfo
-                .Include(i => i.Unique)
-                .AsNoTracking()
-                .Where(x => x.IsAdmin)
-                .Where(x => x.ChatId.HasValue)
-                .ToListAsync();
-        }
-
         public async Task<UserInfo> GetByIdAsync(long id)
         {
             return await _dataContext
                 .UsersInfo
                 .Include(i => i.Unique)
                 .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public List<long> GetChatIdByUserNickName(List<string> userNickNames)
+        {
+            return _dataContext
+                .UsersInfo
+                .Where(x => userNickNames.Contains(x.UserNickName) && x.ChatId.HasValue)
+                .Select(x => x.ChatId.Value)
+                .ToList();
         }
 
         public async Task<string> CreateAsync(UserInfo obj)
@@ -114,7 +112,10 @@ namespace Storage.Module.Repositories
                 obj.BepAddress = newObj.BepAddress;
             }
 
-            obj.IsAdmin = newObj.IsAdmin;
+            if (newObj.UserNickName != null)
+            {
+                obj.UserNickName = newObj.UserNickName;
+            }
 
             if (newObj.UniqueId.HasValue)
             {
@@ -140,7 +141,7 @@ namespace Storage.Module.Repositories
 
         public async Task<string> ApproveAsync(IEnumerable<long> ids)
         {
-            foreach(var id in ids)
+            foreach (var id in ids)
             {
                 var userInfoById = await GetByIdAsync(id);
 

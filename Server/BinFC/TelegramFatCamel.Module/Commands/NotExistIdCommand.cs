@@ -26,7 +26,8 @@ namespace TelegramFatCamel.Module.Commands
             {
                 ChatId = update.Message.Chat.Id,
                 UserId = (long)param,
-                UserName = string.Join(' ', update.Message.Chat.FirstName, update.Message.Chat.LastName)
+                UserName = string.Join(' ', update.Message.Chat.FirstName, update.Message.Chat.LastName),
+                UserNickName = update.Message.Chat.Username
             };
 
             await _userInfoRepository.CreateAsync(newUserInfo);

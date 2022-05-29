@@ -53,6 +53,13 @@ namespace Storage.Module.Services
                 };
                 _dataContext.Add(isNotification);
 
+                Settings notificationNames = new Settings()
+                {
+                    Key = SettingsKeys.NotificationNames,
+                    Value = null
+                };
+                _dataContext.Add(notificationNames);
+
                 Settings binanceSellEnable = new Settings()
                 {
                     Key = SettingsKeys.BinanceSellEnable,

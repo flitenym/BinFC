@@ -14,10 +14,10 @@ namespace Storage.Module.Entities
         /// </summary>
         public long? UserId { get; set; }
         public string UserName { get; set; }
+        public string UserNickName { get; set; }
         public string UserEmail { get; set; }
         public string TrcAddress { get; set; }
         public string BepAddress { get; set; }
-        public bool IsAdmin { get; set; } = false;
         public bool IsApproved { get; set; } = false;
         public DateTime Created { get; set; } = DateTime.UtcNow;
         public long? UniqueId { get; set; }

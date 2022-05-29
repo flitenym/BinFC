@@ -90,26 +90,40 @@ namespace WorkerService.Module.Services
         {
             using (var scope = _scopeFactory.CreateScope())
             {
-                ISettingsRepository _settingsRepository =
+                ISettingsRepository settingsRepository =
                     scope.ServiceProvider
                         .GetRequiredService<ISettingsRepository>();
 
-                var _apiKey = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiKey, false);
-                var _apiSecret = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiSecret, false);
-                var _cronExpression = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false);
-                var _sellCurrency = await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.SellCurrency, false);
-                var _isNotification = await _settingsRepository.GetSettingsByKeyAsync<bool>(SettingsKeys.IsNotification, false);
-                var _binanceSellEnable = await _settingsRepository.GetSettingsByKeyAsync<bool>(SettingsKeys.BinanceSellEnable, false);
+                var apiKey = await settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiKey, false);
+                var apiSecret = await settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiSecret, false);
+                var cronExpression = await settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false);
+                var sellCurrency = await settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.SellCurrency, false);
+                var isNotification = await settingsRepository.GetSettingsByKeyAsync<bool>(SettingsKeys.IsNotification, false);
+                var notificationNames = await settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.NotificationNames, false);
+                var binanceSellEnable = await settingsRepository.GetSettingsByKeyAsync<bool>(SettingsKeys.BinanceSellEnable, false);
 
-                return new SettingsInfo()
+                var settings = new SettingsInfo()
                 {
-                    ApiKey = _apiKey.Value,
-                    ApiSecret = _apiSecret.Value,
-                    CronExpression = _cronExpression.Value,
-                    SellCurrency = _sellCurrency.Value,
-                    IsNotification = _isNotification.Value,
-                    BinanceSellEnable = _binanceSellEnable.Value,
+                    ApiKey = apiKey.Value,
+                    ApiSecret = apiSecret.Value,
+                    CronExpression = cronExpression.Value,
+                    SellCurrency = sellCurrency.Value,
+                    IsNotification = isNotification.Value,
+                    BinanceSellEnable = binanceSellEnable.Value,
                 };
+
+                var notificationNameList = settings.GetNotificationNames(notificationNames.Value);
+
+                if (notificationNameList.Any())
+                {
+                    IUserInfoRepository userInfoRepository =
+                    scope.ServiceProvider
+                        .GetRequiredService<IUserInfoRepository>();
+
+                    settings.AdminsChatId = userInfoRepository.GetChatIdByUserNickName(notificationNameList);
+                }
+
+                return settings;
             }
         }
 
@@ -277,18 +291,7 @@ namespace WorkerService.Module.Services
                 return;
             }
 
-            List<UserInfo> admins;
-
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                IUserInfoRepository _userInfoRepository =
-                    scope.ServiceProvider
-                        .GetRequiredService<IUserInfoRepository>();
-
-                admins = await _userInfoRepository.GetAdminsAsync();
-            }
-
-            if (!admins.Any())
+            if (!settings.AdminsChatId.Any())
             {
                 _logger.LogTrace("Администраторов не найдено для отправки уведомления.");
                 return;
@@ -296,11 +299,11 @@ namespace WorkerService.Module.Services
 
             TelegramBotClient _client = await _telegramFatCamelBotService.GetTelegramBotAsync(false);
 
-            foreach (var admin in admins)
+            foreach (var adminChatId in settings.AdminsChatId)
             {
-                await _client.SendTextMessageAsync(admin.ChatId, message);
+                await _client.SendTextMessageAsync(adminChatId, message);
 
-                _logger.LogTrace($"Отправлено уведомление пользователю {admin.UserName} с chatId {admin.ChatId}: {message}.");
+                _logger.LogTrace($"Отправлено уведомление пользователю {adminChatId}: {message}.");
             }
         }
 

@@ -9,8 +9,8 @@ namespace Storage.Module.Repositories.Interfaces
     {
         public IEnumerable<UserInfo> Get();
         public IEnumerable<UserInfo> Get(DateTime beforeDate);
-        public Task<List<UserInfo>> GetAdminsAsync();
         public Task<UserInfo> GetByIdAsync(long Id);
+        public List<long> GetChatIdByUserNickName(List<string> userNickNames);
         public Task<string> CreateAsync(UserInfo obj);
         public Task<string> UpdateAsync(UserInfo obj, UserInfo newObj);
         public Task<string> DeleteAsync(UserInfo obj);

@@ -9,6 +9,7 @@ namespace Storage.Module.StaticClasses
         public const string CronExpression = nameof(CronExpression);
         public const string SellCurrency = nameof(SellCurrency);
         public const string IsNotification = nameof(IsNotification);
+        public const string NotificationNames = nameof(NotificationNames);
         public const string BinanceSellEnable = nameof(BinanceSellEnable);
 
         public static List<string> Settings = new()
@@ -18,6 +19,7 @@ namespace Storage.Module.StaticClasses
             CronExpression,
             SellCurrency,
             IsNotification,
+            NotificationNames,
             BinanceSellEnable
         };
     }

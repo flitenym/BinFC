@@ -1,4 +1,7 @@
-﻿namespace Storage.Module.Classes
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Storage.Module.Classes
 {
     public class SettingsInfo
     {
@@ -7,8 +10,8 @@
         public string CronExpression { get; set; }
         public string SellCurrency { get; set; }
         public bool IsNotification { get; set; }
+        public List<long> AdminsChatId { get; set; } = new();
         public bool BinanceSellEnable { get; set; }
-
 
         public (bool IsValid, string ValidError) IsValid()
         {
@@ -28,6 +31,36 @@
             }
 
             return (true, null);
+        }
+
+        public List<string> GetNotificationNames(string notificationNames)
+        {
+            List<string> names = new();
+            List<string> repaired = new();
+            for (int i = 0; i < notificationNames.Length; i++)
+            {
+                if (char.IsPunctuation(notificationNames[i]))
+                {
+                    names = notificationNames.Split(',').Select(x => x.Trim()).ToList();
+                    break;
+                }
+            }
+
+            if (!names.Any())
+            {
+                names.Add(notificationNames);
+            }
+
+            foreach (var notificationName in names)
+            {
+                if (notificationName.StartsWith('@'))
+                {
+                    repaired.Add(notificationName[1..]);
+                    continue;
+                }
+            }
+
+            return repaired;
         }
     }
 }
