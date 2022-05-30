@@ -37,7 +37,8 @@ namespace Storage.Module.Repositories
             return _dataContext
                 .UsersInfo
                 .Include(i => i.Unique)
-                .OrderBy(x => x.Id);
+                .OrderBy(x => x.IsApproved)
+                .ThenBy(x => x.Id);
         }
 
         public IEnumerable<UserInfo> Get(DateTime beforeDate)

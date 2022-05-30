@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Repositories.Interfaces;
 using Storage.Module.StaticClasses;
@@ -14,12 +15,12 @@ namespace Storage.Module.Controllers
     [Route("[controller]")]
     public class WebSocketController : ControllerBase
     {
-        private readonly ISettingsRepository _settingsRepository;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<WebSocketController> _logger;
 
-        public WebSocketController(ISettingsRepository settingsRepository, ILogger<WebSocketController> logger)
+        public WebSocketController(IServiceScopeFactory scopeFactory, ILogger<WebSocketController> logger)
         {
-            _settingsRepository = settingsRepository;
+            _scopeFactory = scopeFactory;
             _logger = logger;
         }
 
@@ -46,10 +47,16 @@ namespace Storage.Module.Controllers
 
             while (!result.CloseStatus.HasValue)
             {
-                var binanceSellEnable = _settingsRepository.GetSettingsByKeyAsync<bool>(SettingsKeys.BinanceSellEnable);
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    ISettingsRepository settingsRepository =
+                        scope.ServiceProvider
+                            .GetRequiredService<ISettingsRepository>();
+                    var binanceSellEnable = await settingsRepository.GetSettingsByKeyAsync<bool>(SettingsKeys.BinanceSellEnable);
 
-                var serverMsg = Encoding.UTF8.GetBytes(binanceSellEnable.ToString());
-                await webSocket.SendAsync(new ArraySegment<byte>(serverMsg, 0, serverMsg.Length), result.MessageType, result.EndOfMessage, CancellationToken.None);
+                    var serverMsg = Encoding.UTF8.GetBytes(binanceSellEnable.Value.ToString());
+                    await webSocket.SendAsync(new ArraySegment<byte>(serverMsg, 0, serverMsg.Length), result.MessageType, result.EndOfMessage, CancellationToken.None);
+                }
                 result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             }
 
