@@ -3,9 +3,9 @@ using BinanceApi.Module.Classes;
 using BinanceApi.Module.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Classes;
-using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
 using Storage.Module.StaticClasses;
 using System;
@@ -15,7 +15,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using TelegramFatCamel.Module.Services;
-using TelegramFatCamel.Module.Services.Interfaces;
 using WorkerService.Module.Services.Base;
 using WorkerService.Module.Services.Intrefaces;
 
@@ -44,16 +43,32 @@ namespace WorkerService.Module.Services
             _logger = logger;
         }
 
-        public override Task StartAsync(CancellationToken cancellationToken)
+        public override async Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogTrace($"Запуск службы {nameof(BinanceSellService)}");
-            return base.StartAsync(cancellationToken);
+            await base.StartAsync(cancellationToken);
+            await SetBinanceSellEnableAsync(true);
         }
 
-        public override Task StopAsync(CancellationToken cancellationToken)
+        public override async Task StopAsync(CancellationToken cancellationToken)
         {
             _logger?.LogTrace($"Остановка службы {nameof(BinanceSellService)}");
-            return base.StopAsync(cancellationToken);
+            await base.StopAsync(cancellationToken);
+            await SetBinanceSellEnableAsync(false);
+        }
+
+        private async Task SetBinanceSellEnableAsync(bool isEnable)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                ISettingsRepository settingsRepository =
+                    scope.ServiceProvider
+                        .GetRequiredService<ISettingsRepository>();
+
+                var binanceSellEnable = await settingsRepository.SetSettingsByKeyAsync(SettingsKeys.BinanceSellEnable, isEnable);
+
+                await settingsRepository.SaveChangesAsync();
+            }
         }
 
         public override Task RestartAsync(CancellationToken cancellationToken)
