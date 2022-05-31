@@ -9,6 +9,7 @@ namespace Storage.Module.Repositories.Interfaces
     public interface IFuturesDataRepository
     {
         public IEnumerable<FuturesData> Get();
+        public IEnumerable<FuturesData> GetLastData();
         public Task CreateAsync(Data obj);
         public Task<string> DeleteAsync(IEnumerable<long> Ids);
         public Task<string> DeleteAllAsync();

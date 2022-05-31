@@ -9,6 +9,7 @@ namespace Storage.Module.Repositories.Interfaces
     public interface ISpotDataRepository
     {
         public IEnumerable<SpotData> Get();
+        public IEnumerable<SpotData> GetLastData();
         public Task CreateAsync(Data obj);
         public Task<string> DeleteAsync(IEnumerable<long> Ids);
         public Task<string> DeleteAllAsync();

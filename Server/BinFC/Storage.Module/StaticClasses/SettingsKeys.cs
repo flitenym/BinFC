@@ -11,6 +11,8 @@ namespace Storage.Module.StaticClasses
         public const string IsNotification = nameof(IsNotification);
         public const string NotificationNames = nameof(NotificationNames);
         public const string BinanceSellEnable = nameof(BinanceSellEnable);
+        public const string SpotPercent = nameof(SpotPercent);
+        public const string FuturesPercent = nameof(FuturesPercent);
 
         public static List<string> Settings = new()
         {
@@ -20,7 +22,9 @@ namespace Storage.Module.StaticClasses
             SellCurrency,
             IsNotification,
             NotificationNames,
-            BinanceSellEnable
+            BinanceSellEnable,
+            SpotPercent,
+            FuturesPercent
         };
     }
 }

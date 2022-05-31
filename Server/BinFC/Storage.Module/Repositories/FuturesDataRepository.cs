@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
 using Storage.Module.Entities.Base;
-using Storage.Module.Repositories.Base;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +28,22 @@ namespace Storage.Module.Repositories
             return _dataContext
                 .FuturesData
                 .OrderBy(x => x.Id);
+        }
+
+        public IEnumerable<FuturesData> GetLastData()
+        {
+            return _dataContext.FuturesData.AsNoTracking()
+                .Select(t => t.LoadingDate)
+                .Distinct()
+                .OrderByDescending(t => t)
+                .Take(2)
+                .SelectMany(key =>
+                    _dataContext
+                    .FuturesData
+                    .Include(i => i.User)
+                    .AsNoTracking()
+                    .Where(t => t.LoadingDate == key)
+            );
         }
 
         public async Task CreateAsync(Data obj)

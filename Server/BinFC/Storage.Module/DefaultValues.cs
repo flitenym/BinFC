@@ -10,5 +10,7 @@ namespace Storage.Module
         public static string UniqueName = "Обычный пользователь";
         public static string Cron = "* * * * *";
         public static string SellCurrency = nameof(CurrencyType.USDT);
+        public static string SpotPercent = "41";
+        public static string FuturesPercent = "30";
     }
 }

@@ -67,6 +67,20 @@ namespace Storage.Module.Services
                 };
                 _dataContext.Add(binanceSellEnable);
 
+                Settings spotPercent = new Settings()
+                {
+                    Key = SettingsKeys.SpotPercent,
+                    Value = DefaultValues.SpotPercent
+                };
+                _dataContext.Add(spotPercent);
+
+                Settings futuresPercent = new Settings()
+                {
+                    Key = SettingsKeys.FuturesPercent,
+                    Value = DefaultValues.FuturesPercent
+                };
+                _dataContext.Add(futuresPercent);
+
                 // admin
                 Admin admin = new Admin()
                 {
