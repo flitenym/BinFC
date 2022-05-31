@@ -50,8 +50,6 @@ namespace Storage.Module.Extensions
         {
             services.AddTransient<IDbSettingsService, DbSettingsService>();
             services.AddTransient<IInitialCreateService, InitialCreateService>();
-
-            services.AddScoped<IPaymentService, PaymentService>();
         }
 
         public static void AddStorageRepositoryServices(this IServiceCollection services)

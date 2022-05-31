@@ -14,5 +14,7 @@ namespace BinanceApi.Module.Services.Interfaces
         public Task<(bool IsSuccess, AssetsInfo Currency)> GetСurrencyAsync(BinanceExchangeInfo exchangeInfo, string asset, SettingsInfo settings);
         public Task<bool> SellCoinAsync(decimal quantity, string fromAsset, string toAsset, SettingsInfo settings);
         public Task<bool> TransferDustAsync(List<string> assets, SettingsInfo settings);
+        public Task<(bool IsSuccess, string Message, IEnumerable<BinanceUserAsset> Currencies)> GetCoinsAsync(IEnumerable<string> assets, SettingsInfo settings);
+        public Task<(bool IsSuccess, string Message)> WithdrawalPlacedAsync(string asset, decimal amount, string address, string network, SettingsInfo settings);
     }
 }

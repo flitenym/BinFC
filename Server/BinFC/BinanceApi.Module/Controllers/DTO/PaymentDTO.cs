@@ -1,4 +1,4 @@
-﻿namespace Storage.Module.Controllers.DTO
+﻿namespace BinanceApi.Module.Controllers.DTO
 {
     public class PaymentDTO
     {

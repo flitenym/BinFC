@@ -109,25 +109,9 @@ namespace WorkerService.Module.Services
                     scope.ServiceProvider
                         .GetRequiredService<ISettingsRepository>();
 
-                var apiKey = await settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiKey, false);
-                var apiSecret = await settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.ApiSecret, false);
-                var cronExpression = await settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false);
-                var sellCurrency = await settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.SellCurrency, false);
-                var isNotification = await settingsRepository.GetSettingsByKeyAsync<bool>(SettingsKeys.IsNotification, false);
-                var notificationNames = await settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.NotificationNames, false);
-                var binanceSellEnable = await settingsRepository.GetSettingsByKeyAsync<bool>(SettingsKeys.BinanceSellEnable, false);
+                SettingsInfo settings = await settingsRepository.GetSettingsAsync();
 
-                var settings = new SettingsInfo()
-                {
-                    ApiKey = apiKey.Value,
-                    ApiSecret = apiSecret.Value,
-                    CronExpression = cronExpression.Value,
-                    SellCurrency = sellCurrency.Value,
-                    IsNotification = isNotification.Value,
-                    BinanceSellEnable = binanceSellEnable.Value,
-                };
-
-                var notificationNameList = settings.GetNotificationNames(notificationNames.Value);
+                var notificationNameList = settings.GetNotificationNames(settings.NotificationNames);
 
                 if (notificationNameList.Any())
                 {

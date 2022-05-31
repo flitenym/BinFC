@@ -15,7 +15,7 @@ namespace Storage.Module.Entities
         /// <summary>
         /// Время отправки
         /// </summary>
-        public DateTime SendedTime { get; set; }
+        public DateTime SendedTime { get; set; } = DateTime.UtcNow;
         /// <summary>
         /// Номер оплаты (итерация)
         /// </summary>

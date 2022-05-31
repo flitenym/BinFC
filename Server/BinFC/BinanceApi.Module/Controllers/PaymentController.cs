@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Controllers.Base;
-using Storage.Module.Controllers.DTO;
-using Storage.Module.Services.Interfaces;
+using BinanceApi.Module.Controllers.DTO;
+using BinanceApi.Module.Services.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Storage.Module.Controllers
+namespace BinanceApi.Module.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
@@ -38,7 +38,22 @@ namespace Storage.Module.Controllers
         [HttpPost]
         public async Task<IActionResult> Pay([FromBody] IEnumerable<PaymentDTO> objects)
         {
-            return Ok();
+            (bool isSuccess, string message) = await _paymentService.BinancePayAsync(objects);
+
+            if (isSuccess)
+            {
+                if (!string.IsNullOrEmpty(message))
+                {
+                    _logger.LogInformation(message);
+                    return Ok(message);
+                }
+                return Ok();
+            }
+            else
+            {
+                _logger.LogError(message);
+                return BadRequest(message);
+            }
         }
     }
 }

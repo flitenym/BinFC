@@ -29,7 +29,7 @@ namespace Storage.Module.Controllers
         {
             if (model == null || model.Ids == null)
             {
-                return BadRequest("Пришла пустая сущность.");
+                return BadRequest("Отправлена пустая сущность.");
             }
 
             if (!model.IsValid())

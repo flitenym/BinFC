@@ -37,6 +37,16 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
+        public async Task<int> GetLastNumberPayAsync()
+        {
+            PayHistory lastPayHistory = await _dataContext
+                .PayHistory
+                .OrderByDescending(x => x.NumberPay)
+                .FirstOrDefaultAsync();
+
+            return (lastPayHistory?.NumberPay ?? 0) + 1;
+        }
+
         public async Task<string> DeleteAllAsync()
         {
             _dataContext

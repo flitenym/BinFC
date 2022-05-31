@@ -14,5 +14,6 @@ namespace Storage.Module.Repositories.Interfaces
         public Task<string> DeleteAsync(IEnumerable<long> Ids);
         public Task<string> DeleteAllAsync();
         public Task<string> SaveChangesAsync();
+        public Task UpdateIsPaidByUserIdAsync(long userId);
     }
 }

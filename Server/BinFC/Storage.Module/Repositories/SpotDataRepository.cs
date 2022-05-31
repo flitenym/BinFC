@@ -30,6 +30,13 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
+        public async Task<SpotData> GetByUserIdAsync(long userId)
+        {
+            return await _dataContext
+                .SpotData
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+        }
+
         public IEnumerable<SpotData> GetLastData()
         {
             return _dataContext.SpotData.AsNoTracking()
@@ -91,5 +98,14 @@ namespace Storage.Module.Repositories
         }
 
         #endregion
+
+        public async Task UpdateIsPaidByUserIdAsync(long userId)
+        {
+            var data = await GetByUserIdAsync(userId);
+
+            data.IsPaid = true;
+
+            _dataContext.SpotData.Update(data);
+        }
     }
 }
