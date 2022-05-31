@@ -151,18 +151,18 @@ namespace WorkerService.Module.Services
         /// <returns></returns>
         private async Task<bool> TransferFuturesToSpotAsync(SettingsInfo settings)
         {
-            _logger.LogTrace("Начинаем перевод USDT из фьючерс в спот");
+            _logger.LogTrace($"Начинаем перевод {settings.SellCurrency} из фьючерс в спот");
 
             bool isSuccessTransferSpot = await _binanceApiService.TransferFuturesToSpotUSDTAsync(settings);
 
             if (isSuccessTransferSpot)
             {
-                _logger.LogTrace($"Перевод USDT из фьючерс в спот был осуществлен");
+                _logger.LogTrace($"Перевод {settings.SellCurrency} из фьючерс в спот был осуществлен");
                 return true;
             }
             else
             {
-                _logger.LogError($"Перевод USDT из фьючерс в спот не был осуществлен");
+                _logger.LogError($"Перевод {settings.SellCurrency} из фьючерс в спот не был осуществлен");
                 return false;
             }
         }

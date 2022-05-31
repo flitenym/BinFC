@@ -35,6 +35,13 @@ namespace BinanceApi.Module.Controllers
             return Ok(paymentInfo);
         }
 
+        [HttpGet("balance")]
+        public async Task<ActionResult> GetBinanceBalance()
+        {
+            string message = await _paymentService.GetBinanceBalanceAsync();
+            return Ok(message);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Pay([FromBody] IEnumerable<PaymentDTO> objects)
         {

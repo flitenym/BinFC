@@ -49,6 +49,49 @@ namespace BinanceApi.Module.Services
             _logger = logger;
         }
 
+        #region Общее
+
+        public async Task<(bool IsSuccess, string Message, BinanceUserAsset usdt, BinanceUserAsset busd)> GetCurrenciesAsync(SettingsInfo settings)
+        {
+            (bool isSuccessGetCoins, string messageGetCoins, IEnumerable<BinanceUserAsset> currencies) =
+                await _binanceApiService.GetCoinsAsync(new List<string>() { "USDT", "BUSD" }, settings);
+
+            if (!isSuccessGetCoins)
+            {
+                return (false, messageGetCoins, default, default);
+            }
+
+            return (true, default, currencies.FirstOrDefault(x => x.Asset == "USDT"), currencies.FirstOrDefault(x => x.Asset == "BUSD"));
+        }
+
+        /// <summary>
+        /// Получение информации по сетям для отправки.
+        /// </summary>
+        public (bool IsSuccess, string Message, BinanceNetwork UsdtNetwork, BinanceNetwork BusdNetwork) GetNetworks(BinanceUserAsset usdt, BinanceUserAsset busd)
+        {
+            BinanceNetwork usdtNetwork = usdt?.NetworkList.FirstOrDefault(x => x.Network == "TRX");
+            BinanceNetwork busdNetwork = busd?.NetworkList.FirstOrDefault(x => x.Network == "BSC");
+
+            if (usdtNetwork == null && busdNetwork == null)
+            {
+                return (false, $"Не удалось определить сеть для вывода.", default, default);
+            }
+
+            if (!(usdtNetwork?.WithdrawEnabled ?? false))
+            {
+                return (false, $"Для {usdtNetwork?.Network} запрещен вывод", default, default);
+            }
+
+            if (!(busdNetwork?.WithdrawEnabled ?? false))
+            {
+                return (false, $"Для {busdNetwork?.Network} запрещен вывод", default, default);
+            }
+
+            return (true, default, usdtNetwork, busdNetwork);
+        }
+
+        #endregion
+
         #region Получение данных для оплаты
 
         public async Task<(IEnumerable<PaymentDTO> PaymentInfo, string Message)> CalculatePaymentInfoAsync()
@@ -66,7 +109,7 @@ namespace BinanceApi.Module.Services
                 return (default, string.Join(Environment.NewLine, spotMessage, futuresMessage).Trim());
             }
 
-            return (ConcatPaymentInfo(spotPaymentInfo, futuresPaymentInfo), default);
+            return await ConcatPaymentInfoAsync(spotPaymentInfo, futuresPaymentInfo);
         }
 
         /// <summary>
@@ -117,12 +160,37 @@ namespace BinanceApi.Module.Services
 
             foreach (var user in users)
             {
-                PaymentDTO payment = new PaymentDTO();
-
                 var lastData = data.FirstOrDefault(x => x.UserId == user && x.LoadingDate == lastDate);
                 var firstData = data.FirstOrDefault(x => x.UserId == user && x.LoadingDate == firstDate);
 
+                if (lastData?.IsPaid == true)
+                {
+                    lastData = null;
+                }
+                
+                if (firstData?.IsPaid == true)
+                {
+                    firstData = null;
+                }
+
+                if (lastData == null && firstData == null)
+                {
+                    continue;
+                }
+
+                PaymentDTO payment = new PaymentDTO();
+
                 UserInfo userInfo = lastData?.User ?? firstData?.User;
+
+                if (string.IsNullOrEmpty(userInfo.BepAddress) && string.IsNullOrEmpty(userInfo.TrcAddress))
+                {
+                    continue;
+                }
+
+                if (!userInfo.IsApproved)
+                {
+                    continue;
+                }
 
                 // сколько заработал учитывая процент из настроек
                 double earned = (double)Math.Abs((lastData?.AgentEarnUsdt ?? 0) - (firstData?.AgentEarnUsdt ?? 0)) / settingsPercent * 100.0;
@@ -144,19 +212,54 @@ namespace BinanceApi.Module.Services
         /// <summary>
         /// Итоговое соединение информации по выплатам
         /// </summary>
-        public IEnumerable<PaymentDTO> ConcatPaymentInfo(IEnumerable<PaymentDTO> spotPaymentInfo, IEnumerable<PaymentDTO> futuresPaymentInfo)
+        public async Task<(IEnumerable<PaymentDTO> PaymentInfo, string Message)> ConcatPaymentInfoAsync(IEnumerable<PaymentDTO> spotPaymentInfo, IEnumerable<PaymentDTO> futuresPaymentInfo)
         {
             List<PaymentDTO> result = new();
 
             List<long> users = spotPaymentInfo.Concat(futuresPaymentInfo).Select(x => x.UserId).Distinct().ToList();
 
+            SettingsInfo settings = await _settingsRepository.GetSettingsAsync();
+
+            (bool isSuccessGetCurrencies, string messageGetCurrencies, BinanceUserAsset usdt, BinanceUserAsset busd) = await GetCurrenciesAsync(settings);
+
+            if (!isSuccessGetCurrencies)
+            {
+                return (default, messageGetCurrencies);
+            }
+
+            (bool isSuccessGetNetworks, string messageGetNetworks, BinanceNetwork usdtNetwork, BinanceNetwork busdNetwork) = GetNetworks(usdt, busd);
+
+            if (!isSuccessGetNetworks)
+            {
+                return (default, messageGetNetworks);
+            }
+
             foreach (long user in users)
             {
+                BinanceNetwork network = null;
+
                 var spotInfo = spotPaymentInfo.FirstOrDefault(x => x.UserId == user);
                 var futuresInfo = futuresPaymentInfo.FirstOrDefault(x => x.UserId == user);
 
                 decimal resultUsdt = (spotInfo?.Usdt ?? 0) + (futuresInfo?.Usdt ?? 0);
-                if (resultUsdt < 10)
+                string bepAddress = spotInfo?.BepAddress ?? futuresInfo?.BepAddress;
+                string trcAddress = spotInfo?.TrcAddress ?? futuresInfo?.TrcAddress;
+
+                if (!string.IsNullOrEmpty(trcAddress))
+                {
+                    network = usdtNetwork;
+                }
+                else if (!string.IsNullOrEmpty(bepAddress))
+                {
+                    network = busdNetwork;
+                }
+
+                if (network == null)
+                {
+                    continue;
+                }
+
+                if (resultUsdt < network.WithdrawMin)
                 {
                     continue;
                 }
@@ -166,14 +269,14 @@ namespace BinanceApi.Module.Services
                     {
                         UserId = user,
                         Usdt = resultUsdt,
-                        BepAddress = spotInfo?.BepAddress ?? futuresInfo?.BepAddress,
-                        TrcAddress = spotInfo?.TrcAddress ?? futuresInfo?.TrcAddress,
+                        BepAddress = bepAddress,
+                        TrcAddress = trcAddress,
                         UserName = spotInfo?.UserName ?? futuresInfo?.UserName,
                     }
                 );
             }
 
-            return result;
+            return (result, default);
         }
 
         #endregion
@@ -189,39 +292,34 @@ namespace BinanceApi.Module.Services
 
             SettingsInfo settings = await _settingsRepository.GetSettingsAsync();
 
-            (bool isSuccessGetCoins, string messageGetCoins, IEnumerable<BinanceUserAsset> currencies) =
-                await _binanceApiService.GetCoinsAsync(new List<string>() { "USDT", "BUSD" }, settings);
+            (bool isSuccessGetCurrencies, string messageGetCurrencies, BinanceUserAsset usdt, BinanceUserAsset busd) = await GetCurrenciesAsync(settings);
 
-            if (!isSuccessGetCoins)
+            if (!isSuccessGetCurrencies)
             {
-                return (false, messageGetCoins);
+                return (false, messageGetCurrencies);
             }
 
-            foreach (var currency in currencies)
+            var trcBalance = paymentsInfo.Where(x => !string.IsNullOrEmpty(x.TrcAddress)).Sum(x => x.Usdt);
+
+            if ((usdt?.Available ?? 0) < trcBalance)
             {
-                if (currency == null)
-                {
-                    return (false, "Не найдены доступные монеты для отправки.");
-                }
+                return (false, $"Баланс по USDT: {(usdt?.Available ?? 0)}, а по выплатам: {trcBalance}");
             }
 
-            BinanceNetwork usdtNetwork = currencies.FirstOrDefault(x => x.Asset == "USDT")?.NetworkList.FirstOrDefault(x => x.Network == "TRX");
-            BinanceNetwork busdNetwork = currencies.FirstOrDefault(x => x.Asset == "BUSD")?.NetworkList.FirstOrDefault(x => x.Network == "BSC");
+            var bepBalance = paymentsInfo.Where(x => !string.IsNullOrEmpty(x.BepAddress)).Sum(x => x.Usdt);
 
-            if (usdtNetwork == null && busdNetwork == null)
+            if ((busd?.Available ?? 0) < trcBalance)
             {
-                return (false, $"Не удалось определить сеть для вывода.");
+                return (false, $"Баланс по BUSD: {(busd?.Available ?? 0)}, а по выплатам: {bepBalance}");
             }
 
-            if (!(usdtNetwork?.WithdrawEnabled ?? false))
+            (bool isSuccessGetNetworks, string messageGetNetworks, BinanceNetwork usdtNetwork, BinanceNetwork busdNetwork) = GetNetworks(usdt, busd);
+
+            if (!isSuccessGetNetworks)
             {
-                return (false, $"Для {usdtNetwork?.Network} запрещен вывод");
+                return (false, messageGetNetworks);
             }
 
-            if (!(busdNetwork?.WithdrawEnabled ?? false))
-            {
-                return (false, $"Для {busdNetwork?.Network} запрещен вывод");
-            }
 
             int numberPay = await _payHistoryRepository.GetLastNumberPayAsync();
 
@@ -293,6 +391,25 @@ namespace BinanceApi.Module.Services
             }
 
             return (true, builder.ToString().Trim());
+        }
+
+        #endregion
+
+        #region Получение информации по текущему курсу
+
+        public async Task<string> GetBinanceBalanceAsync()
+        {
+            SettingsInfo settings = await _settingsRepository.GetSettingsAsync();
+
+            (bool isSuccessGetCurrencies, string messageGetCurrencies, BinanceUserAsset usdt, BinanceUserAsset busd) = await GetCurrenciesAsync(settings);
+
+            if (!isSuccessGetCurrencies)
+            {
+                return messageGetCurrencies;
+            }
+
+            return "Баланс:" + Environment.NewLine +
+                string.Join(Environment.NewLine, $"{usdt.Asset}: {usdt.Available}", $"{busd.Asset}: {busd.Available}").Trim();
         }
 
         #endregion
