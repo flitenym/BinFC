@@ -3,7 +3,6 @@ using BinanceApi.Module.Classes;
 using BinanceApi.Module.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Classes;
 using Storage.Module.Repositories.Interfaces;
@@ -20,6 +19,23 @@ using WorkerService.Module.Services.Intrefaces;
 
 namespace WorkerService.Module.Services
 {
+    public class NotificationResult
+    {
+        public List<string> NotificationMessages { get; set; } = new();
+        public List<string> SuccessCoins { get; set; } = new();
+
+        public string GetMessage()
+        {
+            string result = string.Join(Environment.NewLine, NotificationMessages).Trim();
+            if (SuccessCoins.Any())
+            {
+                result += Environment.NewLine + string.Join("; ", SuccessCoins).Trim();
+            }
+
+            return result;
+        }
+    }
+
     public class BinanceSellService : CronJobBaseService<IBinanceSellService>
     {
         private const int AttemptsToSellCurrensies = 3;
@@ -28,6 +44,8 @@ namespace WorkerService.Module.Services
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IBinanceApiService _binanceApiService;
         private readonly ILogger<BinanceSellService> _logger;
+
+        private NotificationResult NotificationResult { get; set; }
 
         public BinanceSellService(
             TelegramFatCamelBotService telegramFatCamelBotService,
@@ -80,11 +98,14 @@ namespace WorkerService.Module.Services
         public override async Task DoWorkAsync(CancellationToken cancellationToken)
         {
             _logger.LogTrace($"Запуск продажи");
+
+            NotificationResult = new NotificationResult();
+
             try
             {
                 var settings = await GetSettingsInfoAsync();
-                (bool isSuccess, string sellMessage) = await SellAsync(settings);
-                await SendTelegramMessageAsync(settings, sellMessage);
+                bool isSuccess = await SellAsync(settings);
+                await SendTelegramMessageAsync(settings);
                 if (isSuccess)
                 {
                     _logger?.LogTrace($"Продажа прошла успешно");
@@ -126,20 +147,21 @@ namespace WorkerService.Module.Services
             }
         }
 
-        private async Task<(bool isSuccess, string message)> SellAsync(SettingsInfo settings)
+        private async Task<bool> SellAsync(SettingsInfo settings)
         {
             (bool isValid, string validError) = settings.IsValid();
 
             if (!isValid)
             {
-                return (false, validError);
+                NotificationResult.NotificationMessages.Add(validError);
+                return false;
             }
 
             await TransferFuturesToSpotAsync(settings);
 
             await SellCurrenciesAsync(settings);
 
-            return (true, null);
+            return true;
         }
 
         #region Продажа и перевод крипты
@@ -157,12 +179,14 @@ namespace WorkerService.Module.Services
 
             if (isSuccessTransferSpot)
             {
-                _logger.LogTrace($"Перевод {settings.SellCurrency} из фьючерс в спот был осуществлен");
+                NotificationResult.NotificationMessages.Add($"Перевод {settings.SellCurrency} из фьючерс в спот был осуществлен.");
+                _logger.LogTrace($"Перевод {settings.SellCurrency} из фьючерс в спот был осуществлен.");
                 return true;
             }
             else
             {
-                _logger.LogError($"Перевод {settings.SellCurrency} из фьючерс в спот не был осуществлен");
+                NotificationResult.NotificationMessages.Add($"Перевод {settings.SellCurrency} из фьючерс в спот не был осуществлен.");
+                _logger.LogError($"Перевод {settings.SellCurrency} из фьючерс в спот не был осуществлен.");
                 return false;
             }
         }
@@ -178,6 +202,7 @@ namespace WorkerService.Module.Services
 
             if (!isSuccessGetExchangeInfo || exchangeInfo == null)
             {
+                NotificationResult.NotificationMessages.Add("Ошибка получения информации минимальных требований по символам для перевода.");
                 _logger.LogError("Ошибка получения информации минимальных требований по символам для перевода.");
                 return false;
             }
@@ -216,6 +241,9 @@ namespace WorkerService.Module.Services
                 }
             }
 
+
+            NotificationResult.SuccessCoins.AddRange(currenciesInfo.Where(x => x.IsSell).Select(x => x.Asset).ToList());
+
             _logger.LogTrace("Продажа монет выполнена");
 
             #endregion
@@ -229,16 +257,23 @@ namespace WorkerService.Module.Services
 
             if (isSuccessTransferDust)
             {
+                NotificationResult.NotificationMessages.Add("Перевод монет с маленьким балансом в BNB закончен.");
                 _logger.LogTrace("Перевод монет с маленьким балансом в BNB закончен");
             }
             else
             {
+                NotificationResult.NotificationMessages.Add("Перевод монет с маленьким балансом в BNB неудачен.");
                 _logger.LogTrace("Перевод монет с маленьким балансом в BNB неудачен");
             }
 
             #endregion
 
             (bool isSuccessSellBNB, bool isSellCoinBNB, bool isDustSellBNB) = await SellCoinAsync("BNB", exchangeInfo, settings: settings);
+
+            if (isSuccessSellBNB && isSellCoinBNB)
+            {
+                NotificationResult.SuccessCoins.Add("BNB");
+            }
 
             return true;
         }
@@ -281,8 +316,11 @@ namespace WorkerService.Module.Services
 
         #region Отправка уведолмения в телеграме
 
-        private async Task SendTelegramMessageAsync(SettingsInfo settings, string message)
+        private async Task SendTelegramMessageAsync(SettingsInfo settings)
         {
+
+            string message = NotificationResult.GetMessage();
+
             _logger.LogTrace(message);
             if (!settings.IsNotification)
             {

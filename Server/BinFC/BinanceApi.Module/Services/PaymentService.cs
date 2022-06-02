@@ -119,11 +119,11 @@ namespace BinanceApi.Module.Services
             string commandName,
             string settingsPercentKey,
             IEnumerable<Data> data,
-            IEnumerable<Scale> scale)
+            IEnumerable<Scale> scales)
         {
             List<PaymentDTO> result = new();
 
-            if (!scale.Any())
+            if (!scales.Any())
             {
                 return (result, $"{commandName}. Необходимо укахать линейку.");
             }
@@ -195,8 +195,16 @@ namespace BinanceApi.Module.Services
                 // сколько заработал учитывая процент из настроек
                 double earned = (double)Math.Abs((lastData?.AgentEarnUsdt ?? 0) - (firstData?.AgentEarnUsdt ?? 0)) / settingsPercent * 100.0;
 
+                // найдем удовлетворяющую шкалу для пользователя.
+                var scale = scales.LastOrDefault(x => x.FromValue <= earned && x.UniqueId == userInfo.UniqueId);
+
+                if (scale == null)
+                {
+                    return (default, $"{commandName}. Необходимо указать шкалу для пользователя {userInfo.UserId}.");
+                }
+
                 // ищем нужный процент
-                payment.Usdt = (decimal)(earned * (scale.LastOrDefault(x => x.FromValue <= earned && x.UniqueId == userInfo.UniqueId).Percent) / 100.0);
+                payment.Usdt = (decimal)(earned * scale.Percent / 100.0);
 
                 payment.BepAddress = userInfo.BepAddress;
                 payment.TrcAddress = userInfo.TrcAddress;
