@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Storage.Module.Classes;
 using Storage.Module.Entities;
-using Storage.Module.Repositories.Base;
 using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -71,12 +71,23 @@ namespace Storage.Module.Repositories
 
             if (settingsByKey != null)
             {
-                settingsByKey.Value = value.ToString();
+                settingsByKey.Value = value?.ToString();
                 _dataContext.Update(settingsByKey);
                 return null;
             }
 
             return $"Не найдены настройки с ключом {key}";
+        }
+
+        public async Task<SettingsInfo> GetSettingsAsync()
+        {
+            List<Settings> settings = await _dataContext.Settings.AsNoTracking().ToListAsync();
+
+            SettingsInfo settingsInfo = new SettingsInfo();
+
+            settingsInfo.SetFieldsBySettings(settings);
+
+            return settingsInfo;
         }
     }
 }

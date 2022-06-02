@@ -36,19 +36,19 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
-        public async Task<SpotScale> GetByIdAsync(long Id)
+        public async Task<SpotScale> GetByIdAsync(long id)
         {
             return await _dataContext
                 .SpotScale
                 .Include(i => i.Unique)
-                .FirstOrDefaultAsync(x => x.Id == Id);
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<string> CreateAsync(SpotScale obj)
         {
             _dataContext.SpotScale.Add(obj);
 
-            return await _baseRepository.SaveChangesAsync();
+            return await SaveChangesAsync();
         }
 
         public async Task<string> UpdateAsync(SpotScale obj, SpotScale newObj)
@@ -65,7 +65,7 @@ namespace Storage.Module.Repositories
 
             _dataContext.SpotScale.Update(obj);
 
-            return await _baseRepository.SaveChangesAsync();
+            return await SaveChangesAsync();
         }
 
         public async Task<string> DeleteAsync(IEnumerable<long> Ids)

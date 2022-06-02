@@ -14,9 +14,9 @@ namespace WorkerService.Module
     [ApiController]
     public class BinanceSellController : BaseController
     {
-        private readonly CronJobBaseService<IBinanceSell> _binanceSellService;
+        private readonly CronJobBaseService<IBinanceSellService> _binanceSellService;
         private readonly ILogger<BinanceSellController> _logger;
-        public BinanceSellController(CronJobBaseService<IBinanceSell> binanceSellService, ILogger<BinanceSellController> logger)
+        public BinanceSellController(CronJobBaseService<IBinanceSellService> binanceSellService, ILogger<BinanceSellController> logger)
         {
             _binanceSellService = binanceSellService;
             _logger = logger;

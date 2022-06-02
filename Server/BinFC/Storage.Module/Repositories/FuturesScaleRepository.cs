@@ -36,12 +36,12 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
-        public async Task<FuturesScale> GetByIdAsync(long Id)
+        public async Task<FuturesScale> GetByIdAsync(long id)
         {
             return await _dataContext
                 .FuturesScale
                 .Include(i => i.Unique)
-                .FirstOrDefaultAsync(x => x.Id == Id);
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<string> CreateAsync(FuturesScale obj)
@@ -68,14 +68,14 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
-        public async Task<string> DeleteAsync(IEnumerable<long> Ids)
+        public async Task<string> DeleteAsync(IEnumerable<long> ids)
         {
             _dataContext
                 .FuturesScale
                 .RemoveRange(
                     _dataContext
                     .FuturesScale
-                    .Where(x => Ids.Contains(x.Id))
+                    .Where(x => ids.Contains(x.Id))
                 );
 
             return await SaveChangesAsync();

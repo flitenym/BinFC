@@ -4,6 +4,7 @@ using Binance.Net.Objects.Models.Spot;
 using BinanceApi.Module.Classes;
 using BinanceApi.Module.Services.Interfaces;
 using CryptoExchange.Net.Authentication;
+using CryptoExchange.Net.Objects;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Classes;
 using Storage.Module.Repositories.Interfaces;
@@ -17,16 +18,12 @@ namespace BinanceApi.Module.Services
 {
     public class BinanceApiService : IBinanceApiService
     {
-        private readonly ISettingsRepository _settingsRepository;
         private readonly ILogger<BinanceApiService> _logger;
 
-        public const HttpStatusCode SuccessCode = HttpStatusCode.OK;
-        public const int DustTransferSixHours = 32110;
         public const string USDT = "USDT";
 
-        public BinanceApiService(ISettingsRepository settingsRepository, ILogger<BinanceApiService> logger)
+        public BinanceApiService(ILogger<BinanceApiService> logger)
         {
-            _settingsRepository = settingsRepository;
             _logger = logger;
         }
 
@@ -36,6 +33,29 @@ namespace BinanceApi.Module.Services
             {
                 ApiCredentials = new ApiCredentials(settings.ApiKey, settings.ApiSecret)
             });
+        }
+
+        private bool CheckStatus<T>(WebCallResult<T> response)
+        {
+            if (response.ResponseStatusCode == HttpStatusCode.OK)
+            {
+                return true;
+            }
+            else
+            {
+                _logger.LogError(response.Error.ToString());
+
+                if (response.Error.Code == -2015)
+                {
+                    throw new ApplicationException("Отсутствуют ApiKey/ApiSecret или действие не разрешено, включите в настройках Api соответствующие права.");
+                }
+                else if (response.Error.Code == 32110)
+                {
+                    _logger.LogTrace("Перевод монет с маленьким балансом не выполнен, т.к. можно производить раз в 6 часов.");
+                }
+
+                return false;
+            }
         }
 
         #region Перевод Фьюча в Спот
@@ -53,13 +73,7 @@ namespace BinanceApi.Module.Services
 
             var result = await client.GeneralApi.Futures.TransferFuturesAccountAsync(USDT, balance.Value, Binance.Net.Enums.FuturesTransferType.FromUsdtFuturesToSpot);
 
-            if (result.ResponseStatusCode != SuccessCode)
-            {
-                _logger.LogError(result.Error.ToString());
-                return false;
-            }
-
-            return true;
+            return CheckStatus(result);
         }
 
         /// <summary>
@@ -71,10 +85,9 @@ namespace BinanceApi.Module.Services
 
             var result = await client.UsdFuturesApi.Account.GetAccountInfoAsync();
 
-            if (result.ResponseStatusCode != SuccessCode)
+            if (!CheckStatus(result))
             {
-                _logger.LogError(result.Error.ToString());
-                return (false, null);
+                return (false, default);
             }
 
             var futuresUsdtInfo = result.Data.Assets.FirstOrDefault(x => x.Asset == USDT);
@@ -101,10 +114,9 @@ namespace BinanceApi.Module.Services
 
             var result = await client.SpotApi.ExchangeData.GetExchangeInfoAsync();
 
-            if (result.ResponseStatusCode != SuccessCode)
+            if (!CheckStatus(result))
             {
-                _logger.LogError(result.Error.ToString());
-                return (false, null);
+                return (false, default);
             }
 
             return (true, result.Data);
@@ -120,10 +132,9 @@ namespace BinanceApi.Module.Services
 
             var result = await client.SpotApi.Account.GetAccountInfoAsync();
 
-            if (result.ResponseStatusCode != SuccessCode)
+            if (!CheckStatus(result))
             {
-                _logger.LogError(result.Error.ToString());
-                return (false, null);
+                return (false, default);
             }
 
             List<BinanceBalance> currencies;
@@ -153,9 +164,8 @@ namespace BinanceApi.Module.Services
 
             var result = await client.SpotApi.Account.GetAccountInfoAsync();
 
-            if (result.ResponseStatusCode != SuccessCode)
+            if (!CheckStatus(result))
             {
-                _logger.LogError(result.Error.ToString());
                 return (false, default);
             }
 
@@ -192,7 +202,7 @@ namespace BinanceApi.Module.Services
 
             var result = await client.SpotApi.Trading.PlaceOrderAsync($"{fromAsset}{toAsset}", Binance.Net.Enums.OrderSide.Sell, Binance.Net.Enums.SpotOrderType.Market, quoteQuantity: quantity);
 
-            if (result.ResponseStatusCode != SuccessCode)
+            if (!CheckStatus(result))
             {
                 _logger.LogError($"Ошибка продажи валюты {fromAsset}{toAsset}. {result.Error}" + result.Error.ToString());
                 return false;
@@ -221,18 +231,9 @@ namespace BinanceApi.Module.Services
 
             var result = await client.SpotApi.Account.DustTransferAsync(assets);
 
-            if (result.ResponseStatusCode != SuccessCode)
+            if (!CheckStatus(result))
             {
-                if (result.Error.Code == 32110)
-                {
-                    _logger.LogTrace("Перевод монет с маленьким балансом не выполнен, т.к. можно производить раз в 6 часов");
-                    return true;
-                }
-                else
-                {
-                    _logger.LogError(result.Error.ToString());
-                    return false;
-                }
+                return false;
             }
 
             return true;
@@ -348,10 +349,9 @@ namespace BinanceApi.Module.Services
 
             var result = await client.SpotApi.ExchangeData.GetPriceAsync($"{fromAsset}{toAsset}");
 
-            if (result.ResponseStatusCode != SuccessCode)
+            if (!CheckStatus(result))
             {
-                _logger.LogError(result.Error.ToString());
-                return (false, null);
+                return default;
             }
 
             return (true, result.Data);
@@ -359,5 +359,36 @@ namespace BinanceApi.Module.Services
 
         #endregion
 
+        #region Методы для оплаты
+
+        public async Task<(bool IsSuccess, string Message, IEnumerable<BinanceUserAsset> Currencies)> GetCoinsAsync(IEnumerable<string> assets, SettingsInfo settings)
+        {
+            var client = GetBinanceClient(settings);
+
+            var result = await client.SpotApi.Account.GetUserAssetsAsync();
+
+            if (!CheckStatus(result))
+            {
+                return (false, $"Ошибка. {result.Error}", null);
+            }
+
+            return (true, null, result.Data.Where(x => assets.Contains(x.Asset)));
+        }
+
+        public async Task<(bool IsSuccess, string Message)> WithdrawalPlacedAsync(string asset, decimal amount, string address, string network, SettingsInfo settings)
+        {
+            var client = GetBinanceClient(settings);
+
+            var result = await client.SpotApi.Account.WithdrawAsync(asset: asset, address: address, quantity: amount, network: network);
+
+            if (!CheckStatus(result))
+            {
+                return (false, $"Ошибка. {result.Error}");
+            }
+
+            return (true, null);
+        }
+
+        #endregion
     }
 }

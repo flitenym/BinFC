@@ -1,5 +1,6 @@
 ﻿using Cronos;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Repositories.Interfaces;
@@ -13,15 +14,15 @@ namespace WorkerService.Module.Services.Base
 {
     public abstract class CronJobBaseService<T> : IHostedService, IDisposable
     {
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger _logger;
-        private readonly ISettingsRepository _settingsRepository;
         private readonly IConfiguration _configuration;
         private System.Timers.Timer _timer;
         private CronExpression _expression;
 
-        public CronJobBaseService(ISettingsRepository settingsRepository, IConfiguration configuration, ILogger logger)
+        public CronJobBaseService(IServiceScopeFactory scopeFactory, IConfiguration configuration, ILogger logger)
         {
-            _settingsRepository = settingsRepository;
+            _scopeFactory = scopeFactory;
             _configuration = configuration;
             _logger = logger;
         }
@@ -50,19 +51,28 @@ namespace WorkerService.Module.Services.Base
 
         protected virtual async Task ScheduleJobAsync(CancellationToken cancellationToken)
         {
-            (bool isSuccess, string cronExpression) =
-                await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false);
+            ISettingsRepository _settingsRepository = null;
 
-            if (!isSuccess)
+            using (var scope = _scopeFactory.CreateScope())
             {
-                string error = "Не удалось запустить сервис продажи, т.к. не найдена cron запись в БД.";
-                _logger.LogError(error);
-                return;
+                _settingsRepository =
+                    scope.ServiceProvider
+                        .GetRequiredService<ISettingsRepository>();
+
+                (bool isSuccess, string cronExpression) =
+                    await _settingsRepository.GetSettingsByKeyAsync<string>(SettingsKeys.CronExpression, false);
+
+                if (!isSuccess)
+                {
+                    string error = "Не удалось запустить сервис продажи, т.к. не найдена cron запись в БД.";
+                    _logger.LogError(error);
+                    return;
+                }
+
+                cronExpression ??= _configuration.GetSection("Cron:Expression").Get<string>();
+
+                _expression = CronParseHelper.GetCronExpression(cronExpression);
             }
-
-            cronExpression ??= _configuration.GetSection("Cron:Expression").Get<string>();
-
-            _expression = CronParseHelper.GetCronExpression(cronExpression);
 
             if (_expression == null)
             {

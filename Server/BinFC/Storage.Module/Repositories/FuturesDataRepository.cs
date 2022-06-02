@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
 using Storage.Module.Entities.Base;
-using Storage.Module.Repositories.Base;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,9 +30,32 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
-        public void Create(Data obj)
+        public async Task<FuturesData> GetByUserIdAsync(long userId)
         {
-            UserInfo userInfo = _baseRepository.GetOrCreateUserInfo(obj.UserId);
+            return await _dataContext
+                .FuturesData
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+        }
+
+        public IEnumerable<FuturesData> GetLastData()
+        {
+            return _dataContext.FuturesData.AsNoTracking()
+                .Select(t => t.LoadingDate)
+                .Distinct()
+                .OrderByDescending(t => t)
+                .Take(2)
+                .SelectMany(key =>
+                    _dataContext
+                    .FuturesData
+                    .Include(i => i.User)
+                    .AsNoTracking()
+                    .Where(t => t.LoadingDate == key)
+            );
+        }
+
+        public async Task CreateAsync(Data obj)
+        {
+            UserInfo userInfo = await _baseRepository.GetOrCreateUserInfoAsync(obj.UserId);
 
             FuturesData newObj = new()
             {
@@ -44,14 +67,14 @@ namespace Storage.Module.Repositories
             _dataContext.FuturesData.Add(newObj);
         }
 
-        public async Task<string> DeleteAsync(IEnumerable<long> Ids)
+        public async Task<string> DeleteAsync(IEnumerable<long> ids)
         {
             _dataContext
                 .FuturesData
                 .RemoveRange(
                     _dataContext
                     .FuturesData
-                    .Where(x => Ids.Contains(x.Id))
+                    .Where(x => ids.Contains(x.Id))
                 );
 
             return await SaveChangesAsync();
@@ -75,5 +98,14 @@ namespace Storage.Module.Repositories
         }
 
         #endregion
+
+        public async Task UpdateIsPaidByUserIdAsync(long userId)
+        {
+            var data = await GetByUserIdAsync(userId);
+
+            data.IsPaid = true;
+
+            _dataContext.FuturesData.Update(data);
+        }
     }
 }

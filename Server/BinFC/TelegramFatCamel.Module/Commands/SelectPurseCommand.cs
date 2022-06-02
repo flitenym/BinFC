@@ -28,6 +28,11 @@ namespace TelegramFatCamel.Module.Commands
                 userInfo.ChatId = update.Message.Chat.Id;
             }
 
+            if (string.IsNullOrEmpty(userInfo.UserNickName))
+            {
+                userInfo.UserNickName = update.Message.Chat.Username;
+            }
+
             if (string.IsNullOrEmpty(userInfo.UserName))
             {
                 userInfo.UserName = string.Join(' ', update.Message.Chat.FirstName, update.Message.Chat.LastName);

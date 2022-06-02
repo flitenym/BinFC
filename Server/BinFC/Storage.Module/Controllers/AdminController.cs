@@ -36,9 +36,9 @@ namespace Storage.Module.Controllers
 
         [Authorize]
         [HttpGet("{id}")]
-        public async Task<Admin> Get(long Id)
+        public async Task<Admin> Get(long id)
         {
-            return await _adminRepository.GetByIdAsync(Id);
+            return await _adminRepository.GetByIdAsync(id);
         }
 
         [Authorize]
@@ -97,9 +97,9 @@ namespace Storage.Module.Controllers
 
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(long Id, [FromBody] Admin newObj)
+        public async Task<IActionResult> Update(long id, [FromBody] Admin newObj)
         {
-            if (newObj == null || newObj.Id != Id)
+            if (newObj == null || newObj.Id != id)
             {
                 return BadRequest($"Отправлены разные значения у сущности и у переданного Id.");
             }
@@ -116,9 +116,9 @@ namespace Storage.Module.Controllers
 
         [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(long Id)
+        public async Task<IActionResult> Delete(long id)
         {
-            var obj = await _adminRepository.GetByIdAsync(Id);
+            var obj = await _adminRepository.GetByIdAsync(id);
 
             if (obj == null)
             {

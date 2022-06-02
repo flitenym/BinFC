@@ -5,6 +5,7 @@ using Storage.Module.Controllers.Base;
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Storage.Module.Controllers
@@ -29,9 +30,9 @@ namespace Storage.Module.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<UserInfo> Get(long Id)
+        public async Task<UserInfo> Get(long id)
         {
-            return await _userInfoRepository.GetByIdAsync(Id);
+            return await _userInfoRepository.GetByIdAsync(id);
         }
 
         [HttpPost]
@@ -46,14 +47,14 @@ namespace Storage.Module.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(long Id, [FromBody] UserInfo newObj)
+        public async Task<IActionResult> Update(long id, [FromBody] UserInfo newObj)
         {
             if (newObj == null)
             {
                 return BadRequest("Отправлена пустая сущность.");
             }
 
-            if (newObj.Id != Id)
+            if (newObj.Id != id)
             {
                 return BadRequest($"Отправлены разные значения у сущности и у переданного Id.");
             }
@@ -69,9 +70,9 @@ namespace Storage.Module.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(long Id)
+        public async Task<IActionResult> Delete(long id)
         {
-            var obj = await _userInfoRepository.GetByIdAsync(Id);
+            var obj = await _userInfoRepository.GetByIdAsync(id);
 
             if (obj == null)
             {
@@ -79,6 +80,28 @@ namespace Storage.Module.Controllers
             }
 
             return StringToResult(await _userInfoRepository.DeleteAsync(obj));
+        }
+
+        [HttpPost("approve")]
+        public async Task<IActionResult> Approve([FromBody] IEnumerable<long> ids)
+        {
+            if (ids == null || !ids.Any())
+            {
+                return BadRequest("Не указаны значения.");
+            }
+
+            return StringToResult(await _userInfoRepository.ApproveAsync(ids));
+        }
+
+        [HttpPost("notapprove")]
+        public async Task<IActionResult> NotApprove([FromBody] IEnumerable<long> ids)
+        {
+            if (ids == null || !ids.Any())
+            {
+                return BadRequest("Не указаны значения.");
+            }
+
+            return StringToResult(await _userInfoRepository.NotApproveAsync(ids));
         }
     }
 }

@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
 using Storage.Module.Entities.Base;
-using Storage.Module.Repositories.Base;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,9 +30,32 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
-        public void Create(Data obj)
+        public async Task<SpotData> GetByUserIdAsync(long userId)
         {
-            UserInfo userInfo = _baseRepository.GetOrCreateUserInfo(obj.UserId);
+            return await _dataContext
+                .SpotData
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+        }
+
+        public IEnumerable<SpotData> GetLastData()
+        {
+            return _dataContext.SpotData.AsNoTracking()
+                .Select(t => t.LoadingDate)
+                .Distinct()
+                .OrderByDescending(t => t)
+                .Take(2)
+                .SelectMany(key =>
+                    _dataContext
+                    .SpotData
+                    .Include(i => i.User)
+                    .AsNoTracking()
+                    .Where(t => t.LoadingDate == key)
+            );
+        }
+
+        public async Task CreateAsync(Data obj)
+        {
+            UserInfo userInfo = await _baseRepository.GetOrCreateUserInfoAsync(obj.UserId);
 
             SpotData newObj = new()
             {
@@ -44,14 +67,14 @@ namespace Storage.Module.Repositories
             _dataContext.SpotData.Add(newObj);
         }
 
-        public async Task<string> DeleteAsync(IEnumerable<long> Ids)
+        public async Task<string> DeleteAsync(IEnumerable<long> ids)
         {
             _dataContext
                 .SpotData
                 .RemoveRange(
                     _dataContext
                     .SpotData
-                    .Where(x => Ids.Contains(x.Id))
+                    .Where(x => ids.Contains(x.Id))
                 );
 
             return await SaveChangesAsync();
@@ -75,5 +98,14 @@ namespace Storage.Module.Repositories
         }
 
         #endregion
+
+        public async Task UpdateIsPaidByUserIdAsync(long userId)
+        {
+            var data = await GetByUserIdAsync(userId);
+
+            data.IsPaid = true;
+
+            _dataContext.SpotData.Update(data);
+        }
     }
 }

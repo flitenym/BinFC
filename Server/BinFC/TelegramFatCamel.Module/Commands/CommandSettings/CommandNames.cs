@@ -6,12 +6,14 @@
         public const string GetOperationsCommand = "Операции";
         public const string GetPrivateCommand = "/private";
         public const string InputIdCommand = "/id";
+        public const string AlreadyInputIdCommand = "/already_exist_input";        
         public const string InputNameCommand = "/name";
         public const string AcceptNameCommand = "/accept_name";
         public const string InputEmailCommand = "/email";
         public const string AcceptEmailCommand = "/accept_email";
         public const string ErrorInputIdCommand = "/error_id";
         public const string NotExistIdCommand = "/notexist_id";
+        public const string InputIdAlreadyExistChat = "/chat_exist";
         public const string SelectPurseCommand = "/select_purse";
         public const string AcceptPurseCommand = "/accept_purse";
         public const string ChangePurseCommand = "/change_purse";

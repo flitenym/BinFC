@@ -53,6 +53,34 @@ namespace Storage.Module.Services
                 };
                 _dataContext.Add(isNotification);
 
+                Settings notificationNames = new Settings()
+                {
+                    Key = SettingsKeys.NotificationNames,
+                    Value = null
+                };
+                _dataContext.Add(notificationNames);
+
+                Settings binanceSellEnable = new Settings()
+                {
+                    Key = SettingsKeys.BinanceSellEnable,
+                    Value = bool.FalseString
+                };
+                _dataContext.Add(binanceSellEnable);
+
+                Settings spotPercent = new Settings()
+                {
+                    Key = SettingsKeys.SpotPercent,
+                    Value = DefaultValues.SpotPercent
+                };
+                _dataContext.Add(spotPercent);
+
+                Settings futuresPercent = new Settings()
+                {
+                    Key = SettingsKeys.FuturesPercent,
+                    Value = DefaultValues.FuturesPercent
+                };
+                _dataContext.Add(futuresPercent);
+
                 // admin
                 Admin admin = new Admin()
                 {
@@ -64,7 +92,8 @@ namespace Storage.Module.Services
                 // unique
                 Unique unique = new Unique()
                 {
-                    Name = DefaultValues.UniqueName
+                    Name = DefaultValues.UniqueName,
+                    IsDefault = true
                 };
                 _dataContext.Add(unique);
 

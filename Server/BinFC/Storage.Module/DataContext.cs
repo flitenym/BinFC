@@ -21,5 +21,6 @@ namespace Storage.Module
         public DbSet<PayHistory> PayHistory { get; set; }
         public DbSet<Unique> Unique { get; set; }
         public DbSet<TelegramUserInfo> TelegramUsersInfo { get; set; }
+        public DbSet<TelegramMessageQueue> TelegramMessagesQueue { get; set; }
     }
 }

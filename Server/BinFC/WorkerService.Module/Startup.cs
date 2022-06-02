@@ -22,7 +22,10 @@ namespace WorkerService.Module
         {
             services.AddControllers().AddApplicationPart(typeof(Startup).Assembly);
 
-            services.AddScoped<CronJobBaseService<IBinanceSell>, BinanceSellService>();
+            services.AddSingleton<CronJobBaseService<IBinanceSellService>, BinanceSellService>();
+
+            services.AddSingleton<HostedService>();
+            services.AddHostedService(sp => sp.GetRequiredService<HostedService>());
 
             return Task.CompletedTask;
         }

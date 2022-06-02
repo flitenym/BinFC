@@ -5,7 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Storage.Module.Extensions;
+using Storage.Module.Repositories.Interfaces;
 using Storage.Module.Services.Interfaces;
+using Storage.Module.StaticClasses;
 using System;
 using System.Threading.Tasks;
 
@@ -24,6 +26,16 @@ namespace Storage.Module
         {
             var initialCreate = serviceProvider.GetRequiredService<IInitialCreateService>();
             await initialCreate.InitialCreateValuesAsync();
+
+            app.UseWebSockets();
+
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var settingsRepository = serviceProvider.GetRequiredService<ISettingsRepository>();
+
+                await settingsRepository.SetSettingsByKeyAsync(SettingsKeys.BinanceSellEnable, false);
+                await settingsRepository.SaveChangesAsync();
+            }
         }
 
         public Task ConfigureServicesAsync(IServiceCollection services)
@@ -34,6 +46,7 @@ namespace Storage.Module
             services.AddStorageServices();
             services.AddStorageRepositoryServices();
             services.AddStorageImportServices();
+            services.AddStorageExportServices();
 
             return Task.CompletedTask;
         }

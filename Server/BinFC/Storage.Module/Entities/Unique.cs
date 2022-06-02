@@ -8,5 +8,6 @@ namespace Storage.Module.Entities
         public long Id { get; set; }
         [Required]
         public string Name { get; set; }
+        public bool IsDefault { get; set; } = false;
     }
 }

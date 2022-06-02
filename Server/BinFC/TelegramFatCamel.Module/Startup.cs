@@ -14,15 +14,9 @@ namespace TelegramFatCamel.Module
 {
     public class Startup : IModule
     {
-        public async Task ConfigureAsync(IApplicationBuilder app, IHostApplicationLifetime hal, IWebHostEnvironment env, IServiceProvider serviceProvider)
+        public Task ConfigureAsync(IApplicationBuilder app, IHostApplicationLifetime hal, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
-            await serviceProvider.GetRequiredService<TelegramFatCamelBotService>().GetTelegramBotAsync();
-            hal.ApplicationStopping.Register(async () => await OnShutdownAsync(serviceProvider));
-        }
-
-        private async Task OnShutdownAsync(IServiceProvider serviceProvider)
-        {
-            await serviceProvider.GetRequiredService<TelegramFatCamelBotService>().StopTelegramBotAsync();
+            return Task.CompletedTask;
         }
 
         public Task ConfigureServicesAsync(IServiceCollection services)
@@ -37,12 +31,14 @@ namespace TelegramFatCamel.Module
             services.AddScoped<BaseCommand, AcceptEmailCommand>();
             services.AddScoped<BaseCommand, AcceptNameCommand>();
             services.AddScoped<BaseCommand, AcceptPurseCommand>();
+            services.AddScoped<BaseCommand, AlreadyInputIdCommand>();
             services.AddScoped<BaseCommand, ChangePurseCommand>();
             services.AddScoped<BaseCommand, ErrorInputIdCommand>();
             services.AddScoped<BaseCommand, GetOperationsCommand>();
             services.AddScoped<BaseCommand, GetPrivateCommand>();            
             services.AddScoped<BaseCommand, InputBepCommand>();
             services.AddScoped<BaseCommand, InputEmailCommand>();
+            services.AddScoped<BaseCommand, InputIdAlreadyExistChatCommand>();
             services.AddScoped<BaseCommand, InputIdCommand>();
             services.AddScoped<BaseCommand, InputNameCommand>();
             services.AddScoped<BaseCommand, InputTrcCommand>();

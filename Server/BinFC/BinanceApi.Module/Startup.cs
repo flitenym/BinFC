@@ -19,7 +19,11 @@ namespace BinanceApi.Module
 
         public Task ConfigureServicesAsync(IServiceCollection services)
         {
-            services.AddScoped<IBinanceApiService, BinanceApiService>();
+            services.AddControllers().AddApplicationPart(typeof(Startup).Assembly);
+
+            services.AddSingleton<IBinanceApiService, BinanceApiService>();
+
+            services.AddScoped<IPaymentService, PaymentService>();
 
             return Task.CompletedTask;
         }
