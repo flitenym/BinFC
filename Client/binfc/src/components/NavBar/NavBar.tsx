@@ -7,6 +7,7 @@ import {
     SettingOutlined,
     DollarCircleOutlined,
     HistoryOutlined,
+    ImportOutlined,
     RadiusSettingOutlined
 } from '@ant-design/icons';
 import { useTranslation } from "react-i18next";
@@ -46,8 +47,10 @@ const NavBar: FunctionComponent = () => {
     const items: MenuItem[] = [
         getItem('/dashboard/Settings', t("common:Settings"), '1', <SettingOutlined />),
         getItem('/dashboard/Users', t("common:Users"), '2', <UsergroupAddOutlined />),
-        getItem('/dashboard/Payout', t("common:Payout"), '3', <DollarCircleOutlined />),
+        getItem('/dashboard/Import', t("common:Import"), '3', <ImportOutlined />),
         getItem('/dashboard/PaymentHistory', t("common:PaymentHistory"), '4', <HistoryOutlined />),
+        getItem('/dashboard/Scales', t("common:Scales"), '5', <RadiusSettingOutlined />),
+        getItem('/dashboard/Payout', t("common:Payout"), '6', <DollarCircleOutlined />)
     ];
 
     const onClick = (e: any) => {

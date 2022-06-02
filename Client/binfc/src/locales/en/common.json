@@ -1,6 +1,7 @@
 {
     "Settings": "Settings",
     "Users": "Users",
+    "Import": "Import",
     "Payout": "Payout",
     "PaymentHistory": "Payment History",
 
@@ -12,12 +13,13 @@
     "EnableNofications": "Enable nofications on payouts in telegram",
     "SaveSettings": "Save Settings",
 
-    "TableTitle": "Futures users (Similar for SPOT from below + everything except ID is edited)",    
+    "TableTitle": "Users",    
     "TableId": "ID",
     "TableName": "Name",
     "TableEmail": "Email",
     "TableTrc": "TRC",
     "TableBep": "BEP",
+    "TableIsApproved": "Status",
     "TableComission": "Comission",
     "TableUnique": "Unique",
     "noData": "No data",
@@ -28,7 +30,10 @@
     "LoadingTime": "Loading time",
     "TableBUSD": "BUSD",
     "Paid": "Paid",
+    "Pay": "Pay",
+    "Balance": "Balance",
     "ButtonDelete": "Delete",
+    "ButtonCreate": "Create",
     "ButtonDeleteAll": "Delete all",
     "ImportFile": "Import file",
     "ImportSpotFile": "Import spot file",
@@ -39,6 +44,22 @@
     "Russian": "Russian",
     "English": "English",
     "Page": "Page",
-    "Dates": "Dates"
+    "Dates": "Dates",
+    "Restart": "Restart",
+    "Start": "Start",
+    "Stop": "Stop",
+    "UserID": "User ID",
+    "UserFIO": "User's name",
+    "DatePayment": "Date of payment",
+    "NumberPayment": "Number of payment",
+    "Export": "Export to CSV",
+    "Approved": "Approved", 
+    "NotApproved": "Not approved",
+    "NicknamesNotification": "Nicknames for notification",
+    "From": "From",
+    "Percent": "Percent",
+    "Scales": "Scales",
+    "SpotPercent": "Spot Percent",
+    "FuturePercent": "Future Percent"
 }
     
