@@ -3,7 +3,6 @@ import {
     Dropdown,
     Menu,
     PageHeader,
-    Switch,
     Typography
 } from 'antd';
 import { languageChange, modeChange } from '../../store/actions';

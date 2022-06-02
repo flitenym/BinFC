@@ -5,7 +5,7 @@ const API_URL = "payment";
 const getPaymentData = async () => {
     return axios
         .get(API_URL).then((response) => {
-            return response.data
+            return response
         })
 };
 
@@ -18,11 +18,8 @@ const getBalanceData = async () => {
 
 const postPaymentData = async (data: any) => {
     return axios
-        .post(API_URL, {
-            body: data
-        }).then((response) => {
-            console.log(response);
-            return response.data
+        .post(API_URL, data).then((response) => {
+            return response
         })
 };
 

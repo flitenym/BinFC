@@ -1,6 +1,6 @@
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Input, InputRef, Modal, Space, Spin, Switch, Table, Tabs, Upload } from "antd";
+import { Button, Input, InputRef, Modal, Space, Spin, Table, Tabs, Upload } from "antd";
 import { ColumnType, FilterConfirmProps, TablePaginationConfig } from "antd/lib/table/interface";
 import { t } from "i18next";
 import { FunctionComponent, useEffect, useRef, useState } from "react"

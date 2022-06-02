@@ -43,7 +43,7 @@ const Users: FunctionComponent = () => {
         }
     };
 
-    const [form] = useForm();
+    const [usersForm] = useForm();
 
     useEffect(() => {
         setIsLoading(true)
@@ -61,9 +61,9 @@ const Users: FunctionComponent = () => {
     }, [])
 
     useEffect(() => {
-        form.resetFields()
-        form.setFieldsValue(selectedRowData)
-    }, [selectedRowData, form])
+        usersForm.resetFields()
+        usersForm.setFieldsValue(selectedRowData)
+    }, [selectedRowData, usersForm])
 
     const getColumnSearchProps = (dataIndex: any): ColumnType<any> => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
@@ -126,7 +126,7 @@ const Users: FunctionComponent = () => {
 
     const getSettings = (data: any) => {
         const result: any[] = [];
-        data.length && data?.map((item: any) => {
+        data?.length && data?.map((item: any) => {
             result.push(
                 {
                     key: item?.id,
@@ -141,10 +141,10 @@ const Users: FunctionComponent = () => {
                     chatId: item?.chatId ? item?.chatId : t("common:noData"),
                     isAdmin: item?.isAdmin ? item?.isAdmin : t("common:noData"),
                     isApproved: item?.isApproved ? [true] : [false],
-                    isApprovedTextForSearch: item?.isApproved ? t("common:Approved") : t("common:NotApproved"),
+                    status: item?.isApproved ? t("common:Approved") : t("common:NotApproved"),
                 }
             )
-            setUsersSettings(result)
+            return setUsersSettings(result)
         })
     }
 
@@ -156,7 +156,7 @@ const Users: FunctionComponent = () => {
             ...getColumnSearchProps('userId'),
         },
         {
-            title: t("common:TableIsApproved"), dataIndex: "isApproved", key: "isApproved", ...getColumnSearchProps('isApprovedTextForSearch'), render: (usersSettings: any, { isApproved }: any) => (
+            title: t("common:TableIsApproved"), dataIndex: "isApproved", key: "isApproved", ...getColumnSearchProps('status'), render: (usersSettings: any, { isApproved }: any) => (
                 <>
                     {usersSettings?.map((isApproved: boolean, index: number) => {
                         let color = isApproved ? 'green' : 'rgb(108,11,15)'
@@ -212,6 +212,7 @@ const Users: FunctionComponent = () => {
             if (item.name === data.uniqueName) {
                 return item.id
             }
+            return item.id
         })
         setUsersSettings(usersSettings.map((item) => {
             if (item.id === selectedRowData.id) {
@@ -284,7 +285,7 @@ const Users: FunctionComponent = () => {
             >
                 <Form
                     key={5}
-                    form={form}
+                    form={usersForm}
                     onFinish={(data) => modifiedModalData(data)}
                     initialValues={{
                         selectedRowData

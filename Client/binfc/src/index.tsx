@@ -27,6 +27,9 @@ axios.interceptors.request.use(function (config) {
 });
 
 axios.interceptors.response.use(function (response) {
+  if(response.data.message) {
+    toast.success(response.data.message);
+  }
   return response;
 }, function (error) {
   toast.error(error.response.data);
@@ -43,7 +46,6 @@ const root = ReactDOM.createRoot(
 );
 
 root.render(
-  <React.StrictMode>
     <Provider store={store}>
       <HashRouter>
         <ThemeSwitcherProvider themeMap={themes} defaultTheme={lightThemeIsSelected ? lightThemeIsSelected : "dark"}>
@@ -54,5 +56,4 @@ root.render(
         </ThemeSwitcherProvider>
       </HashRouter>
     </Provider>
-  </React.StrictMode>
 );

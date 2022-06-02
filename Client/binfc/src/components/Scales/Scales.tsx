@@ -1,4 +1,4 @@
-import { Button, Form, Input, InputNumber, Modal, Select, Space, Spin, Table, Tabs } from "antd";
+import { Button, Form, Input, Modal, Select, Space, Spin, Table, Tabs } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import { t } from "i18next";
 import { FunctionComponent, useEffect, useRef, useState } from "react"
@@ -58,8 +58,8 @@ const Scales: FunctionComponent = () => {
                         uniqueId: item?.uniqueId ? item?.unique.name : t("common:noData"),
                     }
                 )
+                return setSpotData(resultSpot)
             })
-            setSpotData(resultSpot)
         })
         scaleService.getScaleFuturesData().then((data) => {
             data.length && data?.map((item: any) => {
@@ -72,8 +72,8 @@ const Scales: FunctionComponent = () => {
                         uniqueId: item?.uniqueId ? item?.unique.name : t("common:noData"),
                     }
                 )
+                return setFuturesData(resultFutures)
             })
-            setFuturesData(resultFutures)
         })
         uniqueScaleService.getUniqueData().then((data) => {
             data.length && data?.map((item: any) => {
@@ -84,8 +84,8 @@ const Scales: FunctionComponent = () => {
                         name: item?.name ? item?.name : t("common:noData"),
                     }
                 )
+                return setUniquesData(resultUnique)
             })
-            setUniquesData(resultUnique)
         })
         setIsLoading(false)
         setForceUpdate(false)
@@ -169,6 +169,7 @@ const Scales: FunctionComponent = () => {
             if (item.name === data.uniqueId) {
                 return item.id
             }
+            return item
         })
         if (!isNewSpotsData.current) {
             scaleService.updateScalePostsData({
@@ -207,6 +208,7 @@ const Scales: FunctionComponent = () => {
             if (item.name === data.uniqueId) {
                 return item.id
             }
+            return item
         })
         if (!isNewFutureData.current) {
             scaleService.updateScaleFutureData({
@@ -344,7 +346,7 @@ const Scales: FunctionComponent = () => {
                     />
                     <Modal
                         key={7}
-                        forceRender
+                        // forceRender={true}
                         footer={null}
                         onCancel={onCloseSpotsModal}
                         title={`${"Шкала"}`}
@@ -464,7 +466,8 @@ const Scales: FunctionComponent = () => {
                     />
                     <Modal
                         key={30}
-                        forceRender
+
+                        // forceRender={true}
                         footer={null}
                         onCancel={onCloseFutureModal}
                         title={`${"Шкала"}`}
@@ -585,7 +588,7 @@ const Scales: FunctionComponent = () => {
             />
             <Modal
                 key={21}
-                forceRender
+                // forceRender={true}
                 footer={null}
                 onCancel={onCloseUniqueModal}
                 title={`${"Unique"}`}
