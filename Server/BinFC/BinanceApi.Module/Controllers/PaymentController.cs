@@ -6,6 +6,7 @@ using BinanceApi.Module.Controllers.DTO;
 using BinanceApi.Module.Services.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
 
 namespace BinanceApi.Module.Controllers
 {
@@ -43,7 +44,7 @@ namespace BinanceApi.Module.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Pay([FromBody] IEnumerable<PaymentDTO> objects)
+        public async Task<IActionResult> PayAsync([FromBody] IEnumerable<PaymentDTO> objects)
         {
             (bool isSuccess, string message) = await _paymentService.BinancePayAsync(objects);
 
@@ -52,7 +53,7 @@ namespace BinanceApi.Module.Controllers
                 if (!string.IsNullOrEmpty(message))
                 {
                     _logger.LogInformation(message);
-                    return Ok(message);
+                    return Ok(new { Message = message });
                 }
                 return Ok();
             }
