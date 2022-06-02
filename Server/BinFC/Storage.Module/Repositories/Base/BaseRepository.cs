@@ -29,7 +29,7 @@ namespace Storage.Module.Repositories.Base
             {
                 _logger.LogError(ex, string.Join("; ", _dataContext.ChangeTracker.Entries().Select(x => x.Entity.GetType().Name)));
                 _dataContext.ChangeTracker.Clear();
-                return ex.Message;
+                return ex.InnerException?.Message ?? ex.Message;
             }
         }
 
