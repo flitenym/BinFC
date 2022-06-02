@@ -1,4 +1,4 @@
-import { Table, TablePaginationConfig, Typography, Modal, InputRef, Input, Space, Button, Form, Select } from "antd";
+import { Table, TablePaginationConfig, Typography, Modal, InputRef, Input, Space, Button, Form, Select, Tag, Spin } from "antd";
 import { ColumnType, FilterConfirmProps } from "antd/lib/table/interface";
 import React, { FunctionComponent, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { useForm } from "antd/lib/form/Form";
 import uniqueService from "../../services/unique.servise";
-
+import "./UsersStyles.scss"
 const { Option } = Select;
 
 const Users: FunctionComponent = () => {
@@ -21,24 +21,43 @@ const Users: FunctionComponent = () => {
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef<InputRef>(null);
     const [selectedRowData, setSelectedRowData] = useState<any>()
+    const [isLoading, setIsLoading] = useState(false)
     const [pagination, setPagination] = useState<TablePaginationConfig>({
         current: 1,
-        // position: ["topLeft"],
         pageSize: 10,
     });
+    const [selectedUsersId, setSelectedUsersId] = useState<any>({
+        selectedRowKeys: [],
+        loading: false
+    });
+
+    const { selectedRowKeys } = selectedUsersId;
+
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (selectedRowKeys: any) => {
+            setSelectedUsersId({
+                ...selectedUsersId,
+                selectedRowKeys: selectedRowKeys
+            });
+        }
+    };
 
     const [form] = useForm();
 
     useEffect(() => {
+        setIsLoading(true)
         usersService.getUsers().then((response) => {
             getSettings(response)
             setPagination({
                 total: response?.length,
             });
+            setIsLoading(false)
         })
         uniqueService.getUnique().then((response) => {
             setUniqueData(response)
         })
+
     }, [])
 
     useEffect(() => {
@@ -121,6 +140,8 @@ const Users: FunctionComponent = () => {
                     userId: item?.userId ? item?.userId : t("common:noData"),
                     chatId: item?.chatId ? item?.chatId : t("common:noData"),
                     isAdmin: item?.isAdmin ? item?.isAdmin : t("common:noData"),
+                    isApproved: item?.isApproved ? [true] : [false],
+                    isApprovedTextForSearch: item?.isApproved ? t("common:Approved") : t("common:NotApproved"),
                 }
             )
             setUsersSettings(result)
@@ -133,6 +154,20 @@ const Users: FunctionComponent = () => {
             dataIndex: "userId",
             key: "userId",
             ...getColumnSearchProps('userId'),
+        },
+        {
+            title: t("common:TableIsApproved"), dataIndex: "isApproved", key: "isApproved", ...getColumnSearchProps('isApprovedTextForSearch'), render: (usersSettings: any, { isApproved }: any) => (
+                <>
+                    {usersSettings?.map((isApproved: boolean, index: number) => {
+                        let color = isApproved ? 'green' : 'rgb(108,11,15)'
+                        let title = isApproved ? t("common:Approved") : t("common:NotApproved")
+                        return (
+                            <Tag color={color} key={index}>
+                                {title}
+                            </Tag>
+                        );
+                    })}
+                </>)
         },
         { title: t("common:TableName"), dataIndex: "userName", key: "userName", ...getColumnSearchProps('userName'), },
         { title: t("common:TableEmail"), dataIndex: "userEmail", key: "userEmail", ...getColumnSearchProps('userEmail'), },
@@ -180,13 +215,13 @@ const Users: FunctionComponent = () => {
         })
         setUsersSettings(usersSettings.map((item) => {
             if (item.id === selectedRowData.id) {
-                item.key = selectedRowData.key
-                item.bepAddress = data.bepAddress
-                item.userEmail = data.userEmail
-                item.trcAddress = data.trcAddress
-                item.uniqueName = data.uniqueName
-                item.uniqueId = uniqueId.id
-                item.userName = data.userName
+                item.key = selectedRowData.key;
+                item.bepAddress = data.bepAddress;
+                item.userEmail = data.userEmail;
+                item.trcAddress = data.trcAddress;
+                item.uniqueName = data.uniqueName;
+                item.uniqueId = uniqueId.id;
+                item.userName = data.userName;
                 usersService.upadeteUser({
                     id: item.id,
                     userName: item.userName,
@@ -203,6 +238,13 @@ const Users: FunctionComponent = () => {
 
     }
 
+    const approveUsers = (usersId: number[]) => {
+        usersService.approveUsers(usersId)
+    }
+
+    const notApproveUsers = (usersId: number[]) => {
+        usersService.notApproveUsers(usersId)
+    }
 
     return (
         <React.Fragment key={1}>
@@ -211,9 +253,11 @@ const Users: FunctionComponent = () => {
             </Typography.Text>
             <Table
                 key={3}
+                rowSelection={rowSelection}
+                loading={{ indicator: <Spin size="large" />, spinning: isLoading }}
                 onRow={(record) => {
                     return {
-                        onClick: (event) => onRowClick(record),
+                        onDoubleClick: (event) => onRowClick(record),
                         style: {
                             backGround: "#FFFFFF",
                             boxShadow: "inset 0px -1px 0px #E6E6E6",
@@ -331,6 +375,20 @@ const Users: FunctionComponent = () => {
                     </Form.Item>
                 </Form>
             </Modal>
+            <Space style={{ marginTop: "16px" }}>
+                <Button
+                    type="primary"
+                    onClick={() => approveUsers(selectedUsersId.selectedRowKeys)}
+                >
+                    {"Подтвредить"}
+                </Button>
+                <Button
+                    type="default"
+                    onClick={() => notApproveUsers(selectedUsersId.selectedRowKeys)}
+                >
+                    {"Не подтвредить"}
+                </Button>
+            </Space>
         </React.Fragment>
     );
 

@@ -1,0 +1,24 @@
+.userlist {
+    clear: both;
+    height: 82%;
+    width: 94%;
+    padding: 20px;
+    overflow: hidden;
+    overflow-y: scroll;
+}
+
+.userlist::-webkit-scrollbar {
+    width: 4px;
+}
+
+.userlist::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px rgb(24, 144, 255);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.userlist::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    border-radius: 0;
+    background: rgba(0, 0, 0, 0.1);
+}

@@ -1,7 +1,8 @@
 import { Button, Checkbox, Input, List, Modal, Radio, Space, Typography } from "antd";
 import { Content } from "antd/lib/layout/layout";
-import { FunctionComponent, useEffect, useState } from "react"
+import { FunctionComponent, MutableRefObject, useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
+import binancesellService from "../../services/binancesell.service";
 import cronService from "../../services/cronjob.service";
 import settingsService from "../../services/settings.servise";
 
@@ -29,9 +30,26 @@ interface IsNotification {
     isChanged: boolean;
 }
 
+interface IApiKey {
+    key: string;
+    value: string | null;
+    isChanged: boolean;
+}
+
+interface IApiSecret {
+    key: string;
+    value: string | null;
+    isChanged: boolean;
+}
+
 const Settings: FunctionComponent = () => {
     const { t } = useTranslation("common");
     const [inputValue, setInputValue] = useState('');
+    const [spotValue, setSpotValue] = useState('');
+    const [futureValue, setFutureValue] = useState('');
+    const [apiInputValue, setApiInputValue] = useState('');
+    const [apiSecretInputValue, setSecretInputValue] = useState('');
+    const [notificationNamesInputValue, setNotificationNamesInputValue] = useState('');
     const [modalDatesVisible, setModalDatesVisible] = useState(false);
     const [modalData, setModalData] = useState<any>([]);
     const [cronExpression, setCronExpression] = useState<ICronExpression>({
@@ -49,9 +67,66 @@ const Settings: FunctionComponent = () => {
         value: false,
         isChanged: false,
     });
+    const [apiKey, setApiKey] = useState<IApiKey>({
+        key: '',
+        value: '',
+        isChanged: false,
+    });
+    const [apiSecret, setApiSecret] = useState<IApiSecret>({
+        key: '',
+        value: '',
+        isChanged: false,
+    });
+    const [notificationNames, setNotificationNames] = useState<IApiSecret>({
+        key: '',
+        value: '',
+        isChanged: false,
+    });
+    const [spotPercent, setSpotPercent] = useState<IApiKey>({
+        key: '',
+        value: '',
+        isChanged: false,
+    });
+    const [futurePercent, setFuturePercent] = useState<IApiKey>({
+        key: '',
+        value: '',
+        isChanged: false,
+    });
+    const [disableButtons, setDisableButtons] = useState("False")
+    const ws = useRef<any>(null);
 
     useEffect(() => {
         settingsService.getSettings().then((data) => {
+            data.length && data?.filter((item: IData) => {
+                if (item?.key === "NotificationNames") {
+                    setNotificationNamesInputValue(item?.value ?? '')
+                    return setNotificationNames({
+                        key: item?.key,
+                        value: item?.value,
+                        isChanged: false,
+                    })
+                }
+            })
+            data.length && data?.filter((item: IData) => {
+                if (item?.key === "ApiSecret") {
+                    setSecretInputValue(item?.value ?? '')
+                    return setApiSecret({
+                        key: item?.key,
+                        value: item?.value,
+                        isChanged: false,
+                    })
+                }
+            })
+            data.length && data?.filter((item: IData) => {
+                if (item?.key === "ApiKey") {
+                    setApiInputValue(item?.value ?? '')
+                    return setApiKey({
+                        key: item?.key,
+                        value: item?.value,
+                        isChanged: false,
+                    })
+                }
+            })
             data.length && data?.filter((item: IData) => {
                 if (item?.key === "CronExpression") {
                     setInputValue(item?.value ?? '')
@@ -80,13 +155,74 @@ const Settings: FunctionComponent = () => {
                     })
                 }
             })
+            data.length && data?.filter((item: IData) => {
+                if (item?.key === "SpotPercent") {
+                    return setSpotPercent({
+                        key: item?.key,
+                        value: item?.value,
+                        isChanged: false,
+                    })
+                }
+            })
+            data.length && data?.filter((item: IData) => {
+                if (item?.key === "FuturesPercent") {
+                    return setFuturePercent({
+                        key: item?.key,
+                        value: item?.value,
+                        isChanged: false,
+                    })
+                }
+            })
         })
+
+        ws.current = new WebSocket("ws://185.179.190.122/binfc_server/ws"); // создаем ws соединение
+        const interval = setInterval(() => {
+            ws.current.send('');
+            ws.current.onmessage = (e: any) => {
+                setDisableButtons(e.data)
+            };
+        }, 5000);
+
+        return () => {
+            clearInterval(interval)
+            ws.current.close()
+        };
     }, [])
 
     const onChangeValue = (value: string) => {
         setInputValue(value);
         cronExpression.isChanged = true;
         setCronExpression(cronExpression)
+    }
+
+    const onChangeNameNofitication = (value: string) => {
+        setNotificationNamesInputValue(value);
+        notificationNames.isChanged = true;
+        setNotificationNames(notificationNames)
+    }
+
+    const onChangeApiSecret = (value: string) => {
+        setSecretInputValue(value);
+        apiSecret.isChanged = true;
+        setApiSecret(apiSecret)
+    }
+
+    const onChangeApiKey = (value: string) => {
+        setApiInputValue(value);
+        apiKey.isChanged = true;
+        setApiKey(apiKey)
+    }
+
+    const onChangeSpotKey = (value: string) => {
+        setSpotValue(value);
+        spotPercent.isChanged = true;
+        setSpotPercent(apiKey)
+    }
+
+    const onChangeFutureKey = (value: string) => {
+        setFutureValue(value);
+        futurePercent.isChanged = true;
+        setFuturePercent(apiKey)
     }
 
     const checkDates = (cronExpression?: string) => {
@@ -103,10 +239,34 @@ const Settings: FunctionComponent = () => {
     const saveSettings = () => {
         cronService.check(inputValue).then((response) => {
             if (response !== 200) {
-
             } else {
                 let formData = new FormData();
                 let i = 0;
+                if (futurePercent.isChanged) {
+                    formData.append(`settings[${i}].key`, 'FuturesPercent');
+                    formData.append(`settings[${i}].value`, futureValue);
+                    i++;
+                }
+                if (spotPercent.isChanged) {
+                    formData.append(`settings[${i}].key`, 'SpotPercent');
+                    formData.append(`settings[${i}].value`, spotValue);
+                    i++;
+                }
+                if (notificationNames.isChanged) {
+                    formData.append(`settings[${i}].key`, 'NotificationNames');
+                    formData.append(`settings[${i}].value`, notificationNamesInputValue);
+                    i++;
+                }
+                if (apiSecret.isChanged) {
+                    formData.append(`settings[${i}].key`, 'ApiSecret');
+                    formData.append(`settings[${i}].value`, apiSecretInputValue);
+                    i++;
+                }
+                if (apiKey.isChanged) {
+                    formData.append(`settings[${i}].key`, 'ApiKey');
+                    formData.append(`settings[${i}].value`, apiInputValue);
+                    i++;
+                }
                 if (cronExpression.isChanged) {
                     formData.append(`settings[${i}].key`, 'CronExpression');
                     formData.append(`settings[${i}].value`, inputValue);
@@ -122,8 +282,23 @@ const Settings: FunctionComponent = () => {
                     formData.append(`settings[${i}].value`, `${isNotification?.value ? "True" : "False"}`);
                     i++;
                 }
-                if (cronExpression.isChanged || sellCurrency.isChanged || isNotification.isChanged) {
-                    cronExpression.isChanged = sellCurrency.isChanged = isNotification.isChanged = false;
+                if (cronExpression.isChanged
+                    || notificationNames.isChanged
+                    || spotPercent.isChanged
+                    || futurePercent.isChanged
+                    || apiSecret.isChanged
+                    || sellCurrency.isChanged
+                    || isNotification.isChanged
+                    || apiKey.isChanged) {
+                    cronExpression.isChanged
+                        = notificationNames.isChanged
+                        = apiSecret.isChanged
+                        = futurePercent.isChanged
+                        = spotPercent.isChanged
+                        = sellCurrency.isChanged
+                        = apiKey.isChanged
+                        = isNotification.isChanged
+                        = false;
                     return settingsService.saveSettings(formData)
                 }
             }
@@ -131,10 +306,24 @@ const Settings: FunctionComponent = () => {
 
     };
 
+    const binanceStart = () => {
+        binancesellService.start()
+        setDisableButtons("True")
+    }
+
+    const binanceRestart = () => {
+        binancesellService.restart()
+    }
+
+    const binanceStop = () => {
+        binancesellService.stop()
+        setDisableButtons("False")
+    }
+
     return (
         <Content style={{ display: "flex", flexDirection: "column" }}>
             <Typography.Text>{t("common:PaymentDateSetting")}</Typography.Text>
-            <div style={{ marginTop: "25px" }}>
+            <div style={{ marginTop: "20px" }}>
                 <Input
                     defaultValue={cronExpression?.value ?? ''}
                     key={cronExpression?.key}
@@ -195,7 +384,83 @@ const Settings: FunctionComponent = () => {
                     {t("common:EnableNofications")}
                 </Checkbox>
             </div>
-            <div style={{ marginTop: "25px" }}>
+            <div style={{ marginTop: "20px", display: "flex", flexDirection: "column" }}>
+                <Typography.Text>{t("common:NicknamesNotification")}</Typography.Text>
+                <Input
+                    defaultValue={notificationNames?.value ?? ''}
+                    key={notificationNames?.key}
+                    onChange={(e) => onChangeNameNofitication(e?.target?.value)}
+                    style={{ maxWidth: "350px", marginTop: "8px" }}
+                />
+            </div>
+            <div style={{ marginTop: "20px", display: "flex", flexDirection: "column" }}>
+                <Typography.Text>{"Api Secret"}</Typography.Text>
+                <Input
+                    defaultValue={apiSecret?.value ?? ''}
+                    key={apiSecret?.key}
+                    onChange={(e) => onChangeApiSecret(e?.target?.value)}
+                    style={{ maxWidth: "350px", marginTop: "8px" }}
+                />
+            </div>
+            <div style={{ marginTop: "20px", display: "flex", flexDirection: "column" }}>
+                <Typography.Text>{"Api Key"}</Typography.Text>
+                <Input
+                    defaultValue={apiKey?.value ?? ''}
+                    key={apiKey?.key}
+                    onChange={(e) => onChangeApiKey(e?.target?.value)}
+                    style={{ maxWidth: "350px", marginTop: "8px" }}
+                />
+            </div>
+            <div style={{ marginTop: "20px", display: "flex", flexDirection: "column" }}>
+                <Typography.Text>{t("common:SpotPercent")}</Typography.Text>
+                <Input
+                    min={0}
+                    max={100}
+                    type="number"
+                    defaultValue={spotPercent?.value ?? ''}
+                    key={spotPercent?.key}
+                    onChange={(e) => onChangeSpotKey(e?.target?.value)}
+                    style={{ maxWidth: "350px", marginTop: "8px" }}
+                />
+            </div>
+            <div style={{ marginTop: "20px", display: "flex", flexDirection: "column" }}>
+                <Typography.Text>{t("common:FuturePercent")}</Typography.Text>
+                <Input
+                    min={0}
+                    max={100}
+                    type="number"
+                    defaultValue={futurePercent?.value ?? ''}
+                    key={futurePercent?.key}
+                    onChange={(e) => onChangeFutureKey(e?.target?.value)}
+                    style={{ maxWidth: "350px", marginTop: "8px" }}
+                />
+            </div>
+
+            <div style={{ marginTop: "20px" }}>
+                <Space>
+                    <Button
+                        type="primary"
+                        disabled={disableButtons === "False" ? false : true}
+                        onClick={() => binanceStart()}
+                        style={{ textAlign: "center" }}>
+                        {t("common:Start")}
+                    </Button>
+                    <Button
+                        type="primary"
+                        onClick={() => binanceRestart()}
+                        style={{ textAlign: "center" }}>
+                        {t("common:Restart")}
+                    </Button>
+                    <Button
+                        type="primary"
+                        disabled={disableButtons === "True" ? false : true}
+                        onClick={() => binanceStop()}
+                        style={{ textAlign: "center" }}>
+                        {t("common:Stop")}
+                    </Button>
+                </Space>
+            </div>
+            <div style={{ marginTop: "20px" }}>
                 <Button
                     type="primary"
                     onClick={() => saveSettings()}
