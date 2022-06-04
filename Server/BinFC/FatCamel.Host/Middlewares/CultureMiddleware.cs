@@ -21,7 +21,7 @@ namespace FatCamel.Host.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var cultureName = context.Request.Cookies["i18next"];
+            var cultureName = context.Request.Cookies["i18nextLng"];
             if (string.IsNullOrEmpty(cultureName))
                 cultureName = context.Request.Headers["Accept-Language"].ToString().Split(',').FirstOrDefault();
 

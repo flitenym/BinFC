@@ -12,7 +12,7 @@ const getPaymentData = async () => {
 const getBalanceData = async () => {
     return axios
         .get(API_URL + "/balance").then((response) => {
-            return response.data
+            return response
         })
 };
 

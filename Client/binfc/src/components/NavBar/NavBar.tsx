@@ -60,7 +60,6 @@ const NavBar: FunctionComponent = () => {
                 localStorage.setItem("selectedRouted", item?.route)
                 return navigate(item?.route)
             }
-            return navigate(item?.route)
         });
     };
 

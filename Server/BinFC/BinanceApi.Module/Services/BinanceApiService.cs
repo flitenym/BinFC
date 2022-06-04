@@ -29,6 +29,16 @@ namespace BinanceApi.Module.Services
 
         private BinanceClient GetBinanceClient(SettingsInfo settings)
         {
+            if (string.IsNullOrEmpty(settings.ApiKey))
+            {
+                throw new ApplicationException($"Не указан {nameof(settings.ApiKey)}");
+            }
+
+            if (string.IsNullOrEmpty(settings.ApiSecret))
+            {
+                throw new ApplicationException($"Не указан {nameof(settings.ApiSecret)}");
+            }
+
             return new BinanceClient(new BinanceClientOptions()
             {
                 ApiCredentials = new ApiCredentials(settings.ApiKey, settings.ApiSecret)
@@ -49,6 +59,10 @@ namespace BinanceApi.Module.Services
                 {
                     throw new ApplicationException("Отсутствуют ApiKey/ApiSecret или действие не разрешено, включите в настройках Api соответствующие права.");
                 }
+                else if (response.Error.Code == -2008)
+                {
+                    throw new ApplicationException("Неверный ApiKey/ApiSecret.");
+                }
                 else if (response.Error.Code == 32110)
                 {
                     _logger.LogTrace("Перевод монет с маленьким балансом не выполнен, т.к. можно производить раз в 6 часов.");
@@ -65,6 +79,11 @@ namespace BinanceApi.Module.Services
             (bool isAccountUsdtSuccess, decimal? balance) = await GetFuturesAccountUsdtBalanceAsync(settings: settings);
 
             if (!isAccountUsdtSuccess)
+            {
+                return false;
+            }
+
+            if (balance != 0)
             {
                 return false;
             }
