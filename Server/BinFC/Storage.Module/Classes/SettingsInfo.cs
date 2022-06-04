@@ -44,6 +44,11 @@ namespace Storage.Module.Classes
         {
             List<string> names = new();
             List<string> repaired = new();
+            if (notificationNames == null)
+            {
+                return repaired;
+            }
+
             for (int i = 0; i < notificationNames.Length; i++)
             {
                 if (char.IsPunctuation(notificationNames[i]))

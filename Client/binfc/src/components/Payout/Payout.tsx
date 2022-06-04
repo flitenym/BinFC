@@ -45,8 +45,13 @@ const Payout: FunctionComponent = () => {
             })
             setIsLoading(false)
         })
-        paymentService.getBalanceData().then((data) => {
-            setBalanceData(data);
+        paymentService.getBalanceData().then((response) => {
+            if (response.status === 200) {
+                setBalanceData(response.data);
+            }
+            else {
+                setBalanceData(t("common:BalanceUncertain"));
+            }
         })
     }, [])
 
@@ -122,7 +127,7 @@ const Payout: FunctionComponent = () => {
                 >
                     {`${t("common:Pay")}`}
                 </Button>
-                <p style={{ display: "flex", flexDirection: "column", width: "50%" }}>
+                <p style={{ display: "flex", flexDirection: "column", width: "100%" }}>
                     {balanceData}
                 </p>
             </Space>
@@ -154,7 +159,6 @@ const Payout: FunctionComponent = () => {
                         onClick={() => {
                             seTisLoadingModal(true)
                             paymentService.postPaymentData(paymentData).then((response) => {
-                                debugger
                                 seTisLoadingModal(false)
                             })
                         }}

@@ -32,7 +32,7 @@ axios.interceptors.response.use(function (response) {
   }
   return response;
 }, function (error) {
-  toast.error(error.response.data);
+  toast.error(error.response.data?.error ?? error.response.data);
   return error.response;
 });
 

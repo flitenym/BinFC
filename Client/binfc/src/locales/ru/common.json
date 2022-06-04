@@ -60,6 +60,7 @@
     "Percent": "Процент",
     "Scales": "Шкала",
     "SpotPercent": "Процент Spot",
-    "FuturePercent": "Процент Future"
+    "FuturePercent": "Процент Future",
+    "BalanceUncertain": "Баланс неопределен"
 }
     

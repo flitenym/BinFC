@@ -125,7 +125,7 @@ namespace BinanceApi.Module.Services
 
             if (!scales.Any())
             {
-                return (result, $"{commandName}. Необходимо укахать линейку.");
+                return (result, $"{commandName}. Необходимо указать линейку.");
             }
 
             (bool isSuccessGetPercent, long settingsPercent) = await _settingsRepository.GetSettingsByKeyAsync<long>(settingsPercentKey, false);
