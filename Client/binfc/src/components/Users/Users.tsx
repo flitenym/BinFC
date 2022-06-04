@@ -212,7 +212,6 @@ const Users: FunctionComponent = () => {
             if (item.name === data.uniqueName) {
                 return item.id
             }
-            return item.id
         })
         setUsersSettings(usersSettings.map((item) => {
             if (item.id === selectedRowData.id) {
