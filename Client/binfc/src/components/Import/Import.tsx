@@ -58,7 +58,7 @@ const Import: FunctionComponent = () => {
                         isPaid: item?.isPaid ? item?.isPaid : t("common:noData"),
                         loadingDate: item?.loadingDate ? `${moment.utc(item?.loadingDate).format('YYYY-MM-DD HH:mm:ss')}` : t("common:noData"),
                         user: item?.user ? item?.user : t("common:noData"),
-                        userId: item?.userId ? item?.userId : t("common:noData"),
+                        userId: item?.user?.userId ? item?.user?.userId : t("common:noData"),
                         userName: item?.userName ? item?.userName : t("common:noData"),
                         key: item?.id,
                     }
@@ -78,7 +78,7 @@ const Import: FunctionComponent = () => {
                         isPaid: item?.isPaid ? item?.isPaid : t("common:noData"),
                         loadingDate: item?.loadingDate ? `${moment.utc(item?.loadingDate).format('YYYY-MM-DD HH:mm:ss')}` : t("common:noData"),
                         user: item?.user ? item?.user : t("common:noData"),
-                        userId: item?.userId ? item?.userId : t("common:noData"),
+                        userId: item?.user?.userId ? item?.user?.userId : t("common:noData"),
                         userName: item?.userName ? item?.userName : t("common:noData"),
                         key: item?.id,
                     }

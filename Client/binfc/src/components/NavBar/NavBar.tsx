@@ -56,6 +56,9 @@ const NavBar: FunctionComponent = () => {
     const onClick = (e: any) => {
         items.map((item: any) => {
             if (item?.key === e.key) {
+                if (localStorage.getItem("selectedRouted") === item.route) {
+                    return
+                };
                 localStorage.setItem("selectedItem", item?.key)
                 localStorage.setItem("selectedRouted", item?.route)
                 return navigate(item?.route)
