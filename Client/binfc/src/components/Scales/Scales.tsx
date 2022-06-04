@@ -169,7 +169,6 @@ const Scales: FunctionComponent = () => {
             if (item.name === data.uniqueId) {
                 return item.id
             }
-            return item
         })
         if (!isNewSpotsData.current) {
             scaleService.updateScalePostsData({
@@ -208,7 +207,6 @@ const Scales: FunctionComponent = () => {
             if (item.name === data.uniqueId) {
                 return item.id
             }
-            return item
         })
         if (!isNewFutureData.current) {
             scaleService.updateScaleFutureData({
