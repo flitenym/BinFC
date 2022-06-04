@@ -27,6 +27,7 @@ namespace Storage.Module.Repositories
         {
             return _dataContext
                 .FuturesData
+                .Include(i => i.User)
                 .OrderBy(x => x.Id);
         }
 
@@ -34,6 +35,7 @@ namespace Storage.Module.Repositories
         {
             return await _dataContext
                 .FuturesData
+                .Include(i => i.User)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
         }
 

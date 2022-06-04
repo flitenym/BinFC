@@ -68,6 +68,11 @@ namespace Storage.Module.Controllers
         {
             var obj = await _uniqueRepository.GetByIdAsync(id);
 
+            if (obj.IsDefault)
+            {
+                return BadRequest("Нельзя удалить сущность по умолчанию.");
+            }
+
             if (obj == null)
             {
                 return NotFound("Не найдена запись для удаления.");
