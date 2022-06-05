@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Classes;
+using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
 using Storage.Module.StaticClasses;
 using System;
@@ -40,7 +41,6 @@ namespace WorkerService.Module.Services
     {
         private const int AttemptsToSellCurrensies = 3;
 
-        private readonly TelegramFatCamelBotService _telegramFatCamelBotService;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IBinanceApiService _binanceApiService;
         private readonly ILogger<BinanceSellService> _logger;
@@ -48,14 +48,12 @@ namespace WorkerService.Module.Services
         private NotificationResult NotificationResult { get; set; }
 
         public BinanceSellService(
-            TelegramFatCamelBotService telegramFatCamelBotService,
             IServiceScopeFactory scopeFactory,
             IBinanceApiService binanceApiService,
             IConfiguration configuration,
             ILogger<BinanceSellService> logger) :
             base(scopeFactory, configuration, logger)
         {
-            _telegramFatCamelBotService = telegramFatCamelBotService;
             _scopeFactory = scopeFactory;
             _binanceApiService = binanceApiService;
             _logger = logger;
@@ -316,32 +314,42 @@ namespace WorkerService.Module.Services
 
         #region Отправка уведолмения в телеграме
 
-        private async Task SendTelegramMessageAsync(SettingsInfo settings)
+        private Task SendTelegramMessageAsync(SettingsInfo settings)
         {
-
             string message = NotificationResult.GetMessage();
 
             _logger.LogTrace(message);
             if (!settings.IsNotification)
             {
                 _logger.LogTrace("Уведомления отключены.");
-                return;
+                return Task.CompletedTask;
             }
 
             if (!settings.AdminsChatId.Any())
             {
                 _logger.LogTrace("Администраторов не найдено для отправки уведомления.");
-                return;
+                return Task.CompletedTask;
             }
 
-            TelegramBotClient _client = await _telegramFatCamelBotService.GetTelegramBotAsync(false);
-
-            foreach (var adminChatId in settings.AdminsChatId)
+            using (var scope = _scopeFactory.CreateScope())
             {
-                await _client.SendTextMessageAsync(adminChatId, message);
+                ITelegramMessageQueueRepository telegramMessageQueueRepository =
+                    scope.ServiceProvider
+                        .GetRequiredService<ITelegramMessageQueueRepository>();
 
-                _logger.LogTrace($"Отправлено уведомление пользователю {adminChatId}: {message}.");
+                foreach (var adminChatId in settings.AdminsChatId)
+                {
+                    telegramMessageQueueRepository.Create(new TelegramMessageQueue()
+                    {
+                        ChatId = adminChatId,
+                        Message = message
+                    });
+
+                    _logger.LogTrace($"Отправлено уведомление пользователю {adminChatId}: {message}.");
+                }
             }
+
+            return Task.CompletedTask;
         }
 
         #endregion
