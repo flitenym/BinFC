@@ -37,11 +37,19 @@ const Import: FunctionComponent = () => {
     });
     const [paginationSpotTable, setPaginationSpotTable] = useState<TablePaginationConfig>({
         current: 1,
-        pageSize: 10,
+        defaultPageSize: 10,
+        hideOnSinglePage: false,
+        showSizeChanger: true,
+        pageSizeOptions: ["10", "20", "50", "100", "300"],
+        locale: { items_per_page: ` / page` }
     });
     const [paginationFutureTable, setPaginationFutureTable] = useState<TablePaginationConfig>({
         current: 1,
-        pageSize: 10,
+        defaultPageSize: 10,
+        hideOnSinglePage: false,
+        showSizeChanger: true,
+        pageSizeOptions: ["10", "20", "50", "100", "300"],
+        locale: { items_per_page: ` / page` }
     });
 
 
@@ -66,6 +74,10 @@ const Import: FunctionComponent = () => {
             })
             setPaginationSpotTable({
                 total: resultSpot?.length,
+                hideOnSinglePage: false,
+                showSizeChanger: true,
+                pageSizeOptions: ["10", "20", "50", "100", "300"],
+                locale: { items_per_page: ` / page` }
             });
             setSpotData(resultSpot)
         })
@@ -86,6 +98,10 @@ const Import: FunctionComponent = () => {
             })
             setPaginationFutureTable({
                 total: resultFutures?.length,
+                hideOnSinglePage: false,
+                showSizeChanger: true,
+                pageSizeOptions: ["10", "20", "50", "100", "300"],
+                locale: { items_per_page: ` / page` }
             });
             setFuturesData(resultFutures)
             setForceReload(false)
@@ -148,10 +164,11 @@ const Import: FunctionComponent = () => {
         onFilter: (value, record) =>
             record[dataIndex]
                 .toString()
-                .includes((value as string)),
+                .toLowerCase()
+                .includes((value as string).toLowerCase()),
         onFilterDropdownVisibleChange: visible => {
             if (visible) {
-                setTimeout(() => searchInput.current?.select(), 100);
+                setTimeout(() => searchInput.current?.select());
             }
         },
         render: text =>
@@ -173,11 +190,36 @@ const Import: FunctionComponent = () => {
             dataIndex: "userId",
             key: "userId",
             ...getColumnSearchProps('userId'),
+            sorter: (a: { userId: number; }, b: { userId: number; }) => a.userId - b.userId,
         },
-        { title: t("common:TableName"), dataIndex: "userName", key: "userName", ...getColumnSearchProps('userName') },
-        { title: t("common:TableUSDT"), dataIndex: "agentEarnUsdt", key: "agentEarnUsdt", ...getColumnSearchProps('agentEarnUsdt') },
-        { title: t("common:LoadingTime"), dataIndex: "loadingDate", key: "loadingDate", ...getColumnSearchProps('loadingDate',) },
-        { title: t("common:Paid"), dataIndex: "isPaid", key: "isPaid", ...getColumnSearchProps('isPaid') },
+        {
+            title: t("common:TableName"),
+            dataIndex: "userName",
+            key: "userName",
+            ...getColumnSearchProps('userName'),
+            sorter: (a: { userName: string; }, b: { userName: string; }) => a.userName.length - b.userName.length,
+        },
+        {
+            title: t("common:TableUSDT"),
+            dataIndex: "agentEarnUsdt",
+            key: "agentEarnUsdt",
+            ...getColumnSearchProps('agentEarnUsdt'),
+            sorter: (a: { agentEarnUsdt: number; }, b: { agentEarnUsdt: number; }) => a.agentEarnUsdt - b.agentEarnUsdt,
+        },
+        {
+            title: t("common:LoadingTime"),
+            dataIndex: "loadingDate",
+            key: "loadingDate",
+            ...getColumnSearchProps('loadingDate'),
+            sorter: (a: { loadingDate: moment.MomentInput; }, b: { loadingDate: moment.MomentInput; }) => moment(a.loadingDate).unix() - moment(b.loadingDate).unix()
+        },
+        {
+            title: t("common:Paid"),
+            dataIndex: "isPaid",
+            key: "isPaid",
+            ...getColumnSearchProps('isPaid'),
+            sorter: (a: { isPaid: string; }, b: { isPaid: string; }) => a.isPaid.length - b.isPaid.length,
+        },
     ]
 
     const columnFutures = [
@@ -186,11 +228,37 @@ const Import: FunctionComponent = () => {
             dataIndex: "userId",
             key: "userId",
             ...getColumnSearchProps('userId'),
+            sorter: (a: { userId: number; }, b: { userId: number; }) => a.userId - b.userId,
         },
-        { title: t("common:TableName"), dataIndex: "userName", key: "userName", ...getColumnSearchProps('userName') },
-        { title: t("common:TableUSDT"), dataIndex: "agentEarnUsdt", key: "agentEarnUsdt", ...getColumnSearchProps('agentEarnUsdt') },
-        { title: t("common:LoadingTime"), dataIndex: "loadingDate", key: "loadingDate", ...getColumnSearchProps('loadingDate',) },
-        { title: t("common:Paid"), dataIndex: "isPaid", key: "isPaid", ...getColumnSearchProps('isPaid') },
+        {
+            title: t("common:TableName"),
+            dataIndex: "userName",
+            key: "userName",
+            ...getColumnSearchProps('userName'),
+            sorter: (a: { userName: string; }, b: { userName: string; }) => a.userName.length - b.userName.length,
+        },
+        {
+            title: t("common:TableUSDT"),
+            dataIndex: "agentEarnUsdt",
+            key: "agentEarnUsdt",
+            ...getColumnSearchProps('agentEarnUsdt'),
+            sorter: (a: { agentEarnUsdt: number; }, b: { agentEarnUsdt: number; }) => a.agentEarnUsdt - b.agentEarnUsdt,
+
+        },
+        {
+            title: t("common:LoadingTime"),
+            dataIndex: "loadingDate",
+            key: "loadingDate",
+            ...getColumnSearchProps('loadingDate',),
+            sorter: (a: { loadingDate: moment.MomentInput; }, b: { loadingDate: moment.MomentInput; }) => moment(a.loadingDate).unix() - moment(b.loadingDate).unix()
+        },
+        {
+            title: t("common:Paid"),
+            dataIndex: "isPaid",
+            key: "isPaid",
+            ...getColumnSearchProps('isPaid'),
+            sorter: (a: { isPaid: string; }, b: { isPaid: string; }) => a.isPaid.length - b.isPaid.length,
+        },
     ]
 
     const { selectedRowKeys } = selectedSpotsId;
@@ -203,7 +271,6 @@ const Import: FunctionComponent = () => {
                 ...selectedSpotsId,
                 selectedRowKeys: selectedRowKeys
             });
-            // console.log(selectedRowKeys);            
         }
     };
 
@@ -226,6 +293,10 @@ const Import: FunctionComponent = () => {
         }, []);
         setPaginationSpotTable({
             total: arrayWithoutDeleteElements?.length,
+            hideOnSinglePage: false,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100", "300"],
+            locale: { items_per_page: ` / page` }
         });
         setSpotData(arrayWithoutDeleteElements)
         dataService.deleteSpotData(array)
@@ -235,6 +306,10 @@ const Import: FunctionComponent = () => {
         setSpotData([])
         setPaginationSpotTable({
             total: 0,
+            hideOnSinglePage: false,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100", "300"],
+            locale: { items_per_page: ` / page` }
         });
         dataService.deleteAllSpotData()
     }
@@ -248,6 +323,10 @@ const Import: FunctionComponent = () => {
         }, []);
         setPaginationFutureTable({
             total: arrayWithoutDeleteElements?.length,
+            hideOnSinglePage: false,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100", "300"],
+            locale: { items_per_page: ` / page` }
         });
         setFuturesData(arrayWithoutDeleteElements)
         dataService.deleteFuturesData(array)
@@ -257,19 +336,31 @@ const Import: FunctionComponent = () => {
         setFuturesData([])
         setPaginationFutureTable({
             total: 0,
+            hideOnSinglePage: false,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100", "300"],
+            locale: { items_per_page: ` / page` }
         });
         dataService.deleteAllFuturesData()
     }
 
     const handleChangeSpotTable = (pagination: any, filters: any, sorter: any, extra: { currentDataSource: Array<any>[] }) => {
         setPaginationSpotTable({
-            total: extra?.currentDataSource?.length
+            total: extra?.currentDataSource?.length,
+            hideOnSinglePage: false,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100", "300"],
+            locale: { items_per_page: ` / page` }
         });
     }
 
     const handleChangeFutureTable = (pagination: any, filters: any, sorter: any, extra: { currentDataSource: Array<any>[] }) => {
         setPaginationFutureTable({
-            total: extra?.currentDataSource?.length
+            total: extra?.currentDataSource?.length,
+            hideOnSinglePage: false,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100", "300"],
+            locale: { items_per_page: ` / page` }
         });
     }
 

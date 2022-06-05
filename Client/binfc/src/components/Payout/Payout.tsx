@@ -95,11 +95,37 @@ const Payout: FunctionComponent = () => {
     }
 
     const columnPayments = [
-        { title: t("common:TableId"), dataIndex: "id", key: "id", },
-        { title: t("common:TableName"), dataIndex: "userName", key: "userName", },
-        { title: t("common:TableTrc"), dataIndex: "trcAddress", key: "trcAddress", },
-        { title: t("common:TableBep"), dataIndex: "bepAddress", key: "bepAddress", },
-        { title: t("common:Payout"), dataIndex: "usdt", key: "usdt", },
+        {
+            title: t("common:TableId"),
+            dataIndex: "id",
+            key: "id",
+            sorter: (a: { id: number; }, b: { id: number; }) => a.id - b.id,
+        },
+        {
+            title: t("common:TableName"),
+            dataIndex: "userName",
+            key: "userName",
+            sorter: (a: any, b: any) => a.userName.length - b.userName.length,
+        },
+        {
+            title: t("common:TableTrc"),
+            dataIndex: "trcAddress",
+            key: "trcAddress",
+            sorter: (a: any, b: any) => a.trcAddress.length - b.trcAddress.length,
+
+        },
+        {
+            title: t("common:TableBep"),
+            dataIndex: "bepAddress",
+            key: "bepAddress",
+            sorter: (a: any, b: any) => a.trcAddress.length - b.trcAddress.length,
+        },
+        {
+            title: t("common:Payout"),
+            dataIndex: "usdt",
+            key: "usdt",
+            sorter: (a: any, b: any) => a.usdt - b.usdt,
+        },
     ]
 
     const columnModalPayments = [

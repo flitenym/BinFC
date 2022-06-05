@@ -1,8 +1,13 @@
 import {
     Button,
     Dropdown,
+    Form,
+    Input,
     Menu,
+    message,
+    Modal,
     PageHeader,
+    Space,
     Typography
 } from 'antd';
 import { languageChange, modeChange } from '../../store/actions';
@@ -10,23 +15,30 @@ import { FunctionComponent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector, } from "react-redux";
 import "./Header.scss"
-import authService from '../../services/auth.service';
+import adminService from '../../services/admin.service';
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import IconSun from './IconSun';
 import IconMoon from './IconMoon';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import React from 'react';
+import 'material-react-toastify/dist/ReactToastify.css';
 import { t } from 'i18next';
+import { useForm } from 'antd/lib/form/Form';
+import { toast } from 'material-react-toastify';
 
 const Header: FunctionComponent = () => {
+    const navigate = useNavigate();
     const [language, setLanguage] = useState<string | null>();
     const [mode, setMode] = useState<string | null>();
     const { i18n } = useTranslation("authentication");
     const { switcher, themes } = useThemeSwitcher();
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
     const username = useSelector((state: any) => state?.authState?.username)
     const ruIsSelected = localStorage.getItem("i18nextLng") === "ru"
     const lightThemeIsSelected = localStorage.getItem("theme") === "Light"
     const dispatch = useDispatch();
+
+    const [form] = useForm();
 
     useEffect(() => {
         const chooseLanguage = localStorage.getItem("i18nextLng")
@@ -63,6 +75,10 @@ const Header: FunctionComponent = () => {
         if (flag) {
             localStorage.setItem("i18nextLng", localeToStorage)
         }
+        adminService.updateLanguage(
+            localStorage.getItem("username"),
+            localeToStorage
+        )
         setLanguage(localeToStorage);
         dispatch(languageChange({ locale: language ? language : localeToStorage }))
         i18n.changeLanguage(localeToStorage)
@@ -73,11 +89,21 @@ const Header: FunctionComponent = () => {
             items={[
                 {
                     label: (
-                        <Link key={21} onClick={() => authService?.logout()} to={"/login"}>
-                            Logout
+                        <Link key={21} onClick={() => {
+                            adminService?.logout()
+                        }} to={"/login"}>
+                            {`${t("common:Logout")}`}
                         </Link>
                     ),
                     key: 20
+                },
+                {
+                    label: (
+                        <Typography.Text key={22} onClick={() => setModalVisible(true)}>
+                            {`${t("common:ChangePassword")}`}
+                        </Typography.Text>
+                    ),
+                    key: 23
                 },
             ]}
         />
@@ -108,6 +134,30 @@ const Header: FunctionComponent = () => {
         />
     );
 
+    const changePass = (values: any) => {
+        if (values.newPassword !== values.repeatPassword) {
+            toast.error(`${t("common:ErrorNewConfirmPass")}`);
+            return
+        } else {
+            adminService.changePassword({
+                username: localStorage.getItem("username"),
+                newpassword: values.newPassword,
+                oldpassword: values.password
+            }).then((response) => {
+                if (response.status !== 200) {
+                    return
+                } else {
+                    toast.success(`${t("common:SuccessChangePass")}`);
+                    setModalVisible(false)
+                    setTimeout(() => {
+                        adminService.logout()
+                        navigate("/login");
+                    }, 2000);
+                }
+            })
+        }
+    }
+
     return (
         <PageHeader
             key={25}
@@ -115,7 +165,7 @@ const Header: FunctionComponent = () => {
             title={
                 <Typography.Text key={16}>
                     {<>
-                        <b style={{ fontSize: "24px"}}>
+                        <b style={{ fontSize: "24px" }}>
                             FAT
                         </b>
                         <span
@@ -134,7 +184,7 @@ const Header: FunctionComponent = () => {
                         placement="bottomLeft"
                         arrow
                         overlay={languageMenu}>
-                        <a style={{ fontSize: "16px"}} key={47} onClick={e => e.preventDefault()}>
+                        <a style={{ fontSize: "16px" }} key={47} onClick={e => e.preventDefault()}>
                             {ruIsSelected ? `${t("common:Russian")}` : `${t("common:English")}`}
                         </a>
                     </Dropdown>
@@ -155,13 +205,89 @@ const Header: FunctionComponent = () => {
                     </Button>
                     <Dropdown
                         key={14}
-                        placement="bottomLeft"
+                        placement="bottom"
                         arrow
                         overlay={menu}>
-                        <a style={{ fontSize: "16px"}} key={15} onClick={e => e.preventDefault()}>
+                        <a style={{ fontSize: "16px" }} key={15} onClick={e => e.preventDefault()}>
                             {username}
                         </a>
                     </Dropdown>
+                    <Modal
+                        title={`${t("common:ChangePassword")}`}
+                        centered
+                        forceRender
+                        visible={modalVisible}
+                        footer={null}
+                        onCancel={() => setModalVisible(false)}
+                    >
+                        <Form
+                            form={form}
+                            onFinish={(data) => changePass(data)}
+                        >
+                            <span key={9} className="form-description">{`${t("common:OldPassword")}`}</span>
+                            <Form.Item
+                                name="password"
+                                style={{
+                                    marginTop: "4px",
+                                    marginBottom: "16px",
+                                }}
+                            >
+                                <Input.Password
+                                    type="password"
+                                />
+                            </Form.Item>
+                            <span key={23} className="form-description">{`${t("common:NewPassword")}`}</span>
+                            <Form.Item
+                                name="newPassword"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `${t("common:ThisFieldRequired")}`,
+                                    },
+                                ]}
+                                style={{
+                                    marginTop: "4px",
+                                    marginBottom: "16px",
+                                }}
+                            >
+                                <Input.Password
+                                    type="password"
+                                />
+                            </Form.Item>
+                            <span key={25} className="form-description">{`${t("common:ConfirmPassword")}`}</span>
+                            <Form.Item
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `${t("common:ThisFieldRequired")}`,
+                                    },
+                                ]}
+                                name="repeatPassword"
+                                style={{
+                                    marginTop: "4px",
+                                    marginBottom: "16px",
+                                }}
+                            >
+                                <Input.Password
+                                    type="password"
+                                />
+                            </Form.Item>
+                            <Space style={{ marginTop: "16px" }}>
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
+                                >
+                                    {`${t("common:ButtonSave")}`}
+                                </Button>
+                                <Button
+                                    type="default"
+                                    onClick={() => setModalVisible(false)}
+                                >
+                                    {`${t("common:ButtonClose")}`}
+                                </Button>
+                            </Space>
+                        </Form>
+                    </Modal>
                 </React.Fragment>
             ]}
         />

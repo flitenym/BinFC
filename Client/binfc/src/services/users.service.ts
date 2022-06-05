@@ -25,6 +25,17 @@ const approveUsers = async (usersId: number[]) => {
         })
 };
 
+const approveAllUsers = async () => {
+    return await axios
+        .post(API_URL + "/approveall")
+};
+
+const notApproveAllUsers = async () => {
+    return await axios
+        .post(API_URL + "/notapproveall")
+};
+
+
 const notApproveUsers = async (usersId: number[]) => {
     return await axios
         .post(API_URL + "/notapprove", usersId)
@@ -37,7 +48,9 @@ const usersService = {
     getUsers,
     upadeteUser,
     approveUsers,
-    notApproveUsers
+    notApproveUsers,
+    approveAllUsers,
+    notApproveAllUsers
 };
 
 export default usersService;

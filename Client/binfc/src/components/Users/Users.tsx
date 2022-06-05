@@ -20,11 +20,16 @@ const Users: FunctionComponent = () => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef<InputRef>(null);
+    const [forceUpdate, setForceUpdate] = useState(false)
     const [selectedRowData, setSelectedRowData] = useState<any>()
     const [isLoading, setIsLoading] = useState(false)
     const [pagination, setPagination] = useState<TablePaginationConfig>({
         current: 1,
         pageSize: 10,
+        hideOnSinglePage: false,
+        showSizeChanger: true,
+        pageSizeOptions: ["10", "20", "50", "100", "300"],
+        locale: { items_per_page: ` / page` }
     });
     const [selectedUsersId, setSelectedUsersId] = useState<any>({
         selectedRowKeys: [],
@@ -51,14 +56,18 @@ const Users: FunctionComponent = () => {
             getSettings(response)
             setPagination({
                 total: response?.length,
+                hideOnSinglePage: false,
+                showSizeChanger: true,
+                pageSizeOptions: ["10", "20", "50", "100", "300"],
+                locale: { items_per_page: ` / page` }
             });
             setIsLoading(false)
         })
         uniqueService.getUnique().then((response) => {
             setUniqueData(response)
         })
-
-    }, [])
+        setForceUpdate(false)
+    }, [forceUpdate])
 
     useEffect(() => {
         usersForm.resetFields()
@@ -105,7 +114,8 @@ const Users: FunctionComponent = () => {
         onFilter: (value, record) =>
             record[dataIndex]
                 .toString()
-                .includes((value as string)),
+                .toLowerCase()
+                .includes((value as string).toLowerCase()),
         onFilterDropdownVisibleChange: visible => {
             if (visible) {
                 setTimeout(() => searchInput.current?.select(), 100);
@@ -154,9 +164,14 @@ const Users: FunctionComponent = () => {
             dataIndex: "userId",
             key: "userId",
             ...getColumnSearchProps('userId'),
+            sorter: (a: { userId: number; }, b: { userId: number; }) => a.userId - b.userId,
         },
         {
-            title: t("common:TableIsApproved"), dataIndex: "isApproved", key: "isApproved", ...getColumnSearchProps('status'), render: (usersSettings: any, { isApproved }: any) => (
+            title: t("common:TableIsApproved"),
+            dataIndex: "isApproved",
+            key: "isApproved",
+            sorter: (a: { status: string | any[]; }, b: { status: string | any[]; }) => a.status.length - b.status.length,
+            ...getColumnSearchProps('status'), render: (usersSettings: any, { isApproved }: any) => (
                 <>
                     {usersSettings?.map((isApproved: boolean, index: number) => {
                         let color = isApproved ? 'green' : 'rgb(108,11,15)'
@@ -169,11 +184,42 @@ const Users: FunctionComponent = () => {
                     })}
                 </>)
         },
-        { title: t("common:TableName"), dataIndex: "userName", key: "userName", ...getColumnSearchProps('userName'), },
-        { title: t("common:TableEmail"), dataIndex: "userEmail", key: "userEmail", ...getColumnSearchProps('userEmail'), },
-        { title: t("common:TableTrc"), dataIndex: "trcAddress", key: "trcAddress", ...getColumnSearchProps('trcAddress'), },
-        { title: t("common:TableBep"), dataIndex: "bepAddress", key: "bepAddress", ...getColumnSearchProps('bepAddress'), },
-        { title: t("common:TableUnique"), dataIndex: "uniqueName", key: "uniqueName", ...getColumnSearchProps('uniqueName'), },
+        {
+            title: t("common:TableName"),
+            dataIndex: "userName",
+            key: "userName",
+            ...getColumnSearchProps('userName'),
+            sorter: (a: { userName: string; }, b: { userName: string; }) => a.userName.length - b.userName.length,
+        },
+        {
+            title: t("common:TableEmail"),
+            dataIndex: "userEmail",
+            key: "userEmail",
+            ...getColumnSearchProps('userEmail'),
+            sorter: (a: { userEmail: string; }, b: { userEmail: string; }) => a.userEmail.length - b.userEmail.length,
+        },
+        {
+            title: t("common:TableTrc"),
+            dataIndex: "trcAddress",
+            key: "trcAddress",
+            ...getColumnSearchProps('trcAddress'),
+            sorter: (a: { userEmail: string; }, b: { userEmail: string; }) => a.userEmail.length - b.userEmail.length,
+
+        },
+        {
+            title: t("common:TableBep"),
+            dataIndex: "bepAddress",
+            key: "bepAddress",
+            ...getColumnSearchProps('bepAddress'),
+            sorter: (a: { userEmail: string; }, b: { userEmail: string; }) => a.userEmail.length - b.userEmail.length,
+        },
+        {
+            title: t("common:TableUnique"),
+            dataIndex: "uniqueName",
+            key: "uniqueName",
+            ...getColumnSearchProps('uniqueName'),
+            sorter: (a: { userEmail: string; }, b: { userEmail: string; }) => a.userEmail.length - b.userEmail.length,
+        },
 
     ]
 
@@ -194,7 +240,11 @@ const Users: FunctionComponent = () => {
 
     const handleChange = (pagination: any, filters: any, sorter: any, extra: { currentDataSource: Array<any>[] }) => {
         setPagination({
-            total: extra?.currentDataSource?.length
+            total: extra?.currentDataSource?.length,
+            hideOnSinglePage: false,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100", "300"],
+            locale: { items_per_page: ` / page` }
         });
     }
 
@@ -240,10 +290,30 @@ const Users: FunctionComponent = () => {
 
     const approveUsers = (usersId: number[]) => {
         usersService.approveUsers(usersId)
+        setTimeout(() => {
+            setForceUpdate(true)
+        }, 2000)
+    }
+
+    const approveAllUsers = () => {
+        usersService.approveAllUsers()
+        setTimeout(() => {
+            setForceUpdate(true)
+        }, 2000)
+    }
+
+    const notApproveAllUsers = () => {
+        usersService.notApproveAllUsers()
+        setTimeout(() => {
+            setForceUpdate(true)
+        }, 2000)
     }
 
     const notApproveUsers = (usersId: number[]) => {
         usersService.notApproveUsers(usersId)
+        setTimeout(() => {
+            setForceUpdate(true)
+        }, 2000)
     }
 
     return (
@@ -342,7 +412,7 @@ const Users: FunctionComponent = () => {
                         <Select
                             key={20}
                         >
-                            {uniqueData.length && uniqueData?.map((item: any) => {
+                            {uniqueData && uniqueData.length && uniqueData?.map((item: any) => {
                                 return (
                                     <Option
                                         value={item.name}
@@ -380,13 +450,25 @@ const Users: FunctionComponent = () => {
                     type="primary"
                     onClick={() => approveUsers(selectedUsersId.selectedRowKeys)}
                 >
-                    {"Подтвредить"}
+                    {t("common:Confirm")}
+                </Button>
+                <Button
+                    type="primary"
+                    onClick={() => approveAllUsers()}
+                >
+                    {t("common:ConfirmAll")}
                 </Button>
                 <Button
                     type="default"
                     onClick={() => notApproveUsers(selectedUsersId.selectedRowKeys)}
                 >
-                    {"Не подтвредить"}
+                    {t("common:NotConfirm")}
+                </Button>
+                <Button
+                    type="default"
+                    onClick={() => notApproveAllUsers()}
+                >
+                    {t("common:NotConfirmAll")}
                 </Button>
             </Space>
         </React.Fragment>

@@ -2,7 +2,7 @@ import { FunctionComponent, useEffect } from 'react';
 import { Form, Input, Button, Layout, } from "antd";
 import { useDispatch, } from "react-redux";
 import "./LoginStyles.scss";
-import authService from '../../services/auth.service';
+import adminService from '../../services/admin.service';
 import { useNavigate } from "react-router-dom";
 import { logInSuccess } from '../../store/actions';
 import axios from "axios";
@@ -15,7 +15,7 @@ const LoginPage: FunctionComponent<IProps> = () => {
   const { Content } = Layout;
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { t } = useTranslation("authentication");
+  const { t } = useTranslation("authentication, common");
   const token = localStorage.getItem("token");
   const ruIsSelected = localStorage.getItem("i18nextLng") === "ru"
 
@@ -24,15 +24,18 @@ const LoginPage: FunctionComponent<IProps> = () => {
   }, [ruIsSelected])
 
   const onFinish = (values: any): any => {
-    authService.login(values?.username, values?.password)
+    adminService.login(values?.username, values?.password)
       .then((response) => {
         if (response.status !== 200) {
           return
         }
         if (response.data) {
+          const password = values?.password;
           const { token, username } = response?.data
           dispatch(logInSuccess({ username, token }));
           localStorage.setItem("username", username);
+          localStorage.setItem("selectedItem", "1");
+          localStorage.setItem("selectedRouted", "/dashboard/Settings");
           localStorage.setItem("token", token);
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
           navigate("/dashboard");
@@ -65,7 +68,7 @@ const LoginPage: FunctionComponent<IProps> = () => {
             rules={[
               {
                 required: true,
-                message: "Логин обязателен",
+                message:`${t("common:ThisFieldRequired")}`,
               },
             ]}
           >
@@ -77,7 +80,7 @@ const LoginPage: FunctionComponent<IProps> = () => {
             rules={[
               {
                 required: true,
-                message: "Пароль обязателен",
+                message: `${t("common:ThisFieldRequired")}`,
                 whitespace: true,
               },
             ]}
