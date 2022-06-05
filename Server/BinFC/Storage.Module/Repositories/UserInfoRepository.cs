@@ -183,7 +183,6 @@ namespace Storage.Module.Repositories
         {
             var usersInfo = _dataContext
                 .UsersInfo
-                .Where(x => x.IsApproved)
                 .OrderBy(x => x.Id);
 
             foreach (var userInfo in usersInfo)
@@ -196,7 +195,7 @@ namespace Storage.Module.Repositories
 
         private void Approve(UserInfo userInfo)
         {
-            if (userInfo.IsApproved)
+            if (userInfo == null || userInfo.IsApproved)
             {
                 return;
             }
@@ -215,12 +214,10 @@ namespace Storage.Module.Repositories
 
         private void NotApprove(UserInfo userInfo)
         {
-            if (!userInfo.IsApproved)
+            if (userInfo == null)
             {
                 return;
             }
-
-            userInfo.IsApproved = false;
 
             if (userInfo.ChatId != null)
             {
