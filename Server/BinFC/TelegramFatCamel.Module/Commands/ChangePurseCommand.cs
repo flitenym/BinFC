@@ -32,9 +32,6 @@ namespace TelegramFatCamel.Module.Commands
                 return;
             }
 
-            userInfo.TrcAddress = null;
-            userInfo.BepAddress = null;
-
             if (await _userInfoRepository.SaveChangesAsync() != null)
             {
                 await client.SendTextMessageAsync(
