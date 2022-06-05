@@ -4,20 +4,19 @@
     "Import": "Import",
     "Payout": "Payout",
     "PaymentHistory": "Payment History",
-
-
     "PaymentDateSetting": "Payment Date Setting",
     "CheckDates": "Check Dates",
     "CommissionConversion": "Commission Conversion",
     "Notifications": "Notifications",
     "EnableNofications": "Enable nofications on payouts in telegram",
     "SaveSettings": "Save Settings",
-
-    "TableTitle": "Users",    
+    "TableTitle": "Users",
     "TableId": "ID",
     "TableName": "Name",
     "TableEmail": "Email",
     "TableTrc": "TRC",
+    "Logout": "Logout",
+    "ChangePassword": "Change Password",
     "TableBep": "BEP",
     "TableIsApproved": "Status",
     "TableComission": "Comission",
@@ -25,6 +24,10 @@
     "noData": "No data",
     "UserName": "Username",
     "ButtonSave": "Save",
+    "Confirm": "Confirm",
+    "ConfirmAll": "Confirm All",
+    "NotConfirm": "No Confirm",
+    "NotConfirmAll": "No Confirm All",
     "ButtonClose": "Close",
     "TableUSDT": "USDT",
     "LoadingTime": "Loading time",
@@ -53,7 +56,7 @@
     "DatePayment": "Date of payment",
     "NumberPayment": "Number of payment",
     "Export": "Export to CSV",
-    "Approved": "Approved", 
+    "Approved": "Approved",
     "NotApproved": "Not approved",
     "NicknamesNotification": "Nicknames for notification",
     "From": "From",
@@ -61,6 +64,12 @@
     "Scales": "Scales",
     "SpotPercent": "Spot Percent",
     "FuturePercent": "Future Percent",
-    "BalanceUncertain": "Balance is uncertain"
+    "BalanceUncertain": "Balance is uncertain",
+    "ErrorOldNewPass": "Old and new passwords must not match",
+    "SuccessChangePass": "Password changed successfully",
+    "ErrorNewConfirmPass": "The new password and confirmation password must match",
+    "OldPassword": "Old Password",
+    "NewPassword": "New Password",
+    "ConfirmPassword": "Confirm Password",
+    "ThisFieldRequired": "This field is required"
 }
-    

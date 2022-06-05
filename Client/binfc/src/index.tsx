@@ -11,9 +11,7 @@ import { store } from "./store/index";
 import { I18nextProvider } from "react-i18next";
 import i18n from "./i18n"
 import App from "./App";
-// import "./themes/dark-theme.less"
-// import "./themes/dark-theme.less"
-// import "./styles.scss"
+
 const lightThemeIsSelected = localStorage.getItem("theme")
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 axios.defaults.headers.post['Content-Type'] = 'application/json';

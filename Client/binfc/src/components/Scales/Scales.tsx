@@ -92,19 +92,54 @@ const Scales: FunctionComponent = () => {
     }, [forceUpdate])
 
     const columnSpots = [
-        { title: t("common:From"), dataIndex: "fromValue", key: "fromValue", /* ...getColumnSearchProps('agentEarnUsdt') */ },
-        { title: t("common:Percent"), dataIndex: "percent", key: "percent", /* ...getColumnSearchProps('loadingDate',) */ },
-        { title: t("common:TableUnique"), dataIndex: "uniqueId", key: "uniqueId", /* ...getColumnSearchProps('isPaid') */ },
+        {
+            title: t("common:From"),
+            dataIndex: "fromValue",
+            key: "fromValue",
+            sorter: (a: any, b: any) => a.fromValue - b.fromValue,
+        },
+        {
+            title: t("common:Percent"),
+            dataIndex: "percent",
+            key: "percent",
+            sorter: (a: any, b: any) => a.percent - b.percent,
+        },
+        {
+            title: t("common:TableUnique"),
+            dataIndex: "uniqueId",
+            key: "uniqueId",
+            sorter: (a: { uniqueId: string; }, b: { uniqueId: string; }) => a.uniqueId.length - b.uniqueId.length,
+        },
     ]
 
     const columnFutures = [
-        { title: t("common:From"), dataIndex: "fromValue", key: "fromValue", /* ...getColumnSearchProps('agentEarnUsdt') */ },
-        { title: t("common:Percent"), dataIndex: "percent", key: "percent", /* ...getColumnSearchProps('loadingDate',) */ },
-        { title: t("common:TableUnique"), dataIndex: "uniqueId", key: "uniqueId", /* ...getColumnSearchProps('isPaid') */ },
+        {
+            title: t("common:From"),
+            dataIndex: "fromValue",
+            key: "fromValue",
+            sorter: (a: any, b: any) => a.fromValue - b.fromValue,
+        },
+        {
+            title: t("common:Percent"),
+            dataIndex: "percent",
+            key: "percent",
+            sorter: (a: any, b: any) => a.percent - b.percent,
+        },
+        {
+            title: t("common:TableUnique"),
+            dataIndex: "uniqueId",
+            key: "uniqueId",
+            sorter: (a: { uniqueId: string; }, b: { uniqueId: string; }) => a.uniqueId.length - b.uniqueId.length,
+        },
     ]
 
     const columnUniques = [
-        { title: t("common:TableName"), dataIndex: "name", key: "name", },
+        {
+            title: t("common:TableName"),
+            dataIndex: "name",
+            key: "name",
+            sorter: (a: { name: string; }, b: { name: string; }) => a.name.length - b.name.length,
+        },
     ]
     const { selectedRowKeysUniques } = selectedUniquesId;
     const rowSelectionUniquessId = {

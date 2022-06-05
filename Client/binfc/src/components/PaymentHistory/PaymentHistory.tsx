@@ -28,6 +28,10 @@ const PaymentHistory: FunctionComponent = () => {
     const [pagination, setPagination] = useState<TablePaginationConfig>({
         current: 1,
         pageSize: 10,
+        hideOnSinglePage: false,
+        showSizeChanger: true,
+        pageSizeOptions: ["10", "20", "50", "100", "300"],
+        locale: { items_per_page: ` / page` }
     });
     useEffect(() => {
         const arraySelectedElements = paymentDataTable.reduce((acc: any[], item: { id: any; }) => {
@@ -116,7 +120,8 @@ const PaymentHistory: FunctionComponent = () => {
         onFilter: (value, record) =>
             record[dataIndex]
                 .toString()
-                .includes((value as string)),
+                .toLowerCase()
+                .includes((value as string).toLowerCase()),
         onFilterDropdownVisibleChange: visible => {
             if (visible) {
                 setTimeout(() => searchInput.current?.select(), 100);
@@ -141,11 +146,39 @@ const PaymentHistory: FunctionComponent = () => {
             dataIndex: "tableUserID",
             key: "tableUserID",
             ...getColumnSearchProps('tableUserID'),
+            sorter: (a: { tableUserID: number; }, b: { tableUserID: number; }) => a.tableUserID - b.tableUserID,
+
         },
-        { title: t("common:UserFIO"), dataIndex: "userName", key: "userName", ...getColumnSearchProps('userName'), },
-        { title: t("common:TableUSDT"), dataIndex: "sendedSum", key: "sendedSum", ...getColumnSearchProps('sendedSum'), },
-        { title: t("common:DatePayment"), dataIndex: "sendedTime", key: "sendedTime", ...getColumnSearchProps('sendedTime'), },
-        { title: t("common:NumberPayment"), dataIndex: "numberPay", key: "numberPay", ...getColumnSearchProps('numberPay'), },
+        {
+            title: t("common:UserFIO"),
+            dataIndex: "userName",
+            key: "userName",
+            ...getColumnSearchProps('userName'),
+            sorter: (a: { userName: number; }, b: { userName: number; }) => a.userName - b.userName,
+        },
+        {
+            title: t("common:TableUSDT"),
+            dataIndex: "sendedSum",
+            key: "sendedSum",
+            ...getColumnSearchProps('sendedSum'),
+            sorter: (a: { sendedSum: number; }, b: { sendedSum: number; }) => a.sendedSum - b.sendedSum,
+        },
+        {
+            title: t("common:DatePayment"),
+            dataIndex: "sendedTime",
+            key: "sendedTime",
+            ...getColumnSearchProps('sendedTime'),
+            sorter: (a: { sendedTime: moment.MomentInput; }, b: { sendedTime: moment.MomentInput; }) => moment(a.sendedTime).unix() - moment(b.sendedTime).unix()
+
+        },
+        {
+            title: t("common:NumberPayment"),
+            dataIndex: "numberPay",
+            key: "numberPay",
+            ...getColumnSearchProps('numberPay'),
+            sorter: (a: { numberPay: number; }, b: { numberPay: number; }) => a.numberPay - b.numberPay,
+
+        },
     ]
 
     const { selectedRowKeys } = selectedPaymentsId;
@@ -162,7 +195,11 @@ const PaymentHistory: FunctionComponent = () => {
 
     const handleChangePaymentHistoryTable = (pagination: any, filters: any, sorter: any, extra: { currentDataSource: Array<any>[] }) => {
         setPagination({
-            total: extra?.currentDataSource?.length
+            total: extra?.currentDataSource?.length,
+            hideOnSinglePage: false,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100", "300"],
+            locale: { items_per_page: ` / page` }
         });
     }
 
