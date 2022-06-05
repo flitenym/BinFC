@@ -103,5 +103,17 @@ namespace Storage.Module.Controllers
 
             return StringToResult(await _userInfoRepository.NotApproveAsync(ids));
         }
+
+        [HttpPost("approveall")]
+        public async Task<IActionResult> ApproveAll()
+        {
+            return StringToResult(await _userInfoRepository.ApproveAllAsync());
+        }
+
+        [HttpPost("notapproveall")]
+        public async Task<IActionResult> NotApproveAll()
+        {
+            return StringToResult(await _userInfoRepository.NotApproveAllAsync());
+        }
     }
 }

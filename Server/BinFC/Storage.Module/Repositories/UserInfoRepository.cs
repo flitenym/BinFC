@@ -146,16 +146,7 @@ namespace Storage.Module.Repositories
             {
                 var userInfoById = await GetByIdAsync(id);
 
-                userInfoById.IsApproved = true;
-
-                if (userInfoById.ChatId != null)
-                {
-                    _telegramMessageQueueRepository.Create(new TelegramMessageQueue()
-                    {
-                        ChatId = userInfoById.ChatId,
-                        Message = $"Ваш id ({userInfoById.UserId}) подтвержден Администратором."
-                    });
-                }
+                Approve(userInfoById);
             }
 
             return await SaveChangesAsync();
@@ -167,21 +158,80 @@ namespace Storage.Module.Repositories
             {
                 var userInfoById = await GetByIdAsync(id);
 
-                userInfoById.IsApproved = false;
-
-                if (userInfoById.ChatId != null)
-                {
-                    _telegramMessageQueueRepository.Create(new TelegramMessageQueue()
-                    {
-                        ChatId = userInfoById.ChatId,
-                        Message = $"Ваш id ({userInfoById.UserId}) не подтвержден Администратором."
-                    });
-                }
-
-                _dataContext.Remove(userInfoById);
+                NotApprove(userInfoById);
             }
 
             return await SaveChangesAsync();
+        }
+
+        public async Task<string> ApproveAllAsync()
+        {
+            var usersInfo = _dataContext
+                .UsersInfo
+                .Where(x => !x.IsApproved)
+                .OrderBy(x => x.Id);
+
+            foreach (var userInfo in usersInfo)
+            {
+                Approve(userInfo);
+            }
+
+            return await SaveChangesAsync();
+        }
+
+        public async Task<string> NotApproveAllAsync()
+        {
+            var usersInfo = _dataContext
+                .UsersInfo
+                .Where(x => x.IsApproved)
+                .OrderBy(x => x.Id);
+
+            foreach (var userInfo in usersInfo)
+            {
+                NotApprove(userInfo);
+            }
+
+            return await SaveChangesAsync();
+        }
+
+        private void Approve(UserInfo userInfo)
+        {
+            if (userInfo.IsApproved)
+            {
+                return;
+            }
+
+            userInfo.IsApproved = true;
+
+            if (userInfo.ChatId != null)
+            {
+                _telegramMessageQueueRepository.Create(new TelegramMessageQueue()
+                {
+                    ChatId = userInfo.ChatId,
+                    Message = $"Ваш id ({userInfo.UserId}) подтвержден Администратором."
+                });
+            }
+        }
+
+        private void NotApprove(UserInfo userInfo)
+        {
+            if (!userInfo.IsApproved)
+            {
+                return;
+            }
+
+            userInfo.IsApproved = false;
+
+            if (userInfo.ChatId != null)
+            {
+                _telegramMessageQueueRepository.Create(new TelegramMessageQueue()
+                {
+                    ChatId = userInfo.ChatId,
+                    Message = $"Ваш id ({userInfo.UserId}) не подтвержден Администратором."
+                });
+            }
+
+            _dataContext.Remove(userInfo);
         }
 
         #endregion

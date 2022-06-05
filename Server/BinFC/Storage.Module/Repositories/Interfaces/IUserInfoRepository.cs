@@ -16,6 +16,8 @@ namespace Storage.Module.Repositories.Interfaces
         public Task<string> DeleteAsync(UserInfo obj);
         public Task<string> ApproveAsync(IEnumerable<long> ids);
         public Task<string> NotApproveAsync(IEnumerable<long> ids);
+        public Task<string> ApproveAllAsync();
+        public Task<string> NotApproveAllAsync();
         public Task<string> SaveChangesAsync();
         public Task<UserInfo> GetUserInfoByChatIdAsync(long chatId, bool isNeedTracking = true);
         public Task<UserInfo> GetUserInfoByUserIdAsync(long userId, bool isNeedTracking = true);
