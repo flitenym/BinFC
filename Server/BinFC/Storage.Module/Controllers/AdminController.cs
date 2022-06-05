@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Storage.Module.Controllers.Base;
+using Storage.Module.Controllers.DTO;
 using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Storage.Module.Controllers
@@ -36,14 +36,14 @@ namespace Storage.Module.Controllers
 
         [Authorize]
         [HttpGet("{id}")]
-        public async Task<Admin> Get(long id)
+        public async Task<Admin> GetAsync(long id)
         {
             return await _adminRepository.GetByIdAsync(id);
         }
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Admin obj)
+        public async Task<IActionResult> CreateAsync([FromBody] Admin obj)
         {
             if (obj == null)
             {
@@ -54,7 +54,7 @@ namespace Storage.Module.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] Admin obj)
+        public async Task<IActionResult> LoginAsync([FromBody] Admin obj)
         {
             if (obj == null)
             {
@@ -96,8 +96,32 @@ namespace Storage.Module.Controllers
         }
 
         [Authorize]
+        [HttpPost("changepassword")]
+        public async Task<IActionResult> ChangePasswordAsync([FromBody] AdminDTO obj)
+        {
+            if (obj == null)
+            {
+                return BadRequest("Отправлена пустая сущность.");
+            }
+
+            return StringToResult(await _adminRepository.ChangePasswordAsync(obj.UserName, obj.OldPassword, obj.NewPassword));
+        }
+
+        [Authorize]
+        [HttpPut("updatelanguage")]
+        public async Task<IActionResult> UpdateLanguageAsync(string userName, string language)
+        {
+            if (string.IsNullOrEmpty(userName))
+            {
+                return BadRequest($"Не указан логин");
+            }
+
+            return StringToResult(await _adminRepository.UpdateLanguageAsync(userName, language));
+        }
+
+        [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(long id, [FromBody] Admin newObj)
+        public async Task<IActionResult> UpdateAsync(long id, [FromBody] Admin newObj)
         {
             if (newObj == null || newObj.Id != id)
             {
@@ -116,7 +140,7 @@ namespace Storage.Module.Controllers
 
         [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(long id)
+        public async Task<IActionResult> DeleteAsync(long id)
         {
             var obj = await _adminRepository.GetByIdAsync(id);
 
