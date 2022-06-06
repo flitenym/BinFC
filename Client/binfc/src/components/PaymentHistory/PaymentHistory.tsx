@@ -11,6 +11,7 @@ import { payHistoryService } from "../../services/payhistory.service";
 import SearchOutlined from '@ant-design/icons';
 import moment from "moment";
 import { exportPayHistoryService } from "../../services/export.service";
+import { sortedNumbers, sortedString } from "../../helpers/sortedHelper";
 
 const PaymentHistory: FunctionComponent = () => {
     const { t } = useTranslation("common");
@@ -154,14 +155,14 @@ const PaymentHistory: FunctionComponent = () => {
             dataIndex: "userName",
             key: "userName",
             ...getColumnSearchProps('userName'),
-            sorter: (a: { userName: number; }, b: { userName: number; }) => a.userName - b.userName,
+            sorter: ((a: { userName: any; }, b: { userName: any; }) => sortedString(a.userName, b.userName)),
         },
         {
             title: t("common:TableUSDT"),
             dataIndex: "sendedSum",
             key: "sendedSum",
             ...getColumnSearchProps('sendedSum'),
-            sorter: (a: { sendedSum: number; }, b: { sendedSum: number; }) => a.sendedSum - b.sendedSum,
+            sorter: ((a: { sendedSum: any; }, b: { sendedSum: any; }) => sortedNumbers(a.sendedSum, b.sendedSum)),
         },
         {
             title: t("common:DatePayment"),

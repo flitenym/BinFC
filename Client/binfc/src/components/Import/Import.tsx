@@ -11,6 +11,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { importService } from "../../services/import.service";
 import { useTranslation } from "react-i18next";
 import moment from "moment";
+import { sortedNumbers, sortedString } from "../../helpers/sortedHelper";
 
 const { TabPane } = Tabs;
 
@@ -63,7 +64,7 @@ const Import: FunctionComponent = () => {
                     {
                         id: item?.id,
                         agentEarnUsdt: item?.agentEarnUsdt ? item?.agentEarnUsdt : t("common:noData"),
-                        isPaid: item?.isPaid ? item?.isPaid : t("common:noData"),
+                        isPaid: item?.isPaid ? "Да" : "Нет",
                         loadingDate: item?.loadingDate ? `${moment.utc(item?.loadingDate).format('YYYY-MM-DD HH:mm:ss')}` : t("common:noData"),
                         user: item?.user ? item?.user : t("common:noData"),
                         userId: item?.user?.userId ? item?.user?.userId : t("common:noData"),
@@ -87,7 +88,7 @@ const Import: FunctionComponent = () => {
                     {
                         id: item?.id,
                         agentEarnUsdt: item?.agentEarnUsdt ? item?.agentEarnUsdt : t("common:noData"),
-                        isPaid: item?.isPaid ? item?.isPaid : t("common:noData"),
+                        isPaid: item?.isPaid ? "Да" : "Нет",
                         loadingDate: item?.loadingDate ? `${moment.utc(item?.loadingDate).format('YYYY-MM-DD HH:mm:ss')}` : t("common:noData"),
                         user: item?.user ? item?.user : t("common:noData"),
                         userId: item?.user?.userId ? item?.user?.userId : t("common:noData"),
@@ -190,21 +191,21 @@ const Import: FunctionComponent = () => {
             dataIndex: "userId",
             key: "userId",
             ...getColumnSearchProps('userId'),
-            sorter: (a: { userId: number; }, b: { userId: number; }) => a.userId - b.userId,
+            sorter: (a: any, b: any) => a.userId - b.userId,
         },
         {
             title: t("common:TableName"),
             dataIndex: "userName",
             key: "userName",
             ...getColumnSearchProps('userName'),
-            sorter: (a: { userName: string; }, b: { userName: string; }) => a.userName.length - b.userName.length,
+            sorter: ((a: { userName: any; }, b: { userName: any; }) => sortedString(a.userName, b.userName)),
         },
         {
             title: t("common:TableUSDT"),
             dataIndex: "agentEarnUsdt",
             key: "agentEarnUsdt",
             ...getColumnSearchProps('agentEarnUsdt'),
-            sorter: (a: { agentEarnUsdt: number; }, b: { agentEarnUsdt: number; }) => a.agentEarnUsdt - b.agentEarnUsdt,
+            sorter: ((a: { agentEarnUsdt: any; }, b: { agentEarnUsdt: any; }) => sortedNumbers(a.agentEarnUsdt, b.agentEarnUsdt)),
         },
         {
             title: t("common:LoadingTime"),
@@ -228,22 +229,21 @@ const Import: FunctionComponent = () => {
             dataIndex: "userId",
             key: "userId",
             ...getColumnSearchProps('userId'),
-            sorter: (a: { userId: number; }, b: { userId: number; }) => a.userId - b.userId,
+            sorter: (a: any, b: any) => a.userId - b.userId,
         },
         {
             title: t("common:TableName"),
             dataIndex: "userName",
             key: "userName",
             ...getColumnSearchProps('userName'),
-            sorter: (a: { userName: string; }, b: { userName: string; }) => a.userName.length - b.userName.length,
+            sorter: ((a: { userName: any; }, b: { userName: any; }) => sortedString(a.userName, b.userName)),
         },
         {
             title: t("common:TableUSDT"),
             dataIndex: "agentEarnUsdt",
             key: "agentEarnUsdt",
             ...getColumnSearchProps('agentEarnUsdt'),
-            sorter: (a: { agentEarnUsdt: number; }, b: { agentEarnUsdt: number; }) => a.agentEarnUsdt - b.agentEarnUsdt,
-
+            sorter: ((a: { agentEarnUsdt: any; }, b: { agentEarnUsdt: any; }) => sortedNumbers(a.agentEarnUsdt, b.agentEarnUsdt)),
         },
         {
             title: t("common:LoadingTime"),

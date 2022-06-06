@@ -3,6 +3,7 @@ import { useForm } from "antd/lib/form/Form";
 import { t } from "i18next";
 import { FunctionComponent, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
+import { sortedString } from "../../helpers/sortedHelper";
 import scaleService from "../../services/scale.service";
 import uniqueScaleService from "../../services/uniquescale.service";
 
@@ -108,7 +109,7 @@ const Scales: FunctionComponent = () => {
             title: t("common:TableUnique"),
             dataIndex: "uniqueId",
             key: "uniqueId",
-            sorter: (a: { uniqueId: string; }, b: { uniqueId: string; }) => a.uniqueId.length - b.uniqueId.length,
+            sorter: ((a: { uniqueId: any; }, b: { uniqueId: any; }) => sortedString(a.uniqueId, b.uniqueId)),
         },
     ]
 
@@ -129,7 +130,7 @@ const Scales: FunctionComponent = () => {
             title: t("common:TableUnique"),
             dataIndex: "uniqueId",
             key: "uniqueId",
-            sorter: (a: { uniqueId: string; }, b: { uniqueId: string; }) => a.uniqueId.length - b.uniqueId.length,
+            sorter: ((a: { uniqueId: any; }, b: { uniqueId: any; }) => sortedString(a.uniqueId, b.uniqueId)),
         },
     ]
 
@@ -138,7 +139,7 @@ const Scales: FunctionComponent = () => {
             title: t("common:TableName"),
             dataIndex: "name",
             key: "name",
-            sorter: (a: { name: string; }, b: { name: string; }) => a.name.length - b.name.length,
+            sorter: ((a: { name: any; }, b: { name: any; }) => sortedString(a.name, b.name)),
         },
     ]
     const { selectedRowKeysUniques } = selectedUniquesId;
@@ -395,6 +396,12 @@ const Scales: FunctionComponent = () => {
                         >
                             <span key={9} className="form-description">{`${t("common:From")}`}</span>
                             <Form.Item
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `${t("common:ThisFieldRequired")}`,
+                                    },
+                                ]}
                                 key={7}
                                 style={{
                                     marginTop: "4px",
@@ -407,6 +414,12 @@ const Scales: FunctionComponent = () => {
                             <span key={11} className="form-description">{`${t("common:Percent")}`}</span>
                             <Form.Item
                                 key={12}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `${t("common:ThisFieldRequired")}`,
+                                    },
+                                ]}
                                 style={{
                                     marginTop: "4px",
                                     marginBottom: "16px",
@@ -417,6 +430,12 @@ const Scales: FunctionComponent = () => {
                             </Form.Item>
                             <span key={14} className="form-description">{`${t("common:TableUnique")}`}</span>
                             <Form.Item
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `${t("common:ThisFieldRequired")}`,
+                                    },
+                                ]}
                                 key={15}
                                 style={{
                                     marginTop: "4px",
@@ -442,7 +461,6 @@ const Scales: FunctionComponent = () => {
                                 <Button
                                     key={6}
                                     type="primary"
-                                    onClick={onCloseSpotsModal}
                                     htmlType="submit"
                                     className="login-form-button"
                                 >
@@ -499,8 +517,6 @@ const Scales: FunctionComponent = () => {
                     />
                     <Modal
                         key={30}
-
-                        // forceRender={true}
                         footer={null}
                         onCancel={onCloseFutureModal}
                         title={`${"Шкала"}`}
@@ -516,6 +532,12 @@ const Scales: FunctionComponent = () => {
                         >
                             <span key={32} className="form-description">{`${t("common:From")}`}</span>
                             <Form.Item
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `${t("common:ThisFieldRequired")}`,
+                                    },
+                                ]}
                                 key={33}
                                 style={{
                                     marginTop: "4px",
@@ -527,6 +549,12 @@ const Scales: FunctionComponent = () => {
                             </Form.Item>
                             <span key={35} className="form-description">{`${t("common:Percent")}`}</span>
                             <Form.Item
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `${t("common:ThisFieldRequired")}`,
+                                    },
+                                ]}
                                 key={36}
                                 style={{
                                     marginTop: "4px",
@@ -538,6 +566,12 @@ const Scales: FunctionComponent = () => {
                             </Form.Item>
                             <span key={14} className="form-description">{`${t("common:TableUnique")}`}</span>
                             <Form.Item
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `${t("common:ThisFieldRequired")}`,
+                                    },
+                                ]}
                                 key={15}
                                 style={{
                                     marginTop: "4px",
@@ -563,7 +597,6 @@ const Scales: FunctionComponent = () => {
                                 <Button
                                     key={6}
                                     type="primary"
-                                    onClick={onCloseFutureModal}
                                     htmlType="submit"
                                     className="login-form-button"
                                 >
@@ -637,6 +670,12 @@ const Scales: FunctionComponent = () => {
                 >
                     <span key={22} className="form-description">{`${t("common:TableUnique")}`}</span>
                     <Form.Item
+                        rules={[
+                            {
+                                required: true,
+                                message: `${t("common:ThisFieldRequired")}`,
+                            },
+                        ]}
                         name="name"
                         key={24}
                         style={{
@@ -651,7 +690,6 @@ const Scales: FunctionComponent = () => {
                         <Button
                             key={24}
                             type="primary"
-                            onClick={onCloseUniqueModal}
                             htmlType="submit"
                             className="login-form-button"
                         >

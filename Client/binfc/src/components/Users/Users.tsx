@@ -10,6 +10,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { useForm } from "antd/lib/form/Form";
 import uniqueService from "../../services/unique.servise";
 import "./UsersStyles.scss"
+import { sortedString } from "../../helpers/sortedHelper";
 const { Option } = Select;
 
 const Users: FunctionComponent = () => {
@@ -170,7 +171,7 @@ const Users: FunctionComponent = () => {
             title: t("common:TableIsApproved"),
             dataIndex: "isApproved",
             key: "isApproved",
-            sorter: (a: { status: string | any[]; }, b: { status: string | any[]; }) => a.status.length - b.status.length,
+            sorter: ((a: { status: any; }, b: { status: any; }) => sortedString(a.status, b.status)),
             ...getColumnSearchProps('status'), render: (usersSettings: any, { isApproved }: any) => (
                 <>
                     {usersSettings?.map((isApproved: boolean, index: number) => {
@@ -189,21 +190,21 @@ const Users: FunctionComponent = () => {
             dataIndex: "userName",
             key: "userName",
             ...getColumnSearchProps('userName'),
-            sorter: (a: { userName: string; }, b: { userName: string; }) => a.userName.length - b.userName.length,
+            sorter: ((a: { userName: any; }, b: { userName: any; }) => sortedString(a.userName, b.userName))
         },
         {
             title: t("common:TableEmail"),
             dataIndex: "userEmail",
             key: "userEmail",
             ...getColumnSearchProps('userEmail'),
-            sorter: (a: { userEmail: string; }, b: { userEmail: string; }) => a.userEmail.length - b.userEmail.length,
+            sorter: ((a: { userEmail: any; }, b: { userEmail: any; }) => sortedString(a.userEmail, b.userEmail))
         },
         {
             title: t("common:TableTrc"),
             dataIndex: "trcAddress",
             key: "trcAddress",
             ...getColumnSearchProps('trcAddress'),
-            sorter: (a: { userEmail: string; }, b: { userEmail: string; }) => a.userEmail.length - b.userEmail.length,
+            sorter: ((a: { trcAddress: any; }, b: { trcAddress: any; }) => sortedString(a.trcAddress, b.trcAddress))
 
         },
         {
@@ -211,14 +212,14 @@ const Users: FunctionComponent = () => {
             dataIndex: "bepAddress",
             key: "bepAddress",
             ...getColumnSearchProps('bepAddress'),
-            sorter: (a: { userEmail: string; }, b: { userEmail: string; }) => a.userEmail.length - b.userEmail.length,
+            sorter: ((a: { bepAddress: any; }, b: { bepAddress: any; }) => sortedString(a.bepAddress, b.bepAddress))
         },
         {
             title: t("common:TableUnique"),
             dataIndex: "uniqueName",
             key: "uniqueName",
             ...getColumnSearchProps('uniqueName'),
-            sorter: (a: { userEmail: string; }, b: { userEmail: string; }) => a.userEmail.length - b.userEmail.length,
+            sorter: ((a: { uniqueName: any; }, b: { uniqueName: any; }) => sortedString(a.uniqueName, b.uniqueName))
         },
 
     ]
@@ -274,10 +275,10 @@ const Users: FunctionComponent = () => {
                 item.userName = data.userName;
                 usersService.upadeteUser({
                     id: item.id,
-                    userName: item.userName,
-                    userEmail: item.userEmail,
-                    trcAddress: item.trcAddress,
-                    bepAddress: item.bepAddress,
+                    userName: item.userName === t("common:noData") ? null : item.userName,
+                    userEmail: item.userEmail === t("common:noData") ? null : item.userEmail,
+                    trcAddress: item.trcAddress === t("common:noData") ? null : item.trcAddress,
+                    bepAddress: item.bepAddress === t("common:noData") ? null : item.bepAddress,
                     uniqueId: item.uniqueId
                 })
                 return item
