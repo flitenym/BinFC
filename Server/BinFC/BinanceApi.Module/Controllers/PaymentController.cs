@@ -26,9 +26,9 @@ namespace BinanceApi.Module.Controllers
         [HttpGet]
         public async Task<ActionResult> CalculatePaymentInfo()
         {
-            (IEnumerable<PaymentDTO> paymentInfo, string message) = await _paymentService.CalculatePaymentInfoAsync();
+            (IEnumerable<PaymentDTO> paymentInfo, bool isSuccess, string message) = await _paymentService.CalculatePaymentInfoAsync();
 
-            if (!string.IsNullOrEmpty(message))
+            if (!isSuccess)
             {
                 return BadRequest(message);
             }

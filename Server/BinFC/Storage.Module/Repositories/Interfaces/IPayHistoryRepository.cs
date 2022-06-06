@@ -11,6 +11,7 @@ namespace Storage.Module.Repositories.Interfaces
         public Task<int> GetLastNumberPayAsync();
         public Task<string> DeleteAllAsync();
         public Task<string> CreateAsync(PayHistory obj);
+        public Task<string> CreateAsync(PayHistory obj, long userId);
         public Task<string> SaveChangesAsync();
     }
 }

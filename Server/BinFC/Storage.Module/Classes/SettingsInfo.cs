@@ -70,6 +70,10 @@ namespace Storage.Module.Classes
                     repaired.Add(notificationName[1..]);
                     continue;
                 }
+                else
+                {
+                    repaired.Add(notificationName);
+                }
             }
 
             return repaired;

@@ -13,8 +13,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Telegram.Bot;
-using TelegramFatCamel.Module.Services;
 using WorkerService.Module.Services.Base;
 using WorkerService.Module.Services.Intrefaces;
 
@@ -27,7 +25,7 @@ namespace WorkerService.Module.Services
 
         public string GetMessage()
         {
-            string result = string.Join(Environment.NewLine, NotificationMessages).Trim();
+            string result = string.Join(Environment.NewLine, NotificationMessages.Distinct()).Trim();
             if (SuccessCoins.Any())
             {
                 result += Environment.NewLine + string.Join("; ", SuccessCoins).Trim();
@@ -102,21 +100,30 @@ namespace WorkerService.Module.Services
             try
             {
                 var settings = await GetSettingsInfoAsync();
-                bool isSuccess = await SellAsync(settings);
+                try
+                {
+                    bool isSuccess = await SellAsync(settings);
+                    if (isSuccess)
+                    {
+                        _logger?.LogTrace($"Продажа прошла успешно");
+                    }
+                    else
+                    {
+                        _logger?.LogInformation($"Продажа прошла неудачно");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string error = $"Продажа прошла с ошибками {ex}";
+                    NotificationResult.NotificationMessages.Add(error);
+                    _logger?.LogError(ex, error);
+                }
+
                 await SendTelegramMessageAsync(settings);
-                if (isSuccess)
-                {
-                    _logger?.LogTrace($"Продажа прошла успешно");
-                }
-                else
-                {
-                    _logger?.LogInformation($"Продажа прошла неудачно");
-                }
             }
             catch (Exception ex)
             {
-                string error = $"Продажа прошла с ошибками {ex}";
-                _logger?.LogInformation(ex, error);
+                _logger?.LogError(ex.StackTrace);
             }
         }
 
@@ -155,11 +162,9 @@ namespace WorkerService.Module.Services
                 return false;
             }
 
-            await TransferFuturesToSpotAsync(settings);
-
-            await SellCurrenciesAsync(settings);
-
-            return true;
+            return
+                await TransferFuturesToSpotAsync(settings) & 
+                await SellCurrenciesAsync(settings);
         }
 
         #region Продажа и перевод крипты
@@ -173,18 +178,18 @@ namespace WorkerService.Module.Services
         {
             _logger.LogTrace($"Начинаем перевод {settings.SellCurrency} из фьючерс в спот");
 
-            bool isSuccessTransferSpot = await _binanceApiService.TransferFuturesToSpotUSDTAsync(settings);
+            (bool isSuccessTransferSpot, string messageTransferSpot) = await _binanceApiService.TransferFuturesToSpotUSDTAsync(settings);
 
             if (isSuccessTransferSpot)
             {
-                NotificationResult.NotificationMessages.Add($"Перевод {settings.SellCurrency} из фьючерс в спот был осуществлен.");
-                _logger.LogTrace($"Перевод {settings.SellCurrency} из фьючерс в спот был осуществлен.");
+                NotificationResult.NotificationMessages.Add($"Перевод {settings.SellCurrency} из фьючерс в спот был осуществлен. {messageTransferSpot}");
+                _logger.LogTrace($"Перевод {settings.SellCurrency} из фьючерс в спот был осуществлен. {messageTransferSpot}");
                 return true;
             }
             else
             {
-                NotificationResult.NotificationMessages.Add($"Перевод {settings.SellCurrency} из фьючерс в спот не был осуществлен.");
-                _logger.LogError($"Перевод {settings.SellCurrency} из фьючерс в спот не был осуществлен.");
+                NotificationResult.NotificationMessages.Add($"Перевод {settings.SellCurrency} из фьючерс в спот не был осуществлен. {messageTransferSpot}");
+                _logger.LogError($"Перевод {settings.SellCurrency} из фьючерс в спот не был осуществлен. {messageTransferSpot}");
                 return false;
             }
         }
@@ -196,24 +201,33 @@ namespace WorkerService.Module.Services
         /// <returns></returns>
         private async Task<bool> SellCurrenciesAsync(SettingsInfo settings)
         {
-            (bool isSuccessGetExchangeInfo, BinanceExchangeInfo exchangeInfo) = await _binanceApiService.GetExchangeInfoAsync(settings);
+            (bool isSuccessGetExchangeInfo, string messageGetExchangeInfo, BinanceExchangeInfo exchangeInfo) = await _binanceApiService.GetExchangeInfoAsync(settings);
 
             if (!isSuccessGetExchangeInfo || exchangeInfo == null)
             {
-                NotificationResult.NotificationMessages.Add("Ошибка получения информации минимальных требований по символам для перевода.");
+                NotificationResult.NotificationMessages.Add($"Ошибка получения информации минимальных требований по символам для перевода. {messageGetExchangeInfo}");
                 _logger.LogError("Ошибка получения информации минимальных требований по символам для перевода.");
                 return false;
             }
 
             // получим все валюты в балансе аккаунта, кроме USDT и BNB
-            (bool isSuccessGetAllCurrencies, List<BinanceBalance> currencies) = await _binanceApiService.GetBinanceCurrenciesAsync(settings, new List<string>() { "USDT", "BNB" });
+            (bool isSuccessGetAllCurrencies, string messageGetAllCurrencies, List<BinanceBalance> currencies) = await _binanceApiService.GetBinanceCurrenciesAsync(settings, new List<string>() { "USDT", "BNB" });
 
             if (!isSuccessGetAllCurrencies || currencies == null)
             {
+                NotificationResult.NotificationMessages.Add($"Ошибка получения валют. {messageGetAllCurrencies}");
+                _logger.LogError($"Ошибка получения валют. {messageGetAllCurrencies}");
                 return false;
             }
 
             List<CurrencyInfo> currenciesInfo = new(currencies.Select(x => new CurrencyInfo(x.Asset, false, false)));
+
+            if (!currenciesInfo.Any())
+            {
+                NotificationResult.NotificationMessages.Add($"Нет монет для продажи.");
+                _logger.LogTrace($"Нет монет для продажи.");
+                return true;
+            }
 
             _logger.LogTrace($"Начинаем продажу монет {string.Join(", ", currenciesInfo.Select(x => x.Asset))}");
 
@@ -239,7 +253,6 @@ namespace WorkerService.Module.Services
                 }
             }
 
-
             NotificationResult.SuccessCoins.AddRange(currenciesInfo.Where(x => x.IsSell).Select(x => x.Asset).ToList());
 
             _logger.LogTrace("Продажа монет выполнена");
@@ -251,7 +264,7 @@ namespace WorkerService.Module.Services
             _logger.LogTrace("Начинаем перевод монет с маленьким балансом в BNB");
 
             // перевод мелких монет в BNB
-            bool isSuccessTransferDust = await _binanceApiService.TransferDustAsync(currenciesInfo.Where(x => x.IsDust).Select(x => x.Asset).ToList(), settings: settings);
+            (bool isSuccessTransferDust, string messageTransferDust) = await _binanceApiService.TransferDustAsync(currenciesInfo.Where(x => x.IsDust).Select(x => x.Asset).ToList(), settings: settings);
 
             if (isSuccessTransferDust)
             {
@@ -260,7 +273,7 @@ namespace WorkerService.Module.Services
             }
             else
             {
-                NotificationResult.NotificationMessages.Add("Перевод монет с маленьким балансом в BNB неудачен.");
+                NotificationResult.NotificationMessages.Add($"Перевод монет с маленьким балансом в BNB неудачен. {messageTransferDust}");
                 _logger.LogTrace("Перевод монет с маленьким балансом в BNB неудачен");
             }
 
@@ -288,11 +301,12 @@ namespace WorkerService.Module.Services
             _logger.LogTrace($"Продажа {currencyAsset}");
 
             // получим валюту и определим пыль или нет, если нет, то сразу продадим ее
-            (bool isSuccessCurrency, AssetsInfo currencyInfo) = await _binanceApiService.GetСurrencyAsync(exchangeInfo, currencyAsset, settings: settings);
+            (bool isSuccessCurrency, string messageCurrency, AssetsInfo currencyInfo) = await _binanceApiService.GetСurrencyAsync(exchangeInfo, currencyAsset, settings: settings);
 
             if (!isSuccessCurrency || currencyInfo == default || string.IsNullOrEmpty(currencyInfo.FromAsset) || string.IsNullOrEmpty(currencyInfo.ToAsset))
             {
-                _logger.LogTrace($"Продажа {currencyAsset}: неудачное получение валюты.");
+                NotificationResult.NotificationMessages.Add($"Продажа {currencyAsset}: неудачное получение валюты. {messageCurrency}");
+                _logger.LogTrace($"Продажа {currencyAsset}: неудачное получение валюты. {messageCurrency}");
                 return default;
             }
 
@@ -300,9 +314,14 @@ namespace WorkerService.Module.Services
             {
                 _logger.LogTrace($"Продажа {currencyAsset}: выполним продажу.");
 
-                bool isSuccessSell = await _binanceApiService.SellCoinAsync(currencyInfo.Quantity, currencyInfo.FromAsset, currencyInfo.ToAsset, settings: settings);
+                (bool isSuccessSell, string messageSell) = await _binanceApiService.SellCoinAsync(currencyInfo.Quantity, currencyInfo.FromAsset, currencyInfo.ToAsset, settings: settings);
 
-                _logger.LogTrace($"Продажа {currencyAsset}:{(isSuccessSell ? "" : " не")} выполнилась продажа по {currencyInfo.ToAsset}.");
+                _logger.LogTrace($"Продажа {currencyAsset}:{(isSuccessSell ? "" : " не")} выполнилась продажа по {currencyInfo.ToAsset}. {messageSell}");
+
+                if (!isSuccessSell)
+                {
+                    NotificationResult.NotificationMessages.Add($"Продажа {currencyAsset}:{(isSuccessSell ? "" : " не")} выполнилась продажа по {currencyInfo.ToAsset}. {messageSell}");
+                }
 
                 return (true, isSuccessSell, false);
             }
@@ -318,7 +337,7 @@ namespace WorkerService.Module.Services
         {
             string message = NotificationResult.GetMessage();
 
-            _logger.LogTrace(message);
+            _logger.LogTrace($"Сообщение для администратора:{Environment.NewLine}{message}");
             if (!settings.IsNotification)
             {
                 _logger.LogTrace("Уведомления отключены.");

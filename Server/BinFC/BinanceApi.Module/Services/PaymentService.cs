@@ -54,14 +54,14 @@ namespace BinanceApi.Module.Services
         public async Task<(bool IsSuccess, string Message, BinanceUserAsset usdt, BinanceUserAsset busd)> GetCurrenciesAsync(SettingsInfo settings)
         {
             (bool isSuccessGetCoins, string messageGetCoins, IEnumerable<BinanceUserAsset> currencies) =
-                await _binanceApiService.GetCoinsAsync(new List<string>() { "USDT", "BUSD" }, settings);
+                await _binanceApiService.GetCoinsAsync(new List<string>() { BinanceKeys.USDT, BinanceKeys.BUSD }, settings);
 
             if (!isSuccessGetCoins)
             {
                 return (false, messageGetCoins, default, default);
             }
 
-            return (true, default, currencies.FirstOrDefault(x => x.Asset == "USDT"), currencies.FirstOrDefault(x => x.Asset == "BUSD"));
+            return (true, default, currencies.FirstOrDefault(x => x.Asset == BinanceKeys.USDT), currencies.FirstOrDefault(x => x.Asset == BinanceKeys.BUSD));
         }
 
         /// <summary>
@@ -69,8 +69,8 @@ namespace BinanceApi.Module.Services
         /// </summary>
         public (bool IsSuccess, string Message, BinanceNetwork UsdtNetwork, BinanceNetwork BusdNetwork) GetNetworks(BinanceUserAsset usdt, BinanceUserAsset busd)
         {
-            BinanceNetwork usdtNetwork = usdt?.NetworkList.FirstOrDefault(x => x.Network == "TRX");
-            BinanceNetwork busdNetwork = busd?.NetworkList.FirstOrDefault(x => x.Network == "BSC");
+            BinanceNetwork usdtNetwork = usdt?.NetworkList.FirstOrDefault(x => x.Network == BinanceKeys.TRX);
+            BinanceNetwork busdNetwork = busd?.NetworkList.FirstOrDefault(x => x.Network == BinanceKeys.BSC);
 
             if (usdtNetwork == null && busdNetwork == null)
             {
@@ -94,28 +94,30 @@ namespace BinanceApi.Module.Services
 
         #region Получение данных для оплаты
 
-        public async Task<(IEnumerable<PaymentDTO> PaymentInfo, string Message)> CalculatePaymentInfoAsync()
+        public async Task<(IEnumerable<PaymentDTO> PaymentInfo, bool IsSuccess, string Message)> CalculatePaymentInfoAsync()
         {
             IEnumerable<SpotData> spotData = _spotDataRepository.GetLastData();
             IEnumerable<SpotScale> spotScale = _spotScaleRepository.Get();
-            (IEnumerable<PaymentDTO> spotPaymentInfo, string spotMessage) = await GetCalculatedResultAsync("SPOT", SettingsKeys.SpotPercent, spotData, spotScale);
+            (IEnumerable<PaymentDTO> spotPaymentInfo, bool spotIsSuccess, string spotMessage) = await GetCalculatedResultAsync(BinanceKeys.SPOT, SettingsKeys.SpotPercent, spotData, spotScale);
 
             IEnumerable<FuturesData> futuresData = _futuresDataRepository.GetLastData();
             IEnumerable<FuturesScale> futuresScale = _futuresScaleRepository.Get();
-            (IEnumerable<PaymentDTO> futuresPaymentInfo, string futuresMessage) = await GetCalculatedResultAsync("Futures", SettingsKeys.FuturesPercent, futuresData, futuresScale);
+            (IEnumerable<PaymentDTO> futuresPaymentInfo, bool futuresIsSuccess, string futuresMessage) = await GetCalculatedResultAsync(BinanceKeys.FUTURES, SettingsKeys.FuturesPercent, futuresData, futuresScale);
 
-            if (!string.IsNullOrEmpty(futuresMessage) || !string.IsNullOrEmpty(spotMessage))
+            if (!spotIsSuccess && !string.IsNullOrEmpty(futuresMessage) || !futuresIsSuccess && !string.IsNullOrEmpty(spotMessage))
             {
-                return (default, string.Join(Environment.NewLine, spotMessage, futuresMessage).Trim());
+                return (default, false, string.Join(Environment.NewLine, spotMessage, futuresMessage).Trim());
             }
 
-            return await ConcatPaymentInfoAsync(spotPaymentInfo, futuresPaymentInfo);
+            (IEnumerable<PaymentDTO> paymentInfo, string message) = await ConcatPaymentInfoAsync(spotPaymentInfo, futuresPaymentInfo);
+
+            return (paymentInfo, true, message);
         }
 
         /// <summary>
         /// Вычисление сколько нужно выплатить пользователям.
         /// </summary>
-        public async Task<(IEnumerable<PaymentDTO> PaymentInfo, string Message)> GetCalculatedResultAsync(
+        public async Task<(IEnumerable<PaymentDTO> PaymentInfo, bool IsSuccess, string Message)> GetCalculatedResultAsync(
             string commandName,
             string settingsPercentKey,
             IEnumerable<Data> data,
@@ -125,19 +127,19 @@ namespace BinanceApi.Module.Services
 
             if (!scales.Any())
             {
-                return (result, $"{commandName}. Необходимо указать линейку.");
+                return (result, false, $"{commandName}. Необходимо указать линейку.");
             }
 
             (bool isSuccessGetPercent, long settingsPercent) = await _settingsRepository.GetSettingsByKeyAsync<long>(settingsPercentKey, false);
 
             if (!isSuccessGetPercent)
             {
-                return (result, $"{commandName}. Нет данных по проценту в настройках.");
+                return (result, false, $"{commandName}. Нет данных по проценту в настройках.");
             }
 
             if (!data.Any())
             {
-                return (result, $"{commandName}. Нет данных для получения информации оплаты.");
+                return (result, false, $"{commandName}. Нет данных для получения информации оплаты.");
             }
 
             List<long> users = data.Select(x => x.UserId).Distinct().ToList();
@@ -145,7 +147,7 @@ namespace BinanceApi.Module.Services
 
             if (!dates.Any())
             {
-                return (result, $"{commandName}. Необходимо импортировать 2 разных эксель файла.");
+                return (result, false, $"{commandName}. Необходимо импортировать 2 разных эксель файла.");
             }
 
             DateTime lastDate = dates.FirstOrDefault();
@@ -153,7 +155,7 @@ namespace BinanceApi.Module.Services
 
             if (lastDate == firstDate)
             {
-                return (result, $"{commandName}. Необходимо импортировать 2 разных эксель файла.");
+                return (result, false, $"{commandName}. Необходимо импортировать 2 разных эксель файла.");
             }
 
             // после предварительных проверок получим первичные данные для подсчета
@@ -182,12 +184,17 @@ namespace BinanceApi.Module.Services
 
                 UserInfo userInfo = lastData?.User ?? firstData?.User;
 
-                if (string.IsNullOrEmpty(userInfo.BepAddress) && string.IsNullOrEmpty(userInfo.TrcAddress))
+                if (userInfo == null)
                 {
                     continue;
                 }
 
                 if (!userInfo.IsApproved)
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(userInfo.BepAddress) && string.IsNullOrEmpty(userInfo.TrcAddress))
                 {
                     continue;
                 }
@@ -200,7 +207,7 @@ namespace BinanceApi.Module.Services
 
                 if (scale == null)
                 {
-                    return (default, $"{commandName}. Необходимо указать шкалу для пользователя {userInfo.UserId}.");
+                    return (default, false, $"{commandName}. Необходимо указать шкалу для пользователя {userInfo.UserId}.");
                 }
 
                 // ищем нужный процент
@@ -214,7 +221,7 @@ namespace BinanceApi.Module.Services
                 result.Add(payment);
             }
 
-            return (result, null);
+            return (result, true, null);
         }
 
         /// <summary>
@@ -316,7 +323,7 @@ namespace BinanceApi.Module.Services
 
             var bepBalance = paymentsInfo.Where(x => !string.IsNullOrEmpty(x.BepAddress)).Sum(x => x.Usdt);
 
-            if ((busd?.Available ?? 0) < trcBalance)
+            if ((busd?.Available ?? 0) < bepBalance)
             {
                 return (false, $"Баланс по BUSD: {(busd?.Available ?? 0)}, а по выплатам: {bepBalance}");
             }
@@ -378,14 +385,20 @@ namespace BinanceApi.Module.Services
                         await _futuresDataRepository.UpdateIsPaidByUserIdAsync(paymentInfo.UserId);
 
                         // добавим в историю о выплатах
-                        await _payHistoryRepository.CreateAsync(
+                        var saveMessage = await _payHistoryRepository.CreateAsync(
                             new PayHistory()
                             {
                                 SendedSum = paymentInfo.Usdt,
                                 NumberPay = numberPay,
                                 UserId = paymentInfo.UserId
-                            }
+                            }, 
+                            paymentInfo.UserId
                         );
+
+                        if (!string.IsNullOrEmpty(saveMessage))
+                        {
+                            builder.AppendLine($"Не удалось создать запись в истории для пользователя с Id {paymentInfo.UserId}: {saveMessage}");
+                        }
                     }
                     else
                     {

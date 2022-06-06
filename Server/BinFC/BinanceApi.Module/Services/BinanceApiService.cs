@@ -7,7 +7,7 @@ using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Classes;
-using Storage.Module.Repositories.Interfaces;
+using Storage.Module.StaticClasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,36 +20,34 @@ namespace BinanceApi.Module.Services
     {
         private readonly ILogger<BinanceApiService> _logger;
 
-        public const string USDT = "USDT";
-
         public BinanceApiService(ILogger<BinanceApiService> logger)
         {
             _logger = logger;
         }
 
-        private BinanceClient GetBinanceClient(SettingsInfo settings)
+        private (BinanceClient client, string Message) GetBinanceClient(SettingsInfo settings)
         {
             if (string.IsNullOrEmpty(settings.ApiKey))
             {
-                throw new ApplicationException($"Не указан {nameof(settings.ApiKey)}");
+                return (null, $"Не указан {nameof(settings.ApiKey)}");
             }
 
             if (string.IsNullOrEmpty(settings.ApiSecret))
             {
-                throw new ApplicationException($"Не указан {nameof(settings.ApiSecret)}");
+                return (null, $"Не указан {nameof(settings.ApiSecret)}");
             }
 
-            return new BinanceClient(new BinanceClientOptions()
+            return (new BinanceClient(new BinanceClientOptions()
             {
                 ApiCredentials = new ApiCredentials(settings.ApiKey, settings.ApiSecret)
-            });
+            }), null);
         }
 
-        private bool CheckStatus<T>(WebCallResult<T> response)
+        private (bool IsSuccess, string Message) CheckStatus<T>(WebCallResult<T> response)
         {
             if (response.ResponseStatusCode == HttpStatusCode.OK)
             {
-                return true;
+                return (true, null);
             }
             else
             {
@@ -57,40 +55,45 @@ namespace BinanceApi.Module.Services
 
                 if (response.Error.Code == -2015)
                 {
-                    throw new ApplicationException("Отсутствуют ApiKey/ApiSecret или действие не разрешено, включите в настройках Api соответствующие права.");
+                    return (false, "Отсутствуют ApiKey/ApiSecret или действие не разрешено, включите в настройках Api соответствующие права.");
                 }
                 else if (response.Error.Code == -2008)
                 {
-                    throw new ApplicationException("Неверный ApiKey/ApiSecret.");
+                    return (false, "Неверный ApiKey/ApiSecret.");
                 }
                 else if (response.Error.Code == 32110)
                 {
-                    _logger.LogTrace("Перевод монет с маленьким балансом не выполнен, т.к. можно производить раз в 6 часов.");
+                    return (false, "Перевод монет с маленьким балансом не выполнен, т.к. можно производить раз в 6 часов.");
                 }
 
-                return false;
+                return (false, null);
             }
         }
 
         #region Перевод Фьюча в Спот
 
-        public async Task<bool> TransferFuturesToSpotUSDTAsync(SettingsInfo settings)
+        public async Task<(bool IsSuccess, string Message)> TransferFuturesToSpotUSDTAsync(SettingsInfo settings)
         {
-            (bool isAccountUsdtSuccess, decimal? balance) = await GetFuturesAccountUsdtBalanceAsync(settings: settings);
+            (bool isAccountUsdtSuccess, string message, decimal? balance) = await GetFuturesAccountUsdtBalanceAsync(settings: settings);
 
             if (!isAccountUsdtSuccess)
             {
-                return false;
+                return (false, message);
             }
 
-            if (balance != 0)
+            if (balance == 0)
             {
-                return false;
+                return (false, $"Во фьючерсе нет {BinanceKeys.USDT}.");
             }
 
             var client = GetBinanceClient(settings);
 
-            var result = await client.GeneralApi.Futures.TransferFuturesAccountAsync(USDT, balance.Value, Binance.Net.Enums.FuturesTransferType.FromUsdtFuturesToSpot);
+            if (!string.IsNullOrEmpty(client.Message))
+            {
+                return (false, client.Message);
+            }
+
+            var result = await client.client.GeneralApi.Futures.TransferFuturesAccountAsync(BinanceKeys.USDT, balance.Value, Binance.Net.Enums.FuturesTransferType.FromUsdtFuturesToSpot);
 
             return CheckStatus(result);
         }
@@ -98,26 +101,33 @@ namespace BinanceApi.Module.Services
         /// <summary>
         /// Получение баланса по Фьючерсу
         /// </summary>
-        private async Task<(bool IsSuccess, decimal? Balance)> GetFuturesAccountUsdtBalanceAsync(SettingsInfo settings)
+        private async Task<(bool IsSuccess, string Message, decimal? Balance)> GetFuturesAccountUsdtBalanceAsync(SettingsInfo settings)
         {
             var client = GetBinanceClient(settings);
 
-            var result = await client.UsdFuturesApi.Account.GetAccountInfoAsync();
-
-            if (!CheckStatus(result))
+            if (!string.IsNullOrEmpty(client.Message))
             {
-                return (false, default);
+                return (false, client.Message, null);
             }
 
-            var futuresUsdtInfo = result.Data.Assets.FirstOrDefault(x => x.Asset == USDT);
+            var result = await client.client.UsdFuturesApi.Account.GetAccountInfoAsync();
+
+            (bool isSuccessStatus, string messageStatus) = CheckStatus(result);
+
+            if (!isSuccessStatus)
+            {
+                return (false, messageStatus, null);
+            }
+
+            var futuresUsdtInfo = result.Data.Assets.FirstOrDefault(x => x.Asset == BinanceKeys.USDT);
 
             if (futuresUsdtInfo == null)
             {
-                _logger.LogError($"Ошибка. Не найдена монета {USDT} во Фьючерсном кошельке");
-                return (false, null);
+                _logger.LogError($"Ошибка. Не найдена монета {BinanceKeys.USDT} во Фьючерсном кошельке");
+                return (false, null, null);
             }
 
-            return (true, futuresUsdtInfo.WalletBalance);
+            return (true, null, futuresUsdtInfo.WalletBalance);
         }
 
         #endregion
@@ -127,33 +137,47 @@ namespace BinanceApi.Module.Services
         /// <summary>
         /// Получение системной информации бинанса, включая минимальные значения по валютам
         /// </summary>
-        public async Task<(bool IsSuccess, BinanceExchangeInfo ExchangeInfo)> GetExchangeInfoAsync(SettingsInfo settings)
+        public async Task<(bool IsSuccess, string Message, BinanceExchangeInfo ExchangeInfo)> GetExchangeInfoAsync(SettingsInfo settings)
         {
             var client = GetBinanceClient(settings);
 
-            var result = await client.SpotApi.ExchangeData.GetExchangeInfoAsync();
-
-            if (!CheckStatus(result))
+            if (!string.IsNullOrEmpty(client.Message))
             {
-                return (false, default);
+                return (false, client.Message, null);
             }
 
-            return (true, result.Data);
+            var result = await client.client.SpotApi.ExchangeData.GetExchangeInfoAsync();
+
+            (bool isSuccessStatus, string messageStatus) = CheckStatus(result);
+
+            if (!isSuccessStatus)
+            {
+                return (false, messageStatus, null);
+            }
+
+            return (true, null, result.Data);
         }
 
         /// <summary>
         /// Получение криптовалют из СПОТ аккаунта
         /// </summary>
         /// <param name="except">Список криптовалют, кроме указанных в except.</param>
-        public async Task<(bool IsSuccess, List<BinanceBalance> Currencies)> GetBinanceCurrenciesAsync(SettingsInfo settings, List<string> except)
+        public async Task<(bool IsSuccess, string Message, List<BinanceBalance> Currencies)> GetBinanceCurrenciesAsync(SettingsInfo settings, List<string> except)
         {
             var client = GetBinanceClient(settings);
 
-            var result = await client.SpotApi.Account.GetAccountInfoAsync();
-
-            if (!CheckStatus(result))
+            if (!string.IsNullOrEmpty(client.Message))
             {
-                return (false, default);
+                return (false, client.Message, default);
+            }
+
+            var result = await client.client.SpotApi.Account.GetAccountInfoAsync();
+
+            (bool isSuccessStatus, string messageStatus) = CheckStatus(result);
+
+            if (!isSuccessStatus)
+            {
+                return (false, messageStatus, default);
             }
 
             List<BinanceBalance> currencies;
@@ -167,7 +191,7 @@ namespace BinanceApi.Module.Services
                 currencies = result.Data.Balances.Where(x => x.Available != 0 && !string.IsNullOrEmpty(x.Asset) && !except.Contains(x.Asset)).ToList();
             }
 
-            return (true, currencies);
+            return (true, null, currencies);
         }
 
         #endregion
@@ -177,35 +201,42 @@ namespace BinanceApi.Module.Services
         /// <summary>
         /// Получение информации по криптовалюте
         /// </summary>
-        public async Task<(bool IsSuccess, AssetsInfo Currency)> GetСurrencyAsync(BinanceExchangeInfo exchangeInfo, string asset, SettingsInfo settings)
+        public async Task<(bool IsSuccess, string Message, AssetsInfo Currency)> GetСurrencyAsync(BinanceExchangeInfo exchangeInfo, string asset, SettingsInfo settings)
         {
             var client = GetBinanceClient(settings);
 
-            var result = await client.SpotApi.Account.GetAccountInfoAsync();
-
-            if (!CheckStatus(result))
+            if (!string.IsNullOrEmpty(client.Message))
             {
-                return (false, default);
+                return (false, client.Message, default);
+            }
+
+            var result = await client.client.SpotApi.Account.GetAccountInfoAsync();
+
+            (bool isSuccessStatus, string messageStatus) = CheckStatus(result);
+
+            if (!isSuccessStatus)
+            {
+                return (false, messageStatus, default);
             }
 
             var currency = result.Data.Balances.FirstOrDefault(x => x.Available != 0 && x.Asset == asset);
 
             if (currency != null)
             {
-                (bool isSuccessQuantity, AssetsInfo assetInfo) = await GetQuantity(exchangeInfo, currency.Asset, currency.Available * 0.98m, settings: settings);
+                (bool isSuccessQuantity, string messageQuantity, AssetsInfo assetInfo) = await GetQuantity(exchangeInfo, currency.Asset, currency.Available * 0.98m, settings: settings);
 
                 if (!isSuccessQuantity)
                 {
-                    return (false, default);
+                    return (false, messageQuantity, default);
                 }
 
                 _logger.LogTrace($"Для {assetInfo.FromAsset} ({assetInfo.ToAsset}) количество определилось как {assetInfo.Quantity} из {currency.Available}({currency.Available}), {(assetInfo.IsDust ? "ПЫЛЬ" : "НЕ ПЫЛЬ")}.");
-                return (true, assetInfo);
+                return (true, null, assetInfo);
             }
             else
             {
                 _logger.LogInformation($"Не найдена монета {asset}");
-                return (true, default);
+                return (true, null, default);
             }
         }
 
@@ -215,31 +246,38 @@ namespace BinanceApi.Module.Services
         /// <param name="quantity">Количество перевода</param>
         /// <param name="fromAsset">Из какой валюты</param>
         /// <param name="toAsset">В какую валюту</param>
-        public async Task<bool> SellCoinAsync(decimal quantity, string fromAsset, string toAsset, SettingsInfo settings)
+        public async Task<(bool IsSuccess, string Message)> SellCoinAsync(decimal quantity, string fromAsset, string toAsset, SettingsInfo settings)
         {
             var client = GetBinanceClient(settings);
 
-            var result = await client.SpotApi.Trading.PlaceOrderAsync($"{fromAsset}{toAsset}", Binance.Net.Enums.OrderSide.Sell, Binance.Net.Enums.SpotOrderType.Market, quoteQuantity: quantity);
-
-            if (!CheckStatus(result))
+            if (!string.IsNullOrEmpty(client.Message))
             {
-                _logger.LogError($"Ошибка продажи валюты {fromAsset}{toAsset}. {result.Error}" + result.Error.ToString());
-                return false;
+                return (false, client.Message);
             }
 
-            return true;
+            var result = await client.client.SpotApi.Trading.PlaceOrderAsync($"{fromAsset}{toAsset}", Binance.Net.Enums.OrderSide.Sell, Binance.Net.Enums.SpotOrderType.Market, quoteQuantity: quantity);
+
+            (bool isSuccessStatus, string messageStatus) = CheckStatus(result);
+
+            if (!isSuccessStatus)
+            {
+                _logger.LogError($"Ошибка продажи валюты {fromAsset}{toAsset}. {result.Error}" + result.Error.ToString());
+                return (false, messageStatus);
+            }
+
+            return (true, null);
         }
 
         #endregion
 
         #region Продажа пыли
 
-        public async Task<bool> TransferDustAsync(List<string> assets, SettingsInfo settings)
+        public async Task<(bool IsSuccess, string Message)> TransferDustAsync(List<string> assets, SettingsInfo settings)
         {
             if (!assets.Any())
             {
                 _logger.LogTrace($"Нет монет с маленьким балансом.");
-                return true;
+                return (true, null);
             }
             else
             {
@@ -248,39 +286,51 @@ namespace BinanceApi.Module.Services
 
             var client = GetBinanceClient(settings);
 
-            var result = await client.SpotApi.Account.DustTransferAsync(assets);
-
-            if (!CheckStatus(result))
+            if (!string.IsNullOrEmpty(client.Message))
             {
-                return false;
+                return (false, client.Message);
             }
 
-            return true;
+            var result = await client.client.SpotApi.Account.DustTransferAsync(assets);
+
+            (bool isSuccessStatus, string messageStatus) = CheckStatus(result);
+
+            if (!isSuccessStatus)
+            {
+                return (false, messageStatus);
+            }
+
+            return (true, null);
         }
 
         #endregion
 
         #region Получение доп. данных при продаже валюты
 
-        private async Task<(bool IsSuccess, AssetsInfo AssetInfo)> GetQuantity(BinanceExchangeInfo exchangeInfo, string fromAsset, decimal quantity, SettingsInfo settings)
+        private async Task<(bool IsSuccess, string Message, AssetsInfo AssetInfo)> GetQuantity(BinanceExchangeInfo exchangeInfo, string fromAsset, decimal quantity, SettingsInfo settings)
         {
-            (bool isSuccessGetQuantityUSDT, AssetsInfo usdtAssetInfo) = await GetQuantity(exchangeInfo, fromAsset, USDT, quantity, settings: settings);
+            (bool isSuccessGetQuantityUSDT, string messageGetQuantityUSDT, AssetsInfo usdtAssetInfo) = await GetQuantity(exchangeInfo, fromAsset, BinanceKeys.USDT, quantity, settings: settings);
 
             if (isSuccessGetQuantityUSDT && !string.IsNullOrEmpty(usdtAssetInfo.ToAsset))
             {
-                return (true, usdtAssetInfo);
+                return (true, null, usdtAssetInfo);
             }
             else if (string.IsNullOrEmpty(usdtAssetInfo.ToAsset))
             {
-                (bool isSuccessGetQuantityAnother, AssetsInfo anotherAssetInfo) = await GetQuantity(exchangeInfo, fromAsset, null, quantity, settings: settings);
+                (bool isSuccessGetQuantityAnother, string messageGetQuantityAnother, AssetsInfo anotherAssetInfo) = await GetQuantity(exchangeInfo, fromAsset, null, quantity, settings: settings);
+
+                if (!isSuccessGetQuantityAnother)
+                {
+                    return (false, messageGetQuantityAnother, null);
+                }
 
                 if (isSuccessGetQuantityAnother && !string.IsNullOrEmpty(anotherAssetInfo.ToAsset))
                 {
-                    return (true, anotherAssetInfo);
+                    return (true, null, anotherAssetInfo);
                 }
             }
 
-            return default;
+            return (false, messageGetQuantityUSDT, null);
         }
 
         /// <summary>
@@ -290,7 +340,7 @@ namespace BinanceApi.Module.Services
         /// <param name="asset">Валюта</param>
         /// <param name="quantity">Количество для продажи</param>
         /// <returns></returns>
-        private async Task<(bool IsSuccess, AssetsInfo AssetInfo)> GetQuantity(BinanceExchangeInfo exchangeInfo, string fromAsset, string toAsset, decimal quantity, SettingsInfo settings)
+        private async Task<(bool IsSuccess, string Message, AssetsInfo AssetInfo)> GetQuantity(BinanceExchangeInfo exchangeInfo, string fromAsset, string toAsset, decimal quantity, SettingsInfo settings)
         {
             BinanceSymbol symbolInfo;
             if (string.IsNullOrEmpty(toAsset))
@@ -305,18 +355,18 @@ namespace BinanceApi.Module.Services
             if (symbolInfo == null)
             {
                 _logger.LogTrace($"Не найдены фильтры для {fromAsset}");
-                return (false, new AssetsInfo(fromAsset, null, default(decimal), false));
+                return (false, null, new AssetsInfo(fromAsset, null, default(decimal), false));
             }
 
             var symbolFilterLotSize = symbolInfo.LotSizeFilter;
             var symbolFilterMinNotional = symbolInfo.MinNotionalFilter;
 
-            (bool isSuccessGetPriceInfo, BinancePrice price) = await GetPrice(fromAsset, symbolInfo.QuoteAsset, settings: settings);
+            (bool isSuccessGetPriceInfo, string messageGetPriceInfo, BinancePrice price) = await GetPrice(fromAsset, symbolInfo.QuoteAsset, settings: settings);
 
             if (!isSuccessGetPriceInfo)
             {
                 _logger.LogTrace($"Не удалось получить цену для {fromAsset}{symbolInfo.QuoteAsset}");
-                return (false, new AssetsInfo(fromAsset, symbolInfo.QuoteAsset, default(decimal), false));
+                return (false, messageGetPriceInfo, new AssetsInfo(fromAsset, symbolInfo.QuoteAsset, default(decimal), false));
             }
 
             // преобразует число, например 304.012334 если stepsize = 0.001 в 304.012
@@ -328,7 +378,7 @@ namespace BinanceApi.Module.Services
             if (resultQuantity == 0)
             {
                 _logger.LogTrace($"Полученное значение для {fromAsset} = 0");
-                return (true, new AssetsInfo(fromAsset, symbolInfo.QuoteAsset, resultQuantity, true));
+                return (true, null, new AssetsInfo(fromAsset, symbolInfo.QuoteAsset, resultQuantity, true));
             }
 
             if (resultQuantity >= symbolFilterLotSize.MinQuantity && resultQuantity <= symbolFilterLotSize.MaxQuantity)
@@ -345,12 +395,12 @@ namespace BinanceApi.Module.Services
                 if (resultQuantity * 1.05m < symbolFilterMinNotional.MinNotional)
                 {
                     _logger.LogTrace("Проверку на MIN_NOTIONAL не прошло");
-                    return (true, new AssetsInfo(fromAsset, symbolInfo.QuoteAsset, resultQuantity, true));
+                    return (true, null, new AssetsInfo(fromAsset, symbolInfo.QuoteAsset, resultQuantity, true));
                 }
                 else
                 {
                     _logger.LogTrace("Проверку на MIN_NOTIONAL прошло");
-                    return (true, new AssetsInfo(fromAsset, symbolInfo.QuoteAsset, resultQuantity, false));
+                    return (true, null, new AssetsInfo(fromAsset, symbolInfo.QuoteAsset, resultQuantity, false));
                 }
             }
 
@@ -362,18 +412,25 @@ namespace BinanceApi.Module.Services
         /// </summary>
         /// <param name="fromAsset">Первая валюта</param>
         /// <param name="toAsset">Вторая валюта</param>
-        private async Task<(bool IsSuccess, BinancePrice Price)> GetPrice(string fromAsset, string toAsset, SettingsInfo settings)
+        private async Task<(bool IsSuccess, string Message, BinancePrice Price)> GetPrice(string fromAsset, string toAsset, SettingsInfo settings)
         {
             var client = GetBinanceClient(settings);
 
-            var result = await client.SpotApi.ExchangeData.GetPriceAsync($"{fromAsset}{toAsset}");
-
-            if (!CheckStatus(result))
+            if (!string.IsNullOrEmpty(client.Message))
             {
-                return default;
+                return (false, client.Message, default);
             }
 
-            return (true, result.Data);
+            var result = await client.client.SpotApi.ExchangeData.GetPriceAsync($"{fromAsset}{toAsset}");
+
+            (bool isSuccessStatus, string messageStatus) = CheckStatus(result);
+
+            if (!isSuccessStatus)
+            {
+                return (false, messageStatus, default);
+            }
+
+            return (true, null, result.Data);
         }
 
         #endregion
@@ -384,11 +441,18 @@ namespace BinanceApi.Module.Services
         {
             var client = GetBinanceClient(settings);
 
-            var result = await client.SpotApi.Account.GetUserAssetsAsync();
-
-            if (!CheckStatus(result))
+            if (!string.IsNullOrEmpty(client.Message))
             {
-                return (false, $"Ошибка. {result.Error}", null);
+                return (false, client.Message, default);
+            }
+
+            var result = await client.client.SpotApi.Account.GetUserAssetsAsync();
+
+            (bool isSuccessStatus, string messageStatus) = CheckStatus(result);
+
+            if (!isSuccessStatus)
+            {
+                return (false, messageStatus, default);
             }
 
             return (true, null, result.Data.Where(x => assets.Contains(x.Asset)));
@@ -398,11 +462,18 @@ namespace BinanceApi.Module.Services
         {
             var client = GetBinanceClient(settings);
 
-            var result = await client.SpotApi.Account.WithdrawAsync(asset: asset, address: address, quantity: amount, network: network);
-
-            if (!CheckStatus(result))
+            if (!string.IsNullOrEmpty(client.Message))
             {
-                return (false, $"Ошибка. {result.Error}");
+                return (false, client.Message);
+            }
+
+            var result = await client.client.SpotApi.Account.WithdrawAsync(asset: asset, address: address, quantity: amount, network: network);
+
+            (bool isSuccessStatus, string messageStatus) = CheckStatus(result);
+
+            if (!isSuccessStatus)
+            {
+                return (false, messageStatus);
             }
 
             return (true, null);

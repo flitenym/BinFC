@@ -56,11 +56,18 @@ namespace WorkerService.Module.Services
 
         private async void DoWork(object state)
         {
-            // будем отправлять сообщения пользователям
-            await SendMessagesAsync();
+            try
+            {
+                // будем отправлять сообщения пользователям
+                await SendMessagesAsync();
 
-            // удалим userInfo, где не подтверждены и время больше недели.
-            await NotApproveUserInfoAsync();
+                // удалим userInfo, где не подтверждены и время больше недели.
+                await NotApproveUserInfoAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.StackTrace);
+            }
         }
 
         private async Task SendMessagesAsync()

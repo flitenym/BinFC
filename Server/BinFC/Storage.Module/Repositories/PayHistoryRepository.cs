@@ -66,6 +66,24 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
+        public async Task<string> CreateAsync(PayHistory obj, long userId)
+        {
+            UserInfo user = await _dataContext
+                .UsersInfo
+                .FirstOrDefaultAsync(x=>x.UserId == userId);
+
+            if (user == null)
+            {
+                return $"Не найден пользователь с Id {userId}";
+            }
+
+            obj.UserId = user.Id;
+
+            _dataContext.PayHistory.Add(obj);
+
+            return await SaveChangesAsync();
+        }
+
         public Task<string> SaveChangesAsync()
         {
             return _baseRepository.SaveChangesAsync();

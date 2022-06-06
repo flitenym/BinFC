@@ -31,14 +31,6 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
-        public async Task<FuturesData> GetByUserIdAsync(long userId)
-        {
-            return await _dataContext
-                .FuturesData
-                .Include(i => i.User)
-                .FirstOrDefaultAsync(x => x.UserId == userId);
-        }
-
         public IEnumerable<FuturesData> GetLastData()
         {
             return _dataContext.FuturesData.AsNoTracking()
@@ -105,9 +97,23 @@ namespace Storage.Module.Repositories
         {
             var data = await GetByUserIdAsync(userId);
 
+            if (data == null)
+            {
+                return;
+            }
+
             data.IsPaid = true;
 
             _dataContext.FuturesData.Update(data);
+        }
+
+        private async Task<FuturesData> GetByUserIdAsync(long userId)
+        {
+            return await _dataContext
+                .FuturesData
+                .Include(i => i.User)
+                .Where(x => x.User.UserId == userId)
+                .FirstOrDefaultAsync();
         }
     }
 }
