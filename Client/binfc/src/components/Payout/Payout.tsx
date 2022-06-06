@@ -4,6 +4,7 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { paymentService } from "../../services/payment.service";
 import { Spin, Space } from 'antd';
+import { sortedString } from "../../helpers/sortedHelper";
 
 const { Title } = Typography;
 
@@ -35,7 +36,7 @@ const Payout: FunctionComponent = () => {
                     {
                         id: item?.userId,
                         key: item?.userId,
-                        userName: item ? item?.userName : t("common:noData"),
+                        userName: item.userName === null ? t("common:noData") : item.userName,
                         bepAddress: item ? item?.bepAddress : t("common:noData"),
                         trcAddress: item ? item?.trcAddress : t("common:noData"),
                         usdt: item ? item?.usdt : t("common:noData"),
@@ -105,20 +106,20 @@ const Payout: FunctionComponent = () => {
             title: t("common:TableName"),
             dataIndex: "userName",
             key: "userName",
-            sorter: (a: any, b: any) => a.userName.length - b.userName.length,
+            sorter: ((a: any, b: any) => sortedString(a.userName, b.userName)),
         },
         {
             title: t("common:TableTrc"),
             dataIndex: "trcAddress",
             key: "trcAddress",
-            sorter: (a: any, b: any) => a.trcAddress.length - b.trcAddress.length,
+            sorter: ((a: any, b: any) => sortedString(a.trcAddress, b.trcAddress)),
 
         },
         {
             title: t("common:TableBep"),
             dataIndex: "bepAddress",
             key: "bepAddress",
-            sorter: (a: any, b: any) => a.trcAddress.length - b.trcAddress.length,
+            sorter: ((a: any, b: any) => sortedString(a.bepAddress, b.bepAddress)),
         },
         {
             title: t("common:Payout"),
