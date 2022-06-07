@@ -36,6 +36,14 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
+        public IEnumerable<SpotScale> GetSorted()
+        {
+            return _dataContext
+                .SpotScale
+                .Include(i => i.Unique)
+                .OrderBy(x => x.FromValue);
+        }
+
         public async Task<SpotScale> GetByIdAsync(long id)
         {
             return await _dataContext
