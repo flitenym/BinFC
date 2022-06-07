@@ -93,6 +93,7 @@ const Settings: FunctionComponent = () => {
         isChanged: false,
     });
     const [disableButtons, setDisableButtons] = useState("False")
+    const [buttonsFlag, setButtonsFlag] = useState(true)
     const ws = useRef<any>(null);
 
     useEffect(() => {
@@ -174,18 +175,18 @@ const Settings: FunctionComponent = () => {
                 }
             })
         })
-
         ws.current = new WebSocket("ws://185.179.190.122/binfc_server/ws"); // создаем ws соединение
+
         const interval = setInterval(() => {
             ws.current.send('');
             ws.current.onmessage = (e: any) => {
                 setDisableButtons(e.data)
+                setButtonsFlag(false)
             };
         }, 5000);
 
         return () => {
             clearInterval(interval)
-            ws.current.close()
         };
     }, [])
 
@@ -440,20 +441,21 @@ const Settings: FunctionComponent = () => {
                 <Space>
                     <Button
                         type="primary"
-                        disabled={disableButtons === "False" ? false : true}
+                        disabled={disableButtons === "False"  && !buttonsFlag ? false : true}
                         onClick={() => binanceStart()}
                         style={{ textAlign: "center" }}>
                         {t("common:Start")}
                     </Button>
                     <Button
                         type="primary"
+                        disabled={!buttonsFlag ? false : true}
                         onClick={() => binanceRestart()}
                         style={{ textAlign: "center" }}>
                         {t("common:Restart")}
                     </Button>
                     <Button
                         type="primary"
-                        disabled={disableButtons === "True" ? false : true}
+                        disabled={disableButtons === "True"  && !buttonsFlag ? false : true}
                         onClick={() => binanceStop()}
                         style={{ textAlign: "center" }}>
                         {t("common:Stop")}

@@ -46,7 +46,7 @@
     "No": "No",
     "Russian": "Russian",
     "English": "English",
-    "Page": "Page",
+    "Page": "page",
     "Dates": "Dates",
     "Restart": "Restart",
     "Start": "Start",
@@ -71,5 +71,8 @@
     "OldPassword": "Old Password",
     "NewPassword": "New Password",
     "ConfirmPassword": "Confirm Password",
-    "ThisFieldRequired": "This field is required"
+    "ThisFieldRequired": "This field is required",
+    "TriggerDesc": "Descend sort text",
+    "TriggerAsc": "Ascend sort text",
+    "CancelSort": "Cancel sort text"
 }

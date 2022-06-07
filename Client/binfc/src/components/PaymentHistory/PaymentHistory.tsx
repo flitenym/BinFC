@@ -32,7 +32,7 @@ const PaymentHistory: FunctionComponent = () => {
         hideOnSinglePage: false,
         showSizeChanger: true,
         pageSizeOptions: ["10", "20", "50", "100", "300"],
-        locale: { items_per_page: ` / page` }
+        locale: { items_per_page: "" },
     });
     useEffect(() => {
         const arraySelectedElements = paymentDataTable.reduce((acc: any[], item: { id: any; }) => {
@@ -200,7 +200,7 @@ const PaymentHistory: FunctionComponent = () => {
             hideOnSinglePage: false,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50", "100", "300"],
-            locale: { items_per_page: ` / page` }
+            locale: { items_per_page: "" },
         });
     }
 
@@ -211,6 +211,11 @@ const PaymentHistory: FunctionComponent = () => {
     return (
         <React.Fragment>
             <Table
+                locale={{
+                    triggerDesc: t("common:TriggerDesc"),
+                    triggerAsc: t("common:TriggerAsc"),
+                    cancelSort: t("common:CancelSort")
+                }}
                 key={1}
                 rowSelection={rowSelection}
                 columns={columnPaymenyHistory}

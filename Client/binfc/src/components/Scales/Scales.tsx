@@ -362,6 +362,11 @@ const Scales: FunctionComponent = () => {
             <Tabs defaultActiveKey="1" type="card" >
                 <TabPane tab="Spot" key="1">
                     <Table
+                        locale={{
+                            triggerDesc: t("common:TriggerDesc"),
+                            triggerAsc: t("common:TriggerAsc"),
+                            cancelSort: t("common:CancelSort")
+                        }}
                         key={3}
                         loading={{ indicator: <Spin size="large" />, spinning: IsLoading }}
                         rowSelection={rowSelectionSpotsId}
@@ -499,6 +504,11 @@ const Scales: FunctionComponent = () => {
                 </TabPane>
                 <TabPane tab="Futures" key="2">
                     <Table
+                        locale={{
+                            triggerDesc: t("common:TriggerDesc"),
+                            triggerAsc: t("common:TriggerAsc"),
+                            cancelSort: t("common:CancelSort")
+                        }}
                         key={4}
                         loading={{ indicator: <Spin size="large" />, spinning: IsLoading }}
                         rowSelection={rowSelectionFuturesId}
@@ -635,6 +645,11 @@ const Scales: FunctionComponent = () => {
                 </TabPane>
             </Tabs>
             <Table
+                locale={{
+                    triggerDesc: t("common:TriggerDesc"),
+                    triggerAsc: t("common:TriggerAsc"),
+                    cancelSort: t("common:CancelSort")
+                }}
                 key={20}
                 loading={{ indicator: <Spin size="large" />, spinning: IsLoading }}
                 rowSelection={rowSelectionUniquessId}
