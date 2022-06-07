@@ -36,6 +36,14 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
+        public IEnumerable<FuturesScale> GetSorted()
+        {
+            return _dataContext
+                .FuturesScale
+                .Include(i => i.Unique)
+                .OrderBy(x => x.FromValue);
+        }
+
         public async Task<FuturesScale> GetByIdAsync(long id)
         {
             return await _dataContext

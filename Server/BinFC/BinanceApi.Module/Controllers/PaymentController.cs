@@ -48,6 +48,8 @@ namespace BinanceApi.Module.Controllers
         {
             (bool isSuccess, string message) = await _paymentService.BinancePayAsync(objects);
 
+            message = message.Trim();
+
             if (isSuccess)
             {
                 if (!string.IsNullOrEmpty(message))

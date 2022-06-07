@@ -97,11 +97,11 @@ namespace BinanceApi.Module.Services
         public async Task<(IEnumerable<PaymentDTO> PaymentInfo, bool IsSuccess, string Message)> CalculatePaymentInfoAsync()
         {
             IEnumerable<SpotData> spotData = _spotDataRepository.GetLastData();
-            IEnumerable<SpotScale> spotScale = _spotScaleRepository.Get();
+            IEnumerable<SpotScale> spotScale = _spotScaleRepository.GetSorted();
             (IEnumerable<PaymentDTO> spotPaymentInfo, bool spotIsSuccess, string spotMessage) = await GetCalculatedResultAsync(BinanceKeys.SPOT, SettingsKeys.SpotPercent, spotData, spotScale);
 
             IEnumerable<FuturesData> futuresData = _futuresDataRepository.GetLastData();
-            IEnumerable<FuturesScale> futuresScale = _futuresScaleRepository.Get();
+            IEnumerable<FuturesScale> futuresScale = _futuresScaleRepository.GetSorted();
             (IEnumerable<PaymentDTO> futuresPaymentInfo, bool futuresIsSuccess, string futuresMessage) = await GetCalculatedResultAsync(BinanceKeys.FUTURES, SettingsKeys.FuturesPercent, futuresData, futuresScale);
 
             if (!spotIsSuccess && !string.IsNullOrEmpty(futuresMessage) || !futuresIsSuccess && !string.IsNullOrEmpty(spotMessage))
@@ -340,6 +340,8 @@ namespace BinanceApi.Module.Services
 
             NumberFormatInfo setPrecision = new NumberFormatInfo() { NumberDecimalDigits = 6, NumberGroupSeparator = "", NumberDecimalSeparator = "." };
 
+            bool isHaveOnePay = false;
+
             StringBuilder builder = new StringBuilder();
 
             foreach (PaymentDTO paymentInfo in paymentsInfo)
@@ -391,7 +393,7 @@ namespace BinanceApi.Module.Services
                                 SendedSum = paymentInfo.Usdt,
                                 NumberPay = numberPay,
                                 UserId = paymentInfo.UserId
-                            }, 
+                            },
                             paymentInfo.UserId
                         );
 
@@ -411,7 +413,9 @@ namespace BinanceApi.Module.Services
                 }
             }
 
-            return (true, builder.ToString().Trim());
+            string haveOnePay = isHaveOnePay ? "Оплата произошла" : "Оплата не произошла";
+
+            return (true, $"{haveOnePay}{Environment.NewLine}{builder.ToString().Trim()}");
         }
 
         #endregion
