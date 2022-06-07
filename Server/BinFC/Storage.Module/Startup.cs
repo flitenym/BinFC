@@ -40,6 +40,8 @@ namespace Storage.Module
 
         public Task ConfigureServicesAsync(IServiceCollection services)
         {
+            services.AddLocalization(options => options.ResourcesPath = "Localization");
+
             services.AddControllers().AddApplicationPart(typeof(Startup).Assembly);
 
             services.AddStorage(_configuration);

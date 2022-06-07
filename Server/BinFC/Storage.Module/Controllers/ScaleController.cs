@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Controllers.Base;
 using Storage.Module.Entities;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,7 +58,7 @@ namespace Storage.Module.Controllers
         {
             if (obj == null)
             {
-                return BadRequest("Отправлена пустая сущность.");
+                return BadRequest(StorageLoc.Empty);
             }
 
             return StringToResult(await _spotScaleRepository.CreateAsync(obj));
@@ -68,7 +69,7 @@ namespace Storage.Module.Controllers
         {
             if (obj == null)
             {
-                return BadRequest("Отправлена пустая сущность.");
+                return BadRequest(StorageLoc.Empty);
             }
 
             return StringToResult(await _futuresScaleRepository.CreateAsync(obj));
@@ -79,7 +80,7 @@ namespace Storage.Module.Controllers
         {
             if (ids == null || !ids.Any())
             {
-                return BadRequest("Не указаны значения.");
+                return BadRequest(StorageLoc.EmptyValues);
             }
 
             return StringToResult(await _spotScaleRepository.DeleteAsync(ids));
@@ -90,7 +91,7 @@ namespace Storage.Module.Controllers
         {
             if (ids == null || !ids.Any())
             {
-                return BadRequest("Не указаны значения.");
+                return BadRequest(StorageLoc.EmptyValues);
             }
 
             return StringToResult(await _futuresScaleRepository.DeleteAsync(ids));
@@ -101,14 +102,14 @@ namespace Storage.Module.Controllers
         {
             if (newObj == null || newObj.Id != id)
             {
-                return BadRequest($"Отправлены разные значения у сущности и у переданного Id.");
+                return BadRequest(StorageLoc.NotEqualIds);
             }
 
             var obj = await _spotScaleRepository.GetByIdAsync(newObj.Id);
 
             if (obj == null)
             {
-                return NotFound($"Не найден {nameof(SpotScale)} с Id = {newObj.Id}.");
+                return NotFound(string.Format(StorageLoc.NotFoundWithId, nameof(SpotScale), newObj.Id));
             }
 
             return StringToResult(await _spotScaleRepository.UpdateAsync(obj, newObj));
@@ -119,14 +120,14 @@ namespace Storage.Module.Controllers
         {
             if (newObj == null || newObj.Id != id)
             {
-                return BadRequest($"Отправлены разные значения у сущности и у переданного Id.");
+                return BadRequest(StorageLoc.NotEqualIds);
             }
 
             var obj = await _futuresScaleRepository.GetByIdAsync(newObj.Id);
 
             if (obj == null)
             {
-                return NotFound($"Не найден {nameof(FuturesScale)} с Id = {newObj.Id}.");
+                return NotFound(string.Format(StorageLoc.NotFoundWithId, nameof(FuturesScale), newObj.Id));
             }
 
             return StringToResult(await _futuresScaleRepository.UpdateAsync(obj, newObj));

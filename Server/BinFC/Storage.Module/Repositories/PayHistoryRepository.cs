@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,7 +75,7 @@ namespace Storage.Module.Repositories
 
             if (user == null)
             {
-                return $"Не найден пользователь с Id {userId}";
+                return string.Format(StorageLoc.NotFoundUserByUserId, userId);
             }
 
             obj.UserId = user.Id;

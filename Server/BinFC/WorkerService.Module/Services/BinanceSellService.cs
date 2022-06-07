@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using WorkerService.Module.Localization;
 using WorkerService.Module.Services.Base;
 using WorkerService.Module.Services.Intrefaces;
 
@@ -59,14 +60,14 @@ namespace WorkerService.Module.Services
 
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogTrace($"Запуск службы {nameof(BinanceSellService)}");
+            _logger.LogTrace(string.Format(WorkerServiceLoc.StartService, nameof(BinanceSellService)));
             await base.StartAsync(cancellationToken);
             await SetBinanceSellEnableAsync(true);
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger?.LogTrace($"Остановка службы {nameof(BinanceSellService)}");
+            _logger.LogTrace(string.Format(WorkerServiceLoc.StopService, nameof(BinanceSellService)));
             await base.StopAsync(cancellationToken);
             await SetBinanceSellEnableAsync(false);
         }
@@ -87,13 +88,13 @@ namespace WorkerService.Module.Services
 
         public override Task RestartAsync(CancellationToken cancellationToken)
         {
-            _logger?.LogTrace($"Перезапуск службы {nameof(BinanceSellService)}");
+            _logger.LogTrace(string.Format(WorkerServiceLoc.RestartService, nameof(BinanceSellService)));
             return base.RestartAsync(cancellationToken);
         }
 
         public override async Task DoWorkAsync(CancellationToken cancellationToken)
         {
-            _logger.LogTrace($"Запуск продажи");
+            _logger.LogTrace(WorkerServiceLoc.StartBinanceSellDoWork);
 
             NotificationResult = new NotificationResult();
 
@@ -105,16 +106,16 @@ namespace WorkerService.Module.Services
                     bool isSuccess = await SellAsync(settings);
                     if (isSuccess)
                     {
-                        _logger?.LogTrace($"Продажа прошла успешно");
+                        _logger?.LogTrace(WorkerServiceLoc.SellSuccess);
                     }
                     else
                     {
-                        _logger?.LogInformation($"Продажа прошла неудачно");
+                        _logger?.LogInformation(WorkerServiceLoc.SellUnsuccess);
                     }
                 }
                 catch (Exception ex)
                 {
-                    string error = $"Продажа прошла с ошибками {ex}";
+                    string error = string.Format(WorkerServiceLoc.SellWithErrors, ex);
                     NotificationResult.NotificationMessages.Add(error);
                     _logger?.LogError(ex, error);
                 }
@@ -176,20 +177,20 @@ namespace WorkerService.Module.Services
         /// <returns></returns>
         private async Task<bool> TransferFuturesToSpotAsync(SettingsInfo settings)
         {
-            _logger.LogTrace($"Начинаем перевод {settings.SellCurrency} из фьючерс в спот");
+            _logger.LogTrace(string.Format(WorkerServiceLoc.StartTransferFuturesToSpot, settings.SellCurrency));
 
             (bool isSuccessTransferSpot, string messageTransferSpot) = await _binanceApiService.TransferFuturesToSpotUSDTAsync(settings);
 
             if (isSuccessTransferSpot)
             {
-                NotificationResult.NotificationMessages.Add($"Перевод {settings.SellCurrency} из фьючерс в спот был осуществлен. {messageTransferSpot}");
-                _logger.LogTrace($"Перевод {settings.SellCurrency} из фьючерс в спот был осуществлен. {messageTransferSpot}");
+                NotificationResult.NotificationMessages.Add(string.Format(WorkerServiceLoc.TransferSuccess, settings.SellCurrency, messageTransferSpot));
+                _logger.LogTrace(string.Format(WorkerServiceLoc.TransferSuccess, settings.SellCurrency, messageTransferSpot));
                 return true;
             }
             else
             {
-                NotificationResult.NotificationMessages.Add($"Перевод {settings.SellCurrency} из фьючерс в спот не был осуществлен. {messageTransferSpot}");
-                _logger.LogError($"Перевод {settings.SellCurrency} из фьючерс в спот не был осуществлен. {messageTransferSpot}");
+                NotificationResult.NotificationMessages.Add(string.Format(WorkerServiceLoc.TransferUnsuccess, settings.SellCurrency, messageTransferSpot));
+                _logger.LogError(string.Format(WorkerServiceLoc.TransferUnsuccess, settings.SellCurrency, messageTransferSpot));
                 return false;
             }
         }
@@ -205,18 +206,19 @@ namespace WorkerService.Module.Services
 
             if (!isSuccessGetExchangeInfo || exchangeInfo == null)
             {
-                NotificationResult.NotificationMessages.Add($"Ошибка получения информации минимальных требований по символам для перевода. {messageGetExchangeInfo}");
-                _logger.LogError("Ошибка получения информации минимальных требований по символам для перевода.");
+                NotificationResult.NotificationMessages.Add(string.Format(WorkerServiceLoc.GetExchangeInfoError, messageGetExchangeInfo));
+                _logger.LogError(string.Format(WorkerServiceLoc.GetExchangeInfoError, messageGetExchangeInfo));
                 return false;
             }
 
             // получим все валюты в балансе аккаунта, кроме USDT и BNB
-            (bool isSuccessGetAllCurrencies, string messageGetAllCurrencies, List<BinanceBalance> currencies) = await _binanceApiService.GetBinanceCurrenciesAsync(settings, new List<string>() { "USDT", "BNB" });
+            (bool isSuccessGetAllCurrencies, string messageGetAllCurrencies, List<BinanceBalance> currencies) = 
+                await _binanceApiService.GetBinanceCurrenciesAsync(settings, new List<string>() { BinanceKeys.USDT, BinanceKeys.BNB });
 
             if (!isSuccessGetAllCurrencies || currencies == null)
             {
-                NotificationResult.NotificationMessages.Add($"Ошибка получения валют. {messageGetAllCurrencies}");
-                _logger.LogError($"Ошибка получения валют. {messageGetAllCurrencies}");
+                NotificationResult.NotificationMessages.Add(string.Format(WorkerServiceLoc.GetCurrenciesError, messageGetAllCurrencies));
+                _logger.LogError(string.Format(WorkerServiceLoc.GetCurrenciesError, messageGetAllCurrencies));
                 return false;
             }
 
@@ -224,12 +226,12 @@ namespace WorkerService.Module.Services
 
             if (!currenciesInfo.Any())
             {
-                NotificationResult.NotificationMessages.Add($"Нет монет для продажи.");
-                _logger.LogTrace($"Нет монет для продажи.");
+                NotificationResult.NotificationMessages.Add(WorkerServiceLoc.CurrenciesEmpty);
+                _logger.LogTrace(WorkerServiceLoc.CurrenciesEmpty);
                 return true;
             }
 
-            _logger.LogTrace($"Начинаем продажу монет {string.Join(", ", currenciesInfo.Select(x => x.Asset))}");
+            _logger.LogTrace(string.Format(WorkerServiceLoc.StartSellCurrencies, string.Join(", ", currenciesInfo.Select(x => x.Asset))));
 
             #region Продажа криптовалют
 
@@ -255,35 +257,35 @@ namespace WorkerService.Module.Services
 
             NotificationResult.SuccessCoins.AddRange(currenciesInfo.Where(x => x.IsSell).Select(x => x.Asset).ToList());
 
-            _logger.LogTrace("Продажа монет выполнена");
+            _logger.LogTrace(WorkerServiceLoc.EndSellCurrencies);
 
             #endregion
 
             #region Перевод монет с маленьким балансом в BNB
 
-            _logger.LogTrace("Начинаем перевод монет с маленьким балансом в BNB");
+            _logger.LogTrace(WorkerServiceLoc.StartDustSell);
 
             // перевод мелких монет в BNB
             (bool isSuccessTransferDust, string messageTransferDust) = await _binanceApiService.TransferDustAsync(currenciesInfo.Where(x => x.IsDust).Select(x => x.Asset).ToList(), settings: settings);
 
             if (isSuccessTransferDust)
             {
-                NotificationResult.NotificationMessages.Add("Перевод монет с маленьким балансом в BNB закончен.");
-                _logger.LogTrace("Перевод монет с маленьким балансом в BNB закончен");
+                NotificationResult.NotificationMessages.Add(WorkerServiceLoc.StartDustSellSuccess);
+                _logger.LogTrace(WorkerServiceLoc.StartDustSellSuccess);
             }
             else
             {
-                NotificationResult.NotificationMessages.Add($"Перевод монет с маленьким балансом в BNB неудачен. {messageTransferDust}");
-                _logger.LogTrace("Перевод монет с маленьким балансом в BNB неудачен");
+                NotificationResult.NotificationMessages.Add(string.Format(WorkerServiceLoc.StartDustSellUnsuccess, messageTransferDust));
+                _logger.LogTrace(string.Format(WorkerServiceLoc.StartDustSellUnsuccess, messageTransferDust));
             }
 
             #endregion
 
-            (bool isSuccessSellBNB, bool isSellCoinBNB, bool isDustSellBNB) = await SellCoinAsync("BNB", exchangeInfo, settings: settings);
+            (bool isSuccessSellBNB, bool isSellCoinBNB, bool isDustSellBNB) = await SellCoinAsync(BinanceKeys.BNB, exchangeInfo, settings: settings);
 
             if (isSuccessSellBNB && isSellCoinBNB)
             {
-                NotificationResult.SuccessCoins.Add("BNB");
+                NotificationResult.SuccessCoins.Add(BinanceKeys.BNB);
             }
 
             return true;
@@ -298,29 +300,33 @@ namespace WorkerService.Module.Services
         /// <returns></returns>
         private async Task<(bool IsSuccess, bool IsSell, bool IsDust)> SellCoinAsync(string currencyAsset, BinanceExchangeInfo exchangeInfo, SettingsInfo settings)
         {
-            _logger.LogTrace($"Продажа {currencyAsset}");
+            _logger.LogTrace(string.Format(WorkerServiceLoc.SellCurrency, currencyAsset));
 
             // получим валюту и определим пыль или нет, если нет, то сразу продадим ее
-            (bool isSuccessCurrency, string messageCurrency, AssetsInfo currencyInfo) = await _binanceApiService.GetСurrencyAsync(exchangeInfo, currencyAsset, settings: settings);
+            (bool isSuccessCurrency, string messageCurrency, AssetsInfo currencyInfo) = 
+                await _binanceApiService.GetСurrencyAsync(exchangeInfo, currencyAsset, settings: settings);
 
             if (!isSuccessCurrency || currencyInfo == default || string.IsNullOrEmpty(currencyInfo.FromAsset) || string.IsNullOrEmpty(currencyInfo.ToAsset))
             {
-                NotificationResult.NotificationMessages.Add($"Продажа {currencyAsset}: неудачное получение валюты. {messageCurrency}");
-                _logger.LogTrace($"Продажа {currencyAsset}: неудачное получение валюты. {messageCurrency}");
+                NotificationResult.NotificationMessages.Add(string.Format(WorkerServiceLoc.GetCurrencyUnsuccess, currencyAsset, messageCurrency));
+                _logger.LogTrace(string.Format(WorkerServiceLoc.GetCurrencyUnsuccess, currencyAsset, messageCurrency));
                 return default;
             }
 
             if (!currencyInfo.IsDust)
             {
-                _logger.LogTrace($"Продажа {currencyAsset}: выполним продажу.");
+                _logger.LogTrace(string.Format(WorkerServiceLoc.StartNotDustCurrency, currencyAsset));
 
-                (bool isSuccessSell, string messageSell) = await _binanceApiService.SellCoinAsync(currencyInfo.Quantity, currencyInfo.FromAsset, currencyInfo.ToAsset, settings: settings);
+                (bool isSuccessSell, string messageSell) = 
+                    await _binanceApiService.SellCoinAsync(currencyInfo.Quantity, currencyInfo.FromAsset, currencyInfo.ToAsset, settings: settings);
 
-                _logger.LogTrace($"Продажа {currencyAsset}:{(isSuccessSell ? "" : " не")} выполнилась продажа по {currencyInfo.ToAsset}. {messageSell}");
+                _logger.LogTrace(
+                    string.Format(WorkerServiceLoc.SellNotDustCurrency, currencyAsset, (isSuccessSell ? "" : $" {WorkerServiceLoc.No}"), currencyInfo.ToAsset, messageSell)
+                );
 
                 if (!isSuccessSell)
                 {
-                    NotificationResult.NotificationMessages.Add($"Продажа {currencyAsset}:{(isSuccessSell ? "" : " не")} выполнилась продажа по {currencyInfo.ToAsset}. {messageSell}");
+                    NotificationResult.NotificationMessages.Add(string.Format(WorkerServiceLoc.SellNotDustCurrency, currencyAsset, (isSuccessSell ? "" : $" {WorkerServiceLoc.No}"), currencyInfo.ToAsset, messageSell));
                 }
 
                 return (true, isSuccessSell, false);
@@ -337,16 +343,16 @@ namespace WorkerService.Module.Services
         {
             string message = NotificationResult.GetMessage();
 
-            _logger.LogTrace($"Сообщение для администратора:{Environment.NewLine}{message}");
+            _logger.LogTrace(string.Format(WorkerServiceLoc.NotificationMessageText, Environment.NewLine, message));
             if (!settings.IsNotification)
             {
-                _logger.LogTrace("Уведомления отключены.");
+                _logger.LogTrace(WorkerServiceLoc.NotificationDisabled);
                 return Task.CompletedTask;
             }
 
             if (!settings.AdminsChatId.Any())
             {
-                _logger.LogTrace("Администраторов не найдено для отправки уведомления.");
+                _logger.LogTrace(WorkerServiceLoc.NotFoundAdmins);
                 return Task.CompletedTask;
             }
 
@@ -364,7 +370,7 @@ namespace WorkerService.Module.Services
                         Message = message
                     });
 
-                    _logger.LogTrace($"Отправлено уведомление пользователю {adminChatId}: {message}.");
+                    _logger.LogTrace(string.Format(WorkerServiceLoc.SendedNotification, adminChatId, message));
                 }
             }
 

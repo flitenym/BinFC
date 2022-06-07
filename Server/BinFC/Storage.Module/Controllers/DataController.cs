@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Controllers.Base;
 using Storage.Module.Entities;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +46,7 @@ namespace Storage.Module.Controllers
         {
             if (ids == null || !ids.Any())
             {
-                return BadRequest("Не указаны значения.");
+                return BadRequest(StorageLoc.EmptyValues);
             }
 
             return StringToResult(await _spotDataRepository.DeleteAsync(ids));
@@ -56,7 +57,7 @@ namespace Storage.Module.Controllers
         {
             if (ids == null || !ids.Any())
             {
-                return BadRequest("Не указаны значения.");
+                return BadRequest(StorageLoc.EmptyValues);
             }
 
             return StringToResult(await _futuresDataRepository.DeleteAsync(ids));

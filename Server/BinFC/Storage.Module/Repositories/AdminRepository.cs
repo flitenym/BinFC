@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,14 +53,14 @@ namespace Storage.Module.Repositories
 
             if (admin == null)
             {
-                return $"Не найден пользователь с логином {userName}";
+                return string.Format(StorageLoc.NotFoundUserByLogin, userName);
             }
 
             if (admin.Password.Equals(oldPassword))
             {
                 if (oldPassword.Equals(newPassword))
                 {
-                    return "Старый и новый пароль не должны быть одинаковыми.";
+                    return StorageLoc.OldAndNewPasswordShouldNotEqual;
                 }
                 else
                 {
@@ -71,7 +72,7 @@ namespace Storage.Module.Repositories
             }
             else
             {
-                return $"Старый пароль указан неверно.";
+                return StorageLoc.OldPasswordIncorrect;
             }
         }
 
@@ -84,7 +85,7 @@ namespace Storage.Module.Repositories
 
             if (admin == null)
             {
-                return $"Не найден пользователь с логином {userName}";
+                return string.Format(StorageLoc.NotFoundUserByLogin, userName);
             }
 
             admin.Language = language;

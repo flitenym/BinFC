@@ -6,6 +6,7 @@ using Storage.Module.Export.DTO;
 using Storage.Module.Export.Services.Interfaces;
 using Storage.Module.Import.DTO;
 using Storage.Module.Import.Services.Interfaces;
+using Storage.Module.Localization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,12 +30,12 @@ namespace Storage.Module.Controllers
         {
             if (model == null || model.Ids == null)
             {
-                return BadRequest("Отправлена пустая сущность.");
+                return BadRequest(StorageLoc.Empty);
             }
 
             if (!model.IsValid())
             {
-                return BadRequest("Ошибка проверки запроса.");
+                return BadRequest(StorageLoc.ErrorRequestCheck);
             }
 
             (bool isSuccess, string error, byte[] fileContent) = 

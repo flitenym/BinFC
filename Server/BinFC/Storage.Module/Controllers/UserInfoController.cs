@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Controllers.Base;
 using Storage.Module.Entities;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace Storage.Module.Controllers
         {
             if (obj == null)
             {
-                return BadRequest("Отправлена пустая сущность.");
+                return BadRequest(StorageLoc.Empty);
             }
 
             return StringToResult(await _userInfoRepository.CreateAsync(obj));
@@ -51,19 +52,19 @@ namespace Storage.Module.Controllers
         {
             if (newObj == null)
             {
-                return BadRequest("Отправлена пустая сущность.");
+                return BadRequest(StorageLoc.Empty);
             }
 
             if (newObj.Id != id)
             {
-                return BadRequest($"Отправлены разные значения у сущности и у переданного Id.");
+                return BadRequest(StorageLoc.NotEqualIds);
             }
 
             var obj = await _userInfoRepository.GetByIdAsync(newObj.Id);
 
             if (obj == null)
             {
-                return NotFound($"Не найден {nameof(UserInfo)} с Id = {newObj.Id}.");
+                return NotFound(string.Format(StorageLoc.NotFoundWithId, nameof(UserInfo), newObj.Id));
             }
 
             return StringToResult(await _userInfoRepository.UpdateAsync(obj, newObj));
@@ -76,7 +77,7 @@ namespace Storage.Module.Controllers
 
             if (obj == null)
             {
-                return NotFound("Не найдена запись для удаления.");
+                return NotFound(StorageLoc.NotFoundForRemove);
             }
 
             return StringToResult(await _userInfoRepository.DeleteAsync(obj));
@@ -87,7 +88,7 @@ namespace Storage.Module.Controllers
         {
             if (ids == null || !ids.Any())
             {
-                return BadRequest("Не указаны значения.");
+                return BadRequest(StorageLoc.EmptyValues);
             }
 
             return StringToResult(await _userInfoRepository.ApproveAsync(ids));
@@ -98,7 +99,7 @@ namespace Storage.Module.Controllers
         {
             if (ids == null || !ids.Any())
             {
-                return BadRequest("Не указаны значения.");
+                return BadRequest(StorageLoc.EmptyValues);
             }
 
             return StringToResult(await _userInfoRepository.NotApproveAsync(ids));

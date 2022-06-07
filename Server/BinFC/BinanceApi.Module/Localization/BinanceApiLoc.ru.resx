@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="NotSpecified" xml:space="preserve">
+    <value>Не указан {0}.</value>
+  </data>
+  <data name="Error2015" xml:space="preserve">
+    <value>Отсутствуют ApiKey/ApiSecret или действие не разрешено, включите в настройках Api соответствующие права.</value>
+  </data>
+  <data name="Error2008" xml:space="preserve">
+    <value>Неверный ApiKey/ApiSecret.</value>
+  </data>
+  <data name="Error32110" xml:space="preserve">
+    <value>Перевод монет с маленьким балансом не выполнен, т.к. можно производить раз в 6 часов.</value>
+  </data>
+  <data name="FuturesHaveNotCurrency" xml:space="preserve">
+    <value>Во фьючерсе нет {0}.</value>
+  </data>
+  <data name="FuturesAccountHaveNotCurrency" xml:space="preserve">
+    <value>Ошибка. Не найдена монета {0} во Фьючерсном кошельке.</value>
+  </data>
+  <data name="AssetInfoWithDust" xml:space="preserve">
+    <value>Для {0} ({1}) количество определилось как {2} из {3}({4}), {5}.</value>
+  </data>
+  <data name="NotFoundAsset" xml:space="preserve">
+    <value>Не найдена монета {0}.</value>
+  </data>
+  <data name="SellAssetError" xml:space="preserve">
+    <value>Ошибка продажи валюты {0}{1}. {2}.{3}</value>
+  </data>
+  <data name="HaveNotDustAssets" xml:space="preserve">
+    <value>Нет монет с маленьким балансом.</value>
+  </data>
+  <data name="HaveDustAssets" xml:space="preserve">
+    <value>Монеты с маленьким балансом: {0}.</value>
+  </data>
+  <data name="HaveNotSymbolInfo" xml:space="preserve">
+    <value>Не найдены фильтры для {0}.</value>
+  </data>
+  <data name="HaveNotPriceInfo" xml:space="preserve">
+    <value>Не удалось получить цену для {0}{1}.</value>
+  </data>
+  <data name="SellResultInfo" xml:space="preserve">
+    <value>ResultQuantity: {0}, StepSize: {1}, MinQuantity: {2}, MaxQuantity: {3}.</value>
+  </data>
+  <data name="SellResultInfoZero" xml:space="preserve">
+    <value>Полученное значение для {0} = 0.</value>
+  </data>
+  <data name="LotSizeSuccess" xml:space="preserve">
+    <value>Проверку на LOT_SIZE прошло.</value>
+  </data>
+  <data name="SuccessPriceLotSizeSuccess" xml:space="preserve">
+    <value>ResultQuantity: {0}, Price: {1}, MinNotional: {2}.</value>
+  </data>
+  <data name="MinNotionalSuccess" xml:space="preserve">
+    <value>Проверку на MIN_NOTIONAL прошло.</value>
+  </data>
+  <data name="MinNotionalNotSuccess" xml:space="preserve">
+    <value>Проверку на MIN_NOTIONAL не прошло.</value>
+  </data>
+  <data name="NetworksNotFound" xml:space="preserve">
+    <value>Не удалось определить сеть для вывода.</value>
+  </data>
+  <data name="NetworkWithdrawDisabled" xml:space="preserve">
+    <value>Для {0} запрещен вывод.</value>
+  </data>
+  <data name="ScalesNotFound" xml:space="preserve">
+    <value>{0}. Необходимо указать линейку.</value>
+  </data>
+  <data name="GetSettingsPercent" xml:space="preserve">
+    <value>{0}. Нет данных по проценту в настройках.</value>
+  </data>
+  <data name="DataNotFound" xml:space="preserve">
+    <value>{0}. Нет данных для получения информации оплаты.</value>
+  </data>
+  <data name="NeedTwoExcelFiles" xml:space="preserve">
+    <value>{0}. Необходимо импортировать 2 разных эксель файла.</value>
+  </data>
+  <data name="NeedScalesForUser" xml:space="preserve">
+    <value>{0}. Необходимо указать шкалу для пользователя {1}.</value>
+  </data>
+  <data name="Empty" xml:space="preserve">
+    <value>Отправлена пустая сущность.</value>
+  </data>
+  <data name="BalanceLess" xml:space="preserve">
+    <value>Баланс по {BinanceKeys.USDT}: {(usdt?.Available ?? 0)}, а по выплатам: {trcBalance}.</value>
+  </data>
+  <data name="PursesEmpty" xml:space="preserve">
+    <value>Не удалось определить кошелек у пользователя {0}.</value>
+  </data>
+  <data name="CanNotCreatePayHistory" xml:space="preserve">
+    <value>Не удалось создать запись в истории для пользователя с Id {0}: {1}.</value>
+  </data>
+  <data name="CanNotSendMoney" xml:space="preserve">
+    <value>Не удалось отправить пользователю с Id {0}: {1}.</value>
+  </data>
+  <data name="WithdrawMinLessPay" xml:space="preserve">
+    <value>Оплата суммы {0} меньше чем минимальная сумма для перевода {1} по {2}.</value>
+  </data>
+  <data name="PaySuccess" xml:space="preserve">
+    <value>Оплата произошла.</value>
+  </data>
+  <data name="PayUnsuccess" xml:space="preserve">
+    <value>Оплата не произошла.</value>
+  </data>
+  <data name="Balance" xml:space="preserve">
+    <value>Баланс</value>
+  </data>
+</root>

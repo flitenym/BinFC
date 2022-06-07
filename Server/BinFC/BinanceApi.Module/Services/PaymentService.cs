@@ -13,6 +13,7 @@ using Binance.Net.Objects.Models.Spot;
 using System.Globalization;
 using Storage.Module.Classes;
 using System.Text;
+using BinanceApi.Module.Localization;
 
 namespace BinanceApi.Module.Services
 {
@@ -74,17 +75,17 @@ namespace BinanceApi.Module.Services
 
             if (usdtNetwork == null && busdNetwork == null)
             {
-                return (false, $"Не удалось определить сеть для вывода.", default, default);
+                return (false, BinanceApiLoc.NetworksNotFound, default, default);
             }
 
             if (!(usdtNetwork?.WithdrawEnabled ?? false))
             {
-                return (false, $"Для {usdtNetwork?.Network} запрещен вывод", default, default);
+                return (false, string.Format(BinanceApiLoc.NetworkWithdrawDisabled, usdtNetwork?.Network), default, default);
             }
 
             if (!(busdNetwork?.WithdrawEnabled ?? false))
             {
-                return (false, $"Для {busdNetwork?.Network} запрещен вывод", default, default);
+                return (false, string.Format(BinanceApiLoc.NetworkWithdrawDisabled, busdNetwork?.Network), default, default);
             }
 
             return (true, default, usdtNetwork, busdNetwork);
@@ -127,19 +128,19 @@ namespace BinanceApi.Module.Services
 
             if (!scales.Any())
             {
-                return (result, false, $"{commandName}. Необходимо указать линейку.");
+                return (result, false, string.Format(BinanceApiLoc.ScalesNotFound, commandName));
             }
 
             (bool isSuccessGetPercent, long settingsPercent) = await _settingsRepository.GetSettingsByKeyAsync<long>(settingsPercentKey, false);
 
             if (!isSuccessGetPercent)
             {
-                return (result, false, $"{commandName}. Нет данных по проценту в настройках.");
+                return (result, false, string.Format(BinanceApiLoc.GetSettingsPercent, commandName));
             }
 
             if (!data.Any())
             {
-                return (result, false, $"{commandName}. Нет данных для получения информации оплаты.");
+                return (result, false, string.Format(BinanceApiLoc.DataNotFound, commandName));
             }
 
             List<long> users = data.Select(x => x.UserId).Distinct().ToList();
@@ -147,7 +148,7 @@ namespace BinanceApi.Module.Services
 
             if (!dates.Any())
             {
-                return (result, false, $"{commandName}. Необходимо импортировать 2 разных эксель файла.");
+                return (result, false, string.Format(BinanceApiLoc.NeedTwoExcelFiles, commandName));
             }
 
             DateTime lastDate = dates.FirstOrDefault();
@@ -155,7 +156,7 @@ namespace BinanceApi.Module.Services
 
             if (lastDate == firstDate)
             {
-                return (result, false, $"{commandName}. Необходимо импортировать 2 разных эксель файла.");
+                return (result, false, string.Format(BinanceApiLoc.NeedTwoExcelFiles, commandName));
             }
 
             // после предварительных проверок получим первичные данные для подсчета
@@ -207,7 +208,7 @@ namespace BinanceApi.Module.Services
 
                 if (scale == null)
                 {
-                    return (default, false, $"{commandName}. Необходимо указать шкалу для пользователя {userInfo.UserId}.");
+                    return (default, false, string.Format(BinanceApiLoc.NeedScalesForUser, commandName, userInfo.UserId));
                 }
 
                 // ищем нужный процент
@@ -302,7 +303,7 @@ namespace BinanceApi.Module.Services
         {
             if (!paymentsInfo.Any())
             {
-                return (false, "Отправлена пустая сущность.");
+                return (false, BinanceApiLoc.Empty);
             }
 
             SettingsInfo settings = await _settingsRepository.GetSettingsAsync();
@@ -318,14 +319,14 @@ namespace BinanceApi.Module.Services
 
             if ((usdt?.Available ?? 0) < trcBalance)
             {
-                return (false, $"Баланс по USDT: {(usdt?.Available ?? 0)}, а по выплатам: {trcBalance}");
+                return (false, string.Format(BinanceApiLoc.BalanceLess, BinanceKeys.USDT, (usdt?.Available ?? 0), trcBalance));
             }
 
             var bepBalance = paymentsInfo.Where(x => !string.IsNullOrEmpty(x.BepAddress)).Sum(x => x.Usdt);
 
             if ((busd?.Available ?? 0) < bepBalance)
             {
-                return (false, $"Баланс по BUSD: {(busd?.Available ?? 0)}, а по выплатам: {bepBalance}");
+                return (false, string.Format(BinanceApiLoc.BalanceLess, BinanceKeys.BUSD, (busd?.Available ?? 0), bepBalance));
             }
 
             (bool isSuccessGetNetworks, string messageGetNetworks, BinanceNetwork usdtNetwork, BinanceNetwork busdNetwork) = GetNetworks(usdt, busd);
@@ -363,7 +364,7 @@ namespace BinanceApi.Module.Services
 
                 if (network == null)
                 {
-                    builder.AppendLine($"Не удалось определить кошелек у пользователя {paymentInfo.UserId}");
+                    builder.AppendLine(string.Format(BinanceApiLoc.PursesEmpty, paymentInfo.UserId));
                     continue;
                 }
 
@@ -399,21 +400,21 @@ namespace BinanceApi.Module.Services
 
                         if (!string.IsNullOrEmpty(saveMessage))
                         {
-                            builder.AppendLine($"Не удалось создать запись в истории для пользователя с Id {paymentInfo.UserId}: {saveMessage}");
+                            builder.AppendLine(string.Format(BinanceApiLoc.CanNotCreatePayHistory, paymentInfo.UserId, saveMessage));
                         }
                     }
                     else
                     {
-                        builder.AppendLine($"Не удалось отправить пользователю с Id {paymentInfo.UserId}: {messageWithdrawal}");
+                        builder.AppendLine(string.Format(BinanceApiLoc.CanNotSendMoney, paymentInfo.UserId, messageWithdrawal));
                     }
                 }
                 else
                 {
-                    builder.AppendLine($"Оплата суммы {paymentInfo.Usdt} меньше чем минимальная сумма для перевода {network.WithdrawMin} по {network.Asset}");
+                    builder.AppendLine(string.Format(BinanceApiLoc.WithdrawMinLessPay, paymentInfo.Usdt, network.WithdrawMin, network.Asset));
                 }
             }
 
-            string haveOnePay = isHaveOnePay ? "Оплата произошла" : "Оплата не произошла";
+            string haveOnePay = isHaveOnePay ? BinanceApiLoc.PaySuccess : BinanceApiLoc.PayUnsuccess;
 
             return (true, $"{haveOnePay}{Environment.NewLine}{builder.ToString().Trim()}");
         }
@@ -433,7 +434,7 @@ namespace BinanceApi.Module.Services
                 return messageGetCurrencies;
             }
 
-            return "Баланс:" + Environment.NewLine +
+            return $"{BinanceApiLoc.Balance}:" + Environment.NewLine +
                 string.Join(Environment.NewLine, $"{usdt.Asset}: {usdt.Available}", $"{busd.Asset}: {busd.Available}").Trim();
         }
 

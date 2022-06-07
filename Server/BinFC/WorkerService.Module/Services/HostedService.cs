@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using TelegramFatCamel.Module.Services;
+using WorkerService.Module.Localization;
 
 namespace WorkerService.Module.Services
 {
@@ -32,7 +33,7 @@ namespace WorkerService.Module.Services
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Timed Hosted Service running.");
+            _logger.LogInformation(WorkerServiceLoc.StartHostedServer);
 
             _timer = new Timer(DoWork, null, TimeSpan.FromSeconds(60),
                 TimeSpan.FromSeconds(60));
@@ -42,7 +43,7 @@ namespace WorkerService.Module.Services
 
         public Task StopAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Timed Hosted Service is stopping.");
+            _logger.LogInformation(WorkerServiceLoc.StopHostedServer);
 
             _timer?.Change(Timeout.Infinite, 0);
 
@@ -93,7 +94,7 @@ namespace WorkerService.Module.Services
                     {
                         await _client.SendTextMessageAsync(messageQueue.ChatId, messageQueue.Message);
 
-                        _logger.LogTrace($"Отправлено уведомление пользователю с chatId {messageQueue.ChatId}: {messageQueue.Message}.");
+                        _logger.LogTrace(string.Format(WorkerServiceLoc.SendNotificationText, messageQueue.ChatId, messageQueue.Message));
 
                         await telegramMessageQueueRepository.DeleteAsync(messageQueue.Id);
                     }
@@ -101,7 +102,7 @@ namespace WorkerService.Module.Services
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, "Ошибка отправки сообщений.");
+                _logger.LogError(ex, WorkerServiceLoc.SendNotificationError);
             }            
         }
 
@@ -127,7 +128,7 @@ namespace WorkerService.Module.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка отказа более недели.");
+                _logger.LogError(ex, WorkerServiceLoc.NotApproveUserInfo);
             }
         }
     }

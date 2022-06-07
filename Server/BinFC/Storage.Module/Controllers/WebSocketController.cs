@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using Storage.Module.StaticClasses;
 
@@ -30,7 +31,7 @@ namespace Storage.Module.Controllers
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
                 using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                _logger.Log(LogLevel.Information, "WebSocket connection established");
+                _logger.Log(LogLevel.Information, StorageLoc.WebSocketConnectEstablished);
                 await Echo(webSocket);
             }
             else
@@ -43,7 +44,7 @@ namespace Storage.Module.Controllers
         {
             var buffer = new byte[1024 * 4];
             var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-            _logger.LogInformation("Message received from Client");
+            _logger.LogInformation(StorageLoc.WebSocketReceivedMessage);
 
             while (!result.CloseStatus.HasValue)
             {
@@ -61,7 +62,7 @@ namespace Storage.Module.Controllers
             }
 
             await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
-            _logger.LogInformation("WebSocket connection closed");
+            _logger.LogInformation(StorageLoc.WebSocketConnectClosed);
         }
     }
 }

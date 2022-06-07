@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -207,7 +208,7 @@ namespace Storage.Module.Repositories
                 _telegramMessageQueueRepository.Create(new TelegramMessageQueue()
                 {
                     ChatId = userInfo.ChatId,
-                    Message = $"Ваш id ({userInfo.UserId}) подтвержден Администратором."
+                    Message = string.Format(StorageLoc.UserApprove, userInfo.UserId)
                 });
             }
         }
@@ -224,7 +225,7 @@ namespace Storage.Module.Repositories
                 _telegramMessageQueueRepository.Create(new TelegramMessageQueue()
                 {
                     ChatId = userInfo.ChatId,
-                    Message = $"Ваш id ({userInfo.UserId}) не подтвержден Администратором."
+                    Message = string.Format(StorageLoc.UserNotapprove, userInfo.UserId)
                 });
             }
 

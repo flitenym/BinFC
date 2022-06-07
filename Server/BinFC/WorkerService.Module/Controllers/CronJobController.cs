@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using WorkerService.Module.Cronos;
+using WorkerService.Module.Localization;
 
 namespace WorkerService.Module
 {
@@ -29,7 +30,7 @@ namespace WorkerService.Module
         {
             if (string.IsNullOrEmpty(cron))
             {
-                return BadRequest("Отправлена пустая сущность.");
+                return BadRequest(WorkerServiceLoc.Empty);
             }
 
             try
@@ -40,8 +41,8 @@ namespace WorkerService.Module
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Неверный формат Cron: {ex}");
-                return BadRequest($"Неверный формат Cron: {ex}");
+                _logger.LogError(ex, string.Format(WorkerServiceLoc.IncorrectCronFormat, ex));
+                return BadRequest(string.Format(WorkerServiceLoc.IncorrectCronFormat, ex));
             }
         }
 
@@ -50,7 +51,7 @@ namespace WorkerService.Module
         {
             if (string.IsNullOrEmpty(cron))
             {
-                return BadRequest("Отправлена пустая сущность.");
+                return BadRequest(WorkerServiceLoc.Empty);
             }
 
             try
@@ -59,15 +60,15 @@ namespace WorkerService.Module
 
                 if (expression == null)
                 {
-                    return BadRequest($"Неверный формат Cron: {cron}");
+                    return BadRequest(string.Format(WorkerServiceLoc.IncorrectCronFormat, cron));
                 }
 
                 return expression.GetOccurrences(DateTime.UtcNow, DateTime.UtcNow.AddMonths(2)).Take(20).Select(x => x.ToString()).ToList();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка получения следующих дат выполнения сервиса продажи.");
-                return BadRequest("Ошибка получения следующих дат выполнения сервиса продажи.");
+                _logger.LogError(ex, WorkerServiceLoc.ErrorGetOccurrences);
+                return BadRequest(WorkerServiceLoc.ErrorGetOccurrences);
             }
         }
     }

@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Controllers.Base;
 using Storage.Module.Entities;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Storage.Module.Controllers
@@ -36,7 +36,7 @@ namespace Storage.Module.Controllers
         {
             if (obj == null)
             {
-                return BadRequest("Отправлена пустая сущность.");
+                return BadRequest(StorageLoc.Empty);
             }
 
             return StringToResult(await _telegramMessageQueueRepository.CreateAsync(obj));
@@ -49,7 +49,7 @@ namespace Storage.Module.Controllers
 
             if (obj == null)
             {
-                return NotFound("Не найдена запись для удаления.");
+                return NotFound(StorageLoc.NotFoundForRemove);
             }
 
             return StringToResult(await _telegramMessageQueueRepository.DeleteAsync(obj));

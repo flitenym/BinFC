@@ -2,6 +2,7 @@
 using Binance.Net.Objects;
 using Binance.Net.Objects.Models.Spot;
 using BinanceApi.Module.Classes;
+using BinanceApi.Module.Localization;
 using BinanceApi.Module.Services.Interfaces;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
@@ -29,12 +30,12 @@ namespace BinanceApi.Module.Services
         {
             if (string.IsNullOrEmpty(settings.ApiKey))
             {
-                return (null, $"Не указан {nameof(settings.ApiKey)}");
+                return (null, string.Format(BinanceApiLoc.NotSpecified, nameof(settings.ApiKey)));
             }
 
             if (string.IsNullOrEmpty(settings.ApiSecret))
             {
-                return (null, $"Не указан {nameof(settings.ApiSecret)}");
+                return (null, string.Format(BinanceApiLoc.NotSpecified, nameof(settings.ApiSecret)));
             }
 
             return (new BinanceClient(new BinanceClientOptions()
@@ -55,15 +56,15 @@ namespace BinanceApi.Module.Services
 
                 if (response.Error.Code == -2015)
                 {
-                    return (false, "Отсутствуют ApiKey/ApiSecret или действие не разрешено, включите в настройках Api соответствующие права.");
+                    return (false, BinanceApiLoc.Error2015);
                 }
                 else if (response.Error.Code == -2008)
                 {
-                    return (false, "Неверный ApiKey/ApiSecret.");
+                    return (false, BinanceApiLoc.Error2008);
                 }
                 else if (response.Error.Code == 32110)
                 {
-                    return (false, "Перевод монет с маленьким балансом не выполнен, т.к. можно производить раз в 6 часов.");
+                    return (false, BinanceApiLoc.Error32110);
                 }
 
                 return (false, null);
@@ -83,7 +84,7 @@ namespace BinanceApi.Module.Services
 
             if (balance == 0)
             {
-                return (false, $"Во фьючерсе нет {BinanceKeys.USDT}.");
+                return (false, string.Format(BinanceApiLoc.FuturesHaveNotCurrency, BinanceKeys.USDT));
             }
 
             var client = GetBinanceClient(settings);
@@ -123,7 +124,7 @@ namespace BinanceApi.Module.Services
 
             if (futuresUsdtInfo == null)
             {
-                _logger.LogError($"Ошибка. Не найдена монета {BinanceKeys.USDT} во Фьючерсном кошельке");
+                _logger.LogError(string.Format(BinanceApiLoc.FuturesAccountHaveNotCurrency, BinanceKeys.USDT));
                 return (false, null, null);
             }
 
@@ -230,12 +231,12 @@ namespace BinanceApi.Module.Services
                     return (false, messageQuantity, default);
                 }
 
-                _logger.LogTrace($"Для {assetInfo.FromAsset} ({assetInfo.ToAsset}) количество определилось как {assetInfo.Quantity} из {currency.Available}({currency.Available}), {(assetInfo.IsDust ? "ПЫЛЬ" : "НЕ ПЫЛЬ")}.");
+                _logger.LogTrace(string.Format(BinanceApiLoc.AssetInfoWithDust, assetInfo.FromAsset, assetInfo.ToAsset, assetInfo.Quantity, currency.Available, currency.Available, (assetInfo.IsDust ? "ПЫЛЬ" : "НЕ ПЫЛЬ")));
                 return (true, null, assetInfo);
             }
             else
             {
-                _logger.LogInformation($"Не найдена монета {asset}");
+                _logger.LogInformation(string.Format(BinanceApiLoc.NotFoundAsset, asset));
                 return (true, null, default);
             }
         }
@@ -261,7 +262,7 @@ namespace BinanceApi.Module.Services
 
             if (!isSuccessStatus)
             {
-                _logger.LogError($"Ошибка продажи валюты {fromAsset}{toAsset}. {result.Error}" + result.Error.ToString());
+                _logger.LogError(string.Format(BinanceApiLoc.SellAssetError, fromAsset, toAsset, result.Error, result.Error.ToString()));
                 return (false, messageStatus);
             }
 
@@ -276,12 +277,12 @@ namespace BinanceApi.Module.Services
         {
             if (!assets.Any())
             {
-                _logger.LogTrace($"Нет монет с маленьким балансом.");
+                _logger.LogTrace(BinanceApiLoc.HaveNotDustAssets);
                 return (true, null);
             }
             else
             {
-                _logger.LogTrace($"Монеты с маленьким балансом: {string.Join(", ", assets)}");
+                _logger.LogTrace(string.Format(BinanceApiLoc.HaveDustAssets, string.Join(", ", assets)));
             }
 
             var client = GetBinanceClient(settings);
@@ -354,7 +355,7 @@ namespace BinanceApi.Module.Services
 
             if (symbolInfo == null)
             {
-                _logger.LogTrace($"Не найдены фильтры для {fromAsset}");
+                _logger.LogTrace(string.Format(BinanceApiLoc.HaveNotSymbolInfo, fromAsset));
                 return (false, null, new AssetsInfo(fromAsset, null, default(decimal), false));
             }
 
@@ -365,7 +366,7 @@ namespace BinanceApi.Module.Services
 
             if (!isSuccessGetPriceInfo)
             {
-                _logger.LogTrace($"Не удалось получить цену для {fromAsset}{symbolInfo.QuoteAsset}");
+                _logger.LogTrace(string.Format(BinanceApiLoc.HaveNotPriceInfo, fromAsset, symbolInfo.QuoteAsset));
                 return (false, messageGetPriceInfo, new AssetsInfo(fromAsset, symbolInfo.QuoteAsset, default(decimal), false));
             }
 
@@ -373,33 +374,41 @@ namespace BinanceApi.Module.Services
             decimal resultQuantity = Math.Round(quantity * price.Price, BitConverter.GetBytes(decimal.GetBits(symbolFilterLotSize.StepSize / 1.0000000000m)[3])[2], MidpointRounding.ToNegativeInfinity)
                 + new decimal(0, 0, 0, false, (byte)symbolInfo.BaseAssetPrecision);
 
-            _logger.LogTrace($"ResultQuantity: {resultQuantity}, StepSize: {symbolFilterLotSize.StepSize}, MinQuantity: {symbolFilterLotSize.MinQuantity}, MaxQuantity: {symbolFilterLotSize.MaxQuantity}");
+            _logger.LogTrace(
+                string.Format(
+                    BinanceApiLoc.SellResultInfo, 
+                    resultQuantity, 
+                    symbolFilterLotSize.StepSize, 
+                    symbolFilterLotSize.MinQuantity, 
+                    symbolFilterLotSize.MaxQuantity
+                )
+            );
 
             if (resultQuantity == 0)
             {
-                _logger.LogTrace($"Полученное значение для {fromAsset} = 0");
+                _logger.LogTrace(string.Format(BinanceApiLoc.SellResultInfoZero, fromAsset));
                 return (true, null, new AssetsInfo(fromAsset, symbolInfo.QuoteAsset, resultQuantity, true));
             }
 
             if (resultQuantity >= symbolFilterLotSize.MinQuantity && resultQuantity <= symbolFilterLotSize.MaxQuantity)
             {
-                _logger.LogTrace("Проверку на LOT_SIZE прошло");
+                _logger.LogTrace(BinanceApiLoc.LotSizeSuccess);
 
                 if (!isSuccessGetPriceInfo)
                 {
                     return default;
                 }
 
-                _logger.LogTrace($"ResultQuantity: {resultQuantity}, Price: {price.Price}, MinNotional: {symbolFilterMinNotional.MinNotional}");
+                _logger.LogTrace(string.Format(BinanceApiLoc.SuccessPriceLotSizeSuccess, resultQuantity, price.Price, symbolFilterMinNotional.MinNotional));
 
                 if (resultQuantity * 1.05m < symbolFilterMinNotional.MinNotional)
                 {
-                    _logger.LogTrace("Проверку на MIN_NOTIONAL не прошло");
+                    _logger.LogTrace(BinanceApiLoc.MinNotionalSuccess);
                     return (true, null, new AssetsInfo(fromAsset, symbolInfo.QuoteAsset, resultQuantity, true));
                 }
                 else
                 {
-                    _logger.LogTrace("Проверку на MIN_NOTIONAL прошло");
+                    _logger.LogTrace(BinanceApiLoc.MinNotionalNotSuccess);
                     return (true, null, new AssetsInfo(fromAsset, symbolInfo.QuoteAsset, resultQuantity, false));
                 }
             }
