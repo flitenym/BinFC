@@ -42,7 +42,7 @@ const Import: FunctionComponent = () => {
         hideOnSinglePage: false,
         showSizeChanger: true,
         pageSizeOptions: ["10", "20", "50", "100", "300"],
-        locale: { items_per_page: ` / page` }
+        locale: { items_per_page: "" },
     });
     const [paginationFutureTable, setPaginationFutureTable] = useState<TablePaginationConfig>({
         current: 1,
@@ -50,7 +50,7 @@ const Import: FunctionComponent = () => {
         hideOnSinglePage: false,
         showSizeChanger: true,
         pageSizeOptions: ["10", "20", "50", "100", "300"],
-        locale: { items_per_page: ` / page` }
+        locale: { items_per_page: "" },
     });
 
 
@@ -78,7 +78,7 @@ const Import: FunctionComponent = () => {
                 hideOnSinglePage: false,
                 showSizeChanger: true,
                 pageSizeOptions: ["10", "20", "50", "100", "300"],
-                locale: { items_per_page: ` / page` }
+                locale: { items_per_page: "" },
             });
             setSpotData(resultSpot)
         })
@@ -102,7 +102,7 @@ const Import: FunctionComponent = () => {
                 hideOnSinglePage: false,
                 showSizeChanger: true,
                 pageSizeOptions: ["10", "20", "50", "100", "300"],
-                locale: { items_per_page: ` / page` }
+                locale: { items_per_page: "" },
             });
             setFuturesData(resultFutures)
             setForceReload(false)
@@ -296,7 +296,7 @@ const Import: FunctionComponent = () => {
             hideOnSinglePage: false,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50", "100", "300"],
-            locale: { items_per_page: ` / page` }
+            locale: { items_per_page: "" },
         });
         setSpotData(arrayWithoutDeleteElements)
         dataService.deleteSpotData(array)
@@ -309,7 +309,7 @@ const Import: FunctionComponent = () => {
             hideOnSinglePage: false,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50", "100", "300"],
-            locale: { items_per_page: ` / page` }
+            locale: { items_per_page: "" },
         });
         dataService.deleteAllSpotData()
     }
@@ -326,7 +326,7 @@ const Import: FunctionComponent = () => {
             hideOnSinglePage: false,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50", "100", "300"],
-            locale: { items_per_page: ` / page` }
+            locale: { items_per_page: "" },
         });
         setFuturesData(arrayWithoutDeleteElements)
         dataService.deleteFuturesData(array)
@@ -339,7 +339,7 @@ const Import: FunctionComponent = () => {
             hideOnSinglePage: false,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50", "100", "300"],
-            locale: { items_per_page: ` / page` }
+            locale: { items_per_page: "" },
         });
         dataService.deleteAllFuturesData()
     }
@@ -350,7 +350,7 @@ const Import: FunctionComponent = () => {
             hideOnSinglePage: false,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50", "100", "300"],
-            locale: { items_per_page: ` / page` }
+            locale: { items_per_page: "" },
         });
     }
 
@@ -360,7 +360,7 @@ const Import: FunctionComponent = () => {
             hideOnSinglePage: false,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50", "100", "300"],
-            locale: { items_per_page: ` / page` }
+            locale: { items_per_page: "" },
         });
     }
 
@@ -390,6 +390,11 @@ const Import: FunctionComponent = () => {
         <Tabs defaultActiveKey="1" type="card" >
             <TabPane tab="Spot" key="1">
                 <Table
+                    locale={{
+                        triggerDesc: t("common:TriggerDesc"),
+                        triggerAsc: t("common:TriggerAsc"),
+                        cancelSort: t("common:CancelSort")
+                    }}
                     key={3}
                     rowSelection={rowSelection}
                     columns={columnSpot}
@@ -447,7 +452,13 @@ const Import: FunctionComponent = () => {
                 </Space>
             </TabPane>
             <TabPane tab="Futures" key="2">
-                <Table key={8}
+                <Table
+                    locale={{
+                        triggerDesc: t("common:TriggerDesc"),
+                        triggerAsc: t("common:TriggerAsc"),
+                        cancelSort: t("common:CancelSort")
+                    }}
+                    key={8}
                     rowSelection={rowSelectionFutures}
                     columns={columnFutures}
                     dataSource={futuresData}

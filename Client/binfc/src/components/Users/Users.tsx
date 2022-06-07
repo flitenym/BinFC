@@ -30,7 +30,7 @@ const Users: FunctionComponent = () => {
         hideOnSinglePage: false,
         showSizeChanger: true,
         pageSizeOptions: ["10", "20", "50", "100", "300"],
-        locale: { items_per_page: ` / page` }
+        locale: { items_per_page: "" },
     });
     const [selectedUsersId, setSelectedUsersId] = useState<any>({
         selectedRowKeys: [],
@@ -60,7 +60,7 @@ const Users: FunctionComponent = () => {
                 hideOnSinglePage: false,
                 showSizeChanger: true,
                 pageSizeOptions: ["10", "20", "50", "100", "300"],
-                locale: { items_per_page: ` / page` }
+                locale: { items_per_page: "" },
             });
             setIsLoading(false)
         })
@@ -245,7 +245,7 @@ const Users: FunctionComponent = () => {
             hideOnSinglePage: false,
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50", "100", "300"],
-            locale: { items_per_page: ` / page` }
+            locale: { items_per_page: "" },
         });
     }
 
@@ -323,6 +323,11 @@ const Users: FunctionComponent = () => {
                 {t("common:TableTitle")}
             </Typography.Text>
             <Table
+                locale={{
+                    triggerDesc: t("common:TriggerDesc"),
+                    triggerAsc: t("common:TriggerAsc"),
+                    cancelSort: t("common:CancelSort")
+                }}
                 key={3}
                 rowSelection={rowSelection}
                 loading={{ indicator: <Spin size="large" />, spinning: isLoading }}

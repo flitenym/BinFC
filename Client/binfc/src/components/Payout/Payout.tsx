@@ -17,7 +17,9 @@ const Payout: FunctionComponent = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [cost, setCost] = useState<number>(0)
     const [isLoadingModal, seTisLoadingModal] = useState(false)
+    const [forceReload, setForceReload] = useState(false)
     const [balanceData, setBalanceData] = useState<any>([]);
+    const [btnDisabled, setBtnDisabled] = useState(false)
     const [selectedPaymentsId, setSelectedPaymentsId] = useState({
         selectedPaymentskey: [],
         loading: false
@@ -54,7 +56,8 @@ const Payout: FunctionComponent = () => {
                 setBalanceData(t("common:BalanceUncertain"));
             }
         })
-    }, [])
+        setForceReload(false)
+    }, [forceReload])
 
     const { selectedPaymentskey } = selectedPaymentsId;
     const rowSelectionPaymentsId = {
@@ -138,6 +141,11 @@ const Payout: FunctionComponent = () => {
         <>
             <Table
                 key={20}
+                locale={{
+                    triggerDesc: t("common:TriggerDesc"),
+                    triggerAsc: t("common:TriggerAsc"),
+                    cancelSort: t("common:CancelSort")
+                }}
                 rowSelection={rowSelectionPaymentsId}
                 columns={columnPayments}
                 dataSource={paymentsData}
@@ -146,6 +154,7 @@ const Payout: FunctionComponent = () => {
             <Space style={{ marginTop: "16px" }}>
                 <Button
                     key={6}
+                    disabled={btnDisabled}
                     type="primary"
                     onClick={() => {
                         getRowData();
@@ -183,10 +192,18 @@ const Payout: FunctionComponent = () => {
                     <Button
                         key={24}
                         type="primary"
+                        disabled={btnDisabled}
                         onClick={() => {
                             seTisLoadingModal(true)
+                            setBtnDisabled(true)
                             paymentService.postPaymentData(paymentData).then((response) => {
-                                seTisLoadingModal(false)
+                                setTimeout(() => {
+                                    setIsModalPaymentVisible(false)
+                                    seTisLoadingModal(false)
+                                    setBtnDisabled(false)
+                                    setForceReload(true)
+                                    rowSelectionPaymentsId.onChange([]);
+                                }, 2000)
                             })
                         }}
                         htmlType="submit"

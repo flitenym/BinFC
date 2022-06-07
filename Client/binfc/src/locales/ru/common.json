@@ -42,7 +42,7 @@
     "No": "Нет",
     "Russian": "Русский",
     "English": "Английский",
-    "Page": "Страница",
+    "Page": "cтр.",
     "Dates": "Даты",
     "Restart": "Перезагрузить",
     "Start": "Запустить",
@@ -71,5 +71,8 @@
     "OldPassword": "Старый пароль",
     "NewPassword": "Новый пароль",
     "ConfirmPassword": "Подтверждение пароля",
-    "ThisFieldRequired": "Это поле обязательное"
+    "ThisFieldRequired": "Это поле обязательное",
+    "TriggerDesc": "Сортировка по убыванию",
+    "TriggerAsc": "Сортировка по возрастанию",
+    "CancelSort": "Отменить сортировку"
 }
