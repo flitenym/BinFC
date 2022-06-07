@@ -172,7 +172,7 @@
     <value>Не найден пользователь с логином {0}.</value>
   </data>
   <data name="OldAndNewPasswordShouldNotEqual" xml:space="preserve">
-    <value>Не найден пользователь с логином {0}.</value>
+    <value>Старый и новый пароль не должны быть одинаковыми.</value>
   </data>
   <data name="OldPasswordIncorrect" xml:space="preserve">
     <value>Старый пароль указан неверно.</value>
@@ -185,5 +185,8 @@
   </data>
   <data name="UserApprove" xml:space="preserve">
     <value>Ваш id ({0}) подтвержден Администратором.</value>
+  </data>
+  <data name="UserNotapprove" xml:space="preserve">
+    <value>Ваш id ({0}) не подтвержден Администратором.</value>
   </data>
 </root>
