@@ -141,8 +141,17 @@
   <data name="ChatIdExist" xml:space="preserve">
     <value>The specified identifier is already registered in the database. Try again with command: {0}</value>
   </data>
+  <data name="ChooseLanguage" xml:space="preserve">
+    <value>Choose language</value>
+  </data>
   <data name="ChoosePurse" xml:space="preserve">
     <value>Choose a wallet.</value>
+  </data>
+  <data name="EndChooseLanguage" xml:space="preserve">
+    <value>Language is set</value>
+  </data>
+  <data name="EnglishLanguage" xml:space="preserve">
+    <value>English</value>
   </data>
   <data name="ErrorTextToSendAdmin" xml:space="preserve">
     <value>An error has occurred, contact the Administrator.</value>
@@ -183,7 +192,8 @@ Id: {0}
 Change wallet: {1}
 SN indication: {2}
 E-mail indication: {3}
-Private area: {4}</value>
+Private area: {4}
+Change language: {5}</value>
   </data>
   <data name="PrivateBep" xml:space="preserve">
     <value>BEP-20: {0}</value>
@@ -199,6 +209,9 @@ Private area: {4}</value>
   </data>
   <data name="PrivateTrc" xml:space="preserve">
     <value>TRC-20: {0}</value>
+  </data>
+  <data name="RussianLanguage" xml:space="preserve">
+    <value>Russian</value>
   </data>
   <data name="StartCommand" xml:space="preserve">
     <value>Welcome! I will help register Fat Camel!

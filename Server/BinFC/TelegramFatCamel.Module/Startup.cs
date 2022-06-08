@@ -32,6 +32,7 @@ namespace TelegramFatCamel.Module
             services.AddScoped<BaseCommand, AcceptNameCommand>();
             services.AddScoped<BaseCommand, AcceptPurseCommand>();
             services.AddScoped<BaseCommand, AlreadyInputIdCommand>();
+            services.AddScoped<BaseCommand, ChangeLanguageCommand>();            
             services.AddScoped<BaseCommand, ChangePurseCommand>();
             services.AddScoped<BaseCommand, ErrorInputIdCommand>();
             services.AddScoped<BaseCommand, GetOperationsCommand>();
@@ -43,6 +44,7 @@ namespace TelegramFatCamel.Module
             services.AddScoped<BaseCommand, InputNameCommand>();
             services.AddScoped<BaseCommand, InputTrcCommand>();
             services.AddScoped<BaseCommand, NotExistIdCommand>();
+            services.AddScoped<BaseCommand, SaveLanguageCommand>();            
             services.AddScoped<BaseCommand, SelectPurseCommand>();
             services.AddScoped<BaseCommand, StartCommand>();
 

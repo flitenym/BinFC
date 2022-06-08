@@ -30,23 +30,40 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
-        public async Task<TelegramUserInfo> GetByChatIdAsync(long? chatId)
+        public async Task<TelegramUserInfo> GetByChatIdAsync(long? chatId, bool isNeedTracking = true)
         {
             if (chatId == null)
             {
                 return null;
             }
 
-            return await _dataContext
-                .TelegramUsersInfo
-                .AsNoTracking()
-                .Where(x => x.ChatId == chatId)
-                .FirstOrDefaultAsync();
+            if (isNeedTracking)
+            {
+                return await _dataContext
+                    .TelegramUsersInfo
+                    .Where(x => x.ChatId == chatId)
+                    .FirstOrDefaultAsync();
+            }
+            else
+            {
+                return await _dataContext
+                    .TelegramUsersInfo
+                    .AsNoTracking()
+                    .Where(x => x.ChatId == chatId)
+                    .FirstOrDefaultAsync();
+            }
         }
 
         public async Task<string> CreateAsync(TelegramUserInfo obj)
         {
             _dataContext.TelegramUsersInfo.Add(obj);
+
+            return await SaveChangesAsync();
+        }
+
+        public async Task<string> UpdateAsync(TelegramUserInfo obj)
+        {
+            _dataContext.TelegramUsersInfo.Update(obj);
 
             return await SaveChangesAsync();
         }

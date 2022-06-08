@@ -93,7 +93,7 @@ namespace WorkerService.Module.Services.Base
                 _timer = new System.Timers.Timer(delay.TotalMilliseconds);
                 _timer.Elapsed += async (sender, args) =>
                 {
-                    _timer.Dispose();  // reset and dispose timer
+                    _timer?.Dispose();  // reset and dispose timer
                     _timer = null;
 
                     if (!cancellationToken.IsCancellationRequested)

@@ -1,4 +1,5 @@
 ﻿using Storage.Module.Classes;
+using System.Collections.Generic;
 
 namespace Storage.Module
 {
@@ -12,5 +13,6 @@ namespace Storage.Module
         public static string SellCurrency = nameof(CurrencyType.USDT);
         public static string SpotPercent = "41";
         public static string FuturesPercent = "30";
+        public static List<string> Languages = new() { "ru", "en" };
     }
 }
