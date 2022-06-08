@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Controllers.Base;
 using Storage.Module.Entities;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -39,7 +40,7 @@ namespace Storage.Module.Controllers
         {
             if (obj == null)
             {
-                return BadRequest("Отправлена пустая сущность.");
+                return BadRequest(StorageLoc.Empty);
             }
 
             return StringToResult(await _uniqueRepository.CreateAsync(obj));
@@ -50,14 +51,14 @@ namespace Storage.Module.Controllers
         {
             if (newObj == null || newObj.Id != id)
             {
-                return BadRequest($"Отправлены разные значения у сущности и у переданного Id.");
+                return BadRequest(StorageLoc.NotEqualIds);
             }
 
             var obj = await _uniqueRepository.GetByIdAsync(newObj.Id);
 
             if (obj == null)
             {
-                return NotFound($"Не найден {nameof(Unique)} с Id = {newObj.Id}.");
+                return NotFound(string.Format(StorageLoc.NotFoundWithId, nameof(Unique), newObj.Id));
             }
 
             return StringToResult(await _uniqueRepository.UpdateAsync(obj, newObj));
@@ -70,12 +71,12 @@ namespace Storage.Module.Controllers
 
             if (obj.IsDefault)
             {
-                return BadRequest("Нельзя удалить сущность по умолчанию.");
+                return BadRequest(StorageLoc.CanNotRemoveDefault);
             }
 
             if (obj == null)
             {
-                return NotFound("Не найдена запись для удаления.");
+                return NotFound(StorageLoc.NotFoundForRemove);
             }
 
             return StringToResult(await _uniqueRepository.DeleteAsync(obj));

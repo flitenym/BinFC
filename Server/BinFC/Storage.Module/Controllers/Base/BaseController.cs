@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Storage.Module.Localization;
 
 namespace Storage.Module.Controllers.Base
 {
@@ -12,7 +13,7 @@ namespace Storage.Module.Controllers.Base
             }
             else
             {
-                return BadRequest($"Не удалось выполнить: {error}");
+                return BadRequest(string.Format(StorageLoc.CanNotExecute, error));
             }
         }
     }

@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Storage.Module.Controllers.Base;
 using Storage.Module.Controllers.DTO;
 using Storage.Module.Entities;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -47,7 +48,7 @@ namespace Storage.Module.Controllers
         {
             if (obj == null)
             {
-                return BadRequest("Отправлена пустая сущность.");
+                return BadRequest(StorageLoc.Empty);
             }
 
             return StringToResult(await _adminRepository.CreateAsync(obj));
@@ -58,7 +59,7 @@ namespace Storage.Module.Controllers
         {
             if (obj == null)
             {
-                return BadRequest("Отправлена пустая сущность.");
+                return BadRequest(StorageLoc.Empty);
             }
 
             if (await _adminRepository.LoginAsync(obj))
@@ -91,7 +92,7 @@ namespace Storage.Module.Controllers
             }
             else
             {
-                return BadRequest("Неверно указаны логин или пароль");
+                return BadRequest(StorageLoc.IncorrectLoginOrPassword);
             }
         }
 
@@ -101,7 +102,7 @@ namespace Storage.Module.Controllers
         {
             if (obj == null)
             {
-                return BadRequest("Отправлена пустая сущность.");
+                return BadRequest(StorageLoc.Empty);
             }
 
             return StringToResult(await _adminRepository.ChangePasswordAsync(obj.UserName, obj.OldPassword, obj.NewPassword));
@@ -113,7 +114,7 @@ namespace Storage.Module.Controllers
         {
             if (string.IsNullOrEmpty(userName))
             {
-                return BadRequest($"Не указан логин");
+                return BadRequest(StorageLoc.EmptyLogin);
             }
 
             return StringToResult(await _adminRepository.UpdateLanguageAsync(userName, language));
@@ -125,14 +126,14 @@ namespace Storage.Module.Controllers
         {
             if (newObj == null || newObj.Id != id)
             {
-                return BadRequest($"Отправлены разные значения у сущности и у переданного Id.");
+                return BadRequest(StorageLoc.NotEqualIds);
             }
 
             var obj = await _adminRepository.GetByIdAsync(newObj.Id);
 
             if (obj == null)
             {
-                return NotFound($"Не найден {nameof(UserInfo)} с Id = {newObj.Id}.");
+                return NotFound(string.Format(StorageLoc.NotFoundWithId, nameof(UserInfo), newObj.Id));
             }
 
             return StringToResult(await _adminRepository.UpdateAsync(obj, newObj));
@@ -146,7 +147,7 @@ namespace Storage.Module.Controllers
 
             if (obj == null)
             {
-                return NotFound("Не найдена запись для удаления.");
+                return NotFound(StorageLoc.NotFoundForRemove);
             }
 
             return StringToResult(await _adminRepository.DeleteAsync(obj));

@@ -117,113 +117,115 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AcceptedPurse" xml:space="preserve">
-    <value>Wallet accepted.</value>
+  <data name="Empty" xml:space="preserve">
+    <value>An empty entity has been sent.</value>
   </data>
-  <data name="AcceptEmail" xml:space="preserve">
-    <value>Your specified e-mail has been accepted.</value>
+  <data name="IncorrectCronFormat" xml:space="preserve">
+    <value>Invalid Cron format: {0}</value>
   </data>
-  <data name="AcceptEmailWithExisted" xml:space="preserve">
-    <value>Your specified e-mail has been accepted. E-mail was specified: {0}</value>
+  <data name="ErrorGetOccurrences" xml:space="preserve">
+    <value>Error receiving the following sales service execution dates.</value>
   </data>
-  <data name="AcceptName" xml:space="preserve">
-    <value>Your specified SN is accepted.</value>
+  <data name="CanNotStartService" xml:space="preserve">
+    <value>The sales service could not be started because the cron entry in the database was not found.</value>
   </data>
-  <data name="AcceptNameWithExisted" xml:space="preserve">
-    <value>Your specified SN is accepted. SN was specified: {0}</value>
+  <data name="CanNotGetCronExpression" xml:space="preserve">
+    <value>Failed to get cron record.</value>
   </data>
-  <data name="AlreadyInputIdCommand" xml:space="preserve">
-    <value>You are already connected to the base. Specify the command to view the cabinet: {0}</value>
+  <data name="StartHostedServer" xml:space="preserve">
+    <value>The service for sending messages has started.</value>
   </data>
-  <data name="BepButton" xml:space="preserve">
-    <value>BEP-20</value>
+  <data name="StopHostedServer" xml:space="preserve">
+    <value>The service for sending messages has stopped.</value>
   </data>
-  <data name="ChatIdExist" xml:space="preserve">
-    <value>The specified identifier is already registered in the database. Try again with command: {0}</value>
+  <data name="SendNotificationText" xml:space="preserve">
+    <value>A notification was sent to a user with a chatId {0}: {1}.</value>
   </data>
-  <data name="ChooseLanguage" xml:space="preserve">
-    <value>Choose language</value>
+  <data name="SendNotificationError" xml:space="preserve">
+    <value>Error sending messages.</value>
   </data>
-  <data name="ChoosePurse" xml:space="preserve">
-    <value>Choose a wallet.</value>
+  <data name="NotApproveUserInfo" xml:space="preserve">
+    <value>Failure error for more than a week.</value>
   </data>
-  <data name="EndChooseLanguage" xml:space="preserve">
-    <value>Language is set</value>
+  <data name="StartService" xml:space="preserve">
+    <value>Starting the service {0}.</value>
   </data>
-  <data name="EnglishLanguage" xml:space="preserve">
-    <value>English</value>
+  <data name="StopService" xml:space="preserve">
+    <value>Stopping the service {0}.</value>
   </data>
-  <data name="ErrorTextToSendAdmin" xml:space="preserve">
-    <value>An error has occurred, contact the Administrator.</value>
+  <data name="RestartService" xml:space="preserve">
+    <value>Restarting the service {0}.</value>
   </data>
-  <data name="IdNotRegister" xml:space="preserve">
-    <value>This Id is not registered in the database. The administrator will check the data and you will receive a message.</value>
+  <data name="StartBinanceSellDoWork" xml:space="preserve">
+    <value>Starting a sale.</value>
   </data>
-  <data name="IdUnspecified" xml:space="preserve">
-    <value>Id is not specified, bind Id first. You can specify Id by writing the command: {0}</value>
+  <data name="SellSuccess" xml:space="preserve">
+    <value>The sale was successful.</value>
   </data>
-  <data name="IncorrectId" xml:space="preserve">
-    <value>Id entered incorrectly. Try it again.</value>
+  <data name="SellUnsuccess" xml:space="preserve">
+    <value>The sale was unsuccessful.</value>
   </data>
-  <data name="InputBep" xml:space="preserve">
-    <value>Enter your BEP wallet.</value>
+  <data name="SellWithErrors" xml:space="preserve">
+    <value>The sale went wrong {0}.</value>
   </data>
-  <data name="InputEmail" xml:space="preserve">
-    <value>Enter e-mail.</value>
+  <data name="StartTransferFuturesToSpot" xml:space="preserve">
+    <value>Starting the transfer of {0} from futures to spot.</value>
   </data>
-  <data name="InputEmailEmpty" xml:space="preserve">
-    <value>Email is empty. Try again with command: {0}</value>
+  <data name="TransferSuccess" xml:space="preserve">
+    <value>The transfer of {0} from futures to spot was carried out. {1}.</value>
   </data>
-  <data name="InputId" xml:space="preserve">
-    <value>Enter Id.</value>
+  <data name="TransferUnsuccess" xml:space="preserve">
+    <value>The transfer of {0} from futures to spot was not carried out. {1}.</value>
   </data>
-  <data name="InputName" xml:space="preserve">
-    <value>Enter SN.</value>
+  <data name="GetExchangeInfoError" xml:space="preserve">
+    <value>Error in obtaining information about the minimum requirements for symbols for translation. {0}.</value>
   </data>
-  <data name="InputNameEmpty" xml:space="preserve">
-    <value>SN is empty. Try again with command: {0}</value>
+  <data name="GetCurrenciesError" xml:space="preserve">
+    <value>Error receiving currencies. {0}.</value>
   </data>
-  <data name="InputTrc" xml:space="preserve">
-    <value>Enter TRC wallet.</value>
+  <data name="CurrenciesEmpty" xml:space="preserve">
+    <value>No coins for sale.</value>
   </data>
-  <data name="Operations" xml:space="preserve">
-    <value>Available commands:
-Id: {0}
-Change wallet: {1}
-SN indication: {2}
-E-mail indication: {3}
-Private area: {4}
-Change language: {5}</value>
+  <data name="StartSellCurrencies" xml:space="preserve">
+    <value>Start selling coins {0}.</value>
   </data>
-  <data name="PrivateBep" xml:space="preserve">
-    <value>BEP-20: {0}</value>
+  <data name="EndSellCurrencies" xml:space="preserve">
+    <value>Coin sale completed.</value>
   </data>
-  <data name="PrivateEmail" xml:space="preserve">
-    <value>E-mail: {0}</value>
+  <data name="StartDustSell" xml:space="preserve">
+    <value>We are starting to transfer coins with a small balance to BNB.</value>
   </data>
-  <data name="PrivateId" xml:space="preserve">
-    <value>Id: {0}</value>
+  <data name="StartDustSellSuccess" xml:space="preserve">
+    <value>The transfer of coins with a small balance to BNB is finished.</value>
   </data>
-  <data name="PrivateName" xml:space="preserve">
-    <value>SN: {0}</value>
+  <data name="StartDustSellUnsuccess" xml:space="preserve">
+    <value>The transfer of coins with a small balance to BNB is finished. {0}</value>
   </data>
-  <data name="PrivateTrc" xml:space="preserve">
-    <value>TRC-20: {0}</value>
+  <data name="SellCurrency" xml:space="preserve">
+    <value>Sale {0}</value>
   </data>
-  <data name="RussianLanguage" xml:space="preserve">
-    <value>Russian</value>
+  <data name="GetCurrencyUnsuccess" xml:space="preserve">
+    <value>Sale {0}: unsuccessful receipt of currency. {1}.</value>
   </data>
-  <data name="StartCommand" xml:space="preserve">
-    <value>Welcome! I will help register Fat Camel!
-To get a list of commands type "{0}" or click the button.</value>
+  <data name="StartNotDustCurrency" xml:space="preserve">
+    <value>Sale {0}: make a sale.</value>
   </data>
-  <data name="StatusApprove" xml:space="preserve">
-    <value>Status: approved.</value>
+  <data name="SellNotDustCurrency" xml:space="preserve">
+    <value>Sale {0}:{1} the sale was completed by {2}. {3}.</value>
   </data>
-  <data name="StatusNotApprove" xml:space="preserve">
-    <value>Status: not approved.</value>
+  <data name="NotificationMessageText" xml:space="preserve">
+    <value>Message to the administrator:{0}{1}.</value>
   </data>
-  <data name="TrcButton" xml:space="preserve">
-    <value>TRC-20</value>
+  <data name="NotificationDisabled" xml:space="preserve">
+    <value>Notifications are disabled.</value>
+  </data>
+  <data name="NotFoundAdmins" xml:space="preserve">
+    <value>No administrators found to send the notification.</value>
+  </data>
+  <data name="SendedNotification" xml:space="preserve">
+    <value>A notification has been sent to the user {adminChatId}: {message}.</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>not</value>
   </data>
 </root>

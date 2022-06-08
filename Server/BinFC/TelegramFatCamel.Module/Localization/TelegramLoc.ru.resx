@@ -141,8 +141,17 @@
   <data name="ChatIdExist" xml:space="preserve">
     <value>Указанный Id уже зарегестрирован в базе. Повторите снова, указав команду: {0}</value>
   </data>
+  <data name="ChooseLanguage" xml:space="preserve">
+    <value>Выберите язык</value>
+  </data>
   <data name="ChoosePurse" xml:space="preserve">
     <value>Выберите кошелек.</value>
+  </data>
+  <data name="EndChooseLanguage" xml:space="preserve">
+    <value>Язык установлен</value>
+  </data>
+  <data name="EnglishLanguage" xml:space="preserve">
+    <value>Английский</value>
   </data>
   <data name="ErrorTextToSendAdmin" xml:space="preserve">
     <value>Произошла ошибка, обратитесь к Администратору.</value>
@@ -183,7 +192,8 @@
 Изменение кошелька: {1}
 Указание ФИ: {2}
 Указание e-mail: {3}
-Личный кабинет: {4}</value>
+Личный кабинет: {4}
+Изменение языка: {5}</value>
   </data>
   <data name="PrivateBep" xml:space="preserve">
     <value>BEP-20: {0}</value>
@@ -199,6 +209,9 @@
   </data>
   <data name="PrivateTrc" xml:space="preserve">
     <value>TRC-20: {0}</value>
+  </data>
+  <data name="RussianLanguage" xml:space="preserve">
+    <value>Русский</value>
   </data>
   <data name="StartCommand" xml:space="preserve">
     <value>Добро пожаловать! Я буду помогать в регистрации Fat Camel!

@@ -3,6 +3,7 @@ using Storage.Module.Entities;
 using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -38,14 +39,21 @@ namespace TelegramFatCamel.Module.Services
             long? chatId = update.Message?.Chat?.Id ?? update?.CallbackQuery?.Message?.Chat?.Id;
 
             TelegramUserInfo telegramUserInfo =
-                await _telegramUserInfoRepository.GetByChatIdAsync(chatId);
+                await _telegramUserInfoRepository.GetByChatIdAsync(chatId, isNeedTracking: false);
+
+            string language = telegramUserInfo?.Language;
 
             if (telegramUserInfo == null)
             {
                 var newTelegramUserInfo = new TelegramUserInfo();
                 newTelegramUserInfo.ChatId = chatId;
+                language = newTelegramUserInfo.Language;
                 await _telegramUserInfoRepository.CreateAsync(newTelegramUserInfo);
             }
+
+            var culture = new CultureInfo(language);
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
 
             if (update.Type == UpdateType.Message)
             {
@@ -84,6 +92,9 @@ namespace TelegramFatCamel.Module.Services
                     case CommandNames.GetPrivateCommand:
                         await ExecuteCommandAsync(client, CommandNames.GetPrivateCommand, update);
                         return;
+                    case CommandNames.ChangeLanguageCommand:
+                        await ExecuteCommandAsync(client, CommandNames.ChangeLanguageCommand, update);
+                        return;
                 }
             }
 
@@ -97,6 +108,16 @@ namespace TelegramFatCamel.Module.Services
                 else if (update.CallbackQuery.Data.Contains(CommandNames.InputBepCommand))
                 {
                     await ExecuteCommandAsync(client, CommandNames.InputBepCommand, update);
+                    return;
+                }
+                else if (update.CallbackQuery.Data.Contains(CommandNames.RussianLanguageCommand))
+                {
+                    await ExecuteCommandAsync(client, CommandNames.SaveLanguageCommand, update, CommandNames.RussianLanguageCommand);
+                    return;
+                }
+                else if (update.CallbackQuery.Data.Contains(CommandNames.EnglishLanguageCommand))
+                {
+                    await ExecuteCommandAsync(client, CommandNames.SaveLanguageCommand, update, CommandNames.EnglishLanguageCommand);
                     return;
                 }
             }

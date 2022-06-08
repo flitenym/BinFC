@@ -17,7 +17,10 @@ axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.interceptors.request.use(function (config) {
   if (config.headers != null) {
-    config.headers.Authorization = 'Bearer ' + localStorage.getItem('token');
+    config.headers = {
+      'Authorization' : 'Bearer ' + localStorage.getItem('token'),
+      'Accept-Language': localStorage.getItem('i18nextLng') ?? 'ru'
+    }
   }
   return config;
 }, function (error) {

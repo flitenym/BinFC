@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Storage.Module.Controllers.Base;
 using Storage.Module.Import.DTO;
 using Storage.Module.Import.Services.Interfaces;
+using Storage.Module.Localization;
 using System.Threading.Tasks;
 
 namespace Storage.Module.Controllers
@@ -26,7 +27,7 @@ namespace Storage.Module.Controllers
         {
             if (!model.IsValid())
             {
-                return BadRequest("Ошибка проверки запроса.");
+                return BadRequest(StorageLoc.ErrorRequestCheck);
             }
 
             (bool IsSuccess, string Error) = 

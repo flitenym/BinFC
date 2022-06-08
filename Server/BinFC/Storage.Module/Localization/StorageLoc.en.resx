@@ -117,113 +117,76 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AcceptedPurse" xml:space="preserve">
-    <value>Wallet accepted.</value>
+  <data name="Empty" xml:space="preserve">
+    <value>An empty entity has been sent.</value>
   </data>
-  <data name="AcceptEmail" xml:space="preserve">
-    <value>Your specified e-mail has been accepted.</value>
+  <data name="CanNotExecute" xml:space="preserve">
+    <value>Failed to execute: {0}.</value>
   </data>
-  <data name="AcceptEmailWithExisted" xml:space="preserve">
-    <value>Your specified e-mail has been accepted. E-mail was specified: {0}</value>
+  <data name="IncorrectLoginOrPassword" xml:space="preserve">
+    <value>The username or password is incorrect.</value>
   </data>
-  <data name="AcceptName" xml:space="preserve">
-    <value>Your specified SN is accepted.</value>
+  <data name="EmptyLogin" xml:space="preserve">
+    <value>Username not specified.</value>
   </data>
-  <data name="AcceptNameWithExisted" xml:space="preserve">
-    <value>Your specified SN is accepted. SN was specified: {0}</value>
+  <data name="NotEqualIds" xml:space="preserve">
+    <value>Different values were sent for the entity and for the transmitted Id.</value>
   </data>
-  <data name="AlreadyInputIdCommand" xml:space="preserve">
-    <value>You are already connected to the base. Specify the command to view the cabinet: {0}</value>
+  <data name="NotFoundWithId" xml:space="preserve">
+    <value>Not found {0} with Id = {1}.</value>
   </data>
-  <data name="BepButton" xml:space="preserve">
-    <value>BEP-20</value>
+  <data name="NotFoundForRemove" xml:space="preserve">
+    <value>No record found to delete.</value>
   </data>
-  <data name="ChatIdExist" xml:space="preserve">
-    <value>The specified identifier is already registered in the database. Try again with command: {0}</value>
+  <data name="EmptyValues" xml:space="preserve">
+    <value>No values specified.</value>
   </data>
-  <data name="ChooseLanguage" xml:space="preserve">
-    <value>Choose language</value>
+  <data name="ErrorRequestCheck" xml:space="preserve">
+    <value>Request verification error.</value>
   </data>
-  <data name="ChoosePurse" xml:space="preserve">
-    <value>Choose a wallet.</value>
+  <data name="CanNotRemoveDefault" xml:space="preserve">
+    <value>You cannot delete the default entity.</value>
   </data>
-  <data name="EndChooseLanguage" xml:space="preserve">
-    <value>Language is set</value>
+  <data name="WebSocketConnectEstablished" xml:space="preserve">
+    <value>A connection with websocket has been established.</value>
   </data>
-  <data name="EnglishLanguage" xml:space="preserve">
-    <value>English</value>
+  <data name="WebSocketConnectClosed" xml:space="preserve">
+    <value>Connection with websocket is broken.</value>
   </data>
-  <data name="ErrorTextToSendAdmin" xml:space="preserve">
-    <value>An error has occurred, contact the Administrator.</value>
+  <data name="WebSocketReceivedMessage" xml:space="preserve">
+    <value>Received a message from the client.</value>
   </data>
-  <data name="IdNotRegister" xml:space="preserve">
-    <value>This Id is not registered in the database. The administrator will check the data and you will receive a message.</value>
+  <data name="ExportNoData" xml:space="preserve">
+    <value>Couldn't get the data to export.</value>
   </data>
-  <data name="IdUnspecified" xml:space="preserve">
-    <value>Id is not specified, bind Id first. You can specify Id by writing the command: {0}</value>
+  <data name="ExportCanNotCreateFile" xml:space="preserve">
+    <value>Failed to create export file.</value>
   </data>
-  <data name="IncorrectId" xml:space="preserve">
-    <value>Id entered incorrectly. Try it again.</value>
+  <data name="ExportColumns" xml:space="preserve">
+    <value>ID,Name,USDT,Payment Date,Payment Transaction Number</value>
   </data>
-  <data name="InputBep" xml:space="preserve">
-    <value>Enter your BEP wallet.</value>
+  <data name="ImportNoData" xml:space="preserve">
+    <value>There is no data in the excel file.</value>
   </data>
-  <data name="InputEmail" xml:space="preserve">
-    <value>Enter e-mail.</value>
+  <data name="NotFoundUserByLogin" xml:space="preserve">
+    <value>No user with login found {0}.</value>
   </data>
-  <data name="InputEmailEmpty" xml:space="preserve">
-    <value>Email is empty. Try again with command: {0}</value>
+  <data name="OldAndNewPasswordShouldNotEqual" xml:space="preserve">
+    <value>The old and new password should not be the same.</value>
   </data>
-  <data name="InputId" xml:space="preserve">
-    <value>Enter Id.</value>
+  <data name="OldPasswordIncorrect" xml:space="preserve">
+    <value>The old password is incorrect.</value>
   </data>
-  <data name="InputName" xml:space="preserve">
-    <value>Enter SN.</value>
+  <data name="NotFoundUserByUserId" xml:space="preserve">
+    <value>No user with Id found {0}.</value>
   </data>
-  <data name="InputNameEmpty" xml:space="preserve">
-    <value>SN is empty. Try again with command: {0}</value>
+  <data name="NotFoundSettingsByKey" xml:space="preserve">
+    <value>Settings with the key {0} were not found.</value>
   </data>
-  <data name="InputTrc" xml:space="preserve">
-    <value>Enter TRC wallet.</value>
+  <data name="UserApprove" xml:space="preserve">
+    <value>Your id ({0}) has not been by the Administrator.</value>
   </data>
-  <data name="Operations" xml:space="preserve">
-    <value>Available commands:
-Id: {0}
-Change wallet: {1}
-SN indication: {2}
-E-mail indication: {3}
-Private area: {4}
-Change language: {5}</value>
-  </data>
-  <data name="PrivateBep" xml:space="preserve">
-    <value>BEP-20: {0}</value>
-  </data>
-  <data name="PrivateEmail" xml:space="preserve">
-    <value>E-mail: {0}</value>
-  </data>
-  <data name="PrivateId" xml:space="preserve">
-    <value>Id: {0}</value>
-  </data>
-  <data name="PrivateName" xml:space="preserve">
-    <value>SN: {0}</value>
-  </data>
-  <data name="PrivateTrc" xml:space="preserve">
-    <value>TRC-20: {0}</value>
-  </data>
-  <data name="RussianLanguage" xml:space="preserve">
-    <value>Russian</value>
-  </data>
-  <data name="StartCommand" xml:space="preserve">
-    <value>Welcome! I will help register Fat Camel!
-To get a list of commands type "{0}" or click the button.</value>
-  </data>
-  <data name="StatusApprove" xml:space="preserve">
-    <value>Status: approved.</value>
-  </data>
-  <data name="StatusNotApprove" xml:space="preserve">
-    <value>Status: not approved.</value>
-  </data>
-  <data name="TrcButton" xml:space="preserve">
-    <value>TRC-20</value>
+  <data name="UserNotapprove" xml:space="preserve">
+    <value>Your id ({0}) has not been confirmed by the Administrator.</value>
   </data>
 </root>

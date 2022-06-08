@@ -2,6 +2,7 @@
 {
     public static class BinanceKeys
     {
+        public const string BNB = "BNB";
         public const string USDT = "USDT";
         public const string BUSD = "BUSD";
         public const string TRX = "TRX";

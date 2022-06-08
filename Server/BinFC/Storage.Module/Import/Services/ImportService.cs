@@ -2,6 +2,7 @@
 using Storage.Module.Entities.Base;
 using Storage.Module.Import.Enums;
 using Storage.Module.Import.Services.Interfaces;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -125,7 +126,7 @@ namespace Storage.Module.Import.Services
 
             if (importData == null)
             {
-                return (false, "Нет данных в excel файле.");
+                return (false, StorageLoc.ImportNoData);
             }
 
             return await SaveImportDataAsync(importData, importType);

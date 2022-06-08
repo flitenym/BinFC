@@ -117,113 +117,109 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AcceptedPurse" xml:space="preserve">
-    <value>Wallet accepted.</value>
+  <data name="NotSpecified" xml:space="preserve">
+    <value>Not specified {0}.</value>
   </data>
-  <data name="AcceptEmail" xml:space="preserve">
-    <value>Your specified e-mail has been accepted.</value>
+  <data name="Error2015" xml:space="preserve">
+    <value>There are no ApiKey/Api Secret or the action is not allowed, enable the appropriate rights in the Api settings.</value>
   </data>
-  <data name="AcceptEmailWithExisted" xml:space="preserve">
-    <value>Your specified e-mail has been accepted. E-mail was specified: {0}</value>
+  <data name="Error2008" xml:space="preserve">
+    <value>Invalid ApiKey/ApiSecret.</value>
   </data>
-  <data name="AcceptName" xml:space="preserve">
-    <value>Your specified SN is accepted.</value>
+  <data name="Error32110" xml:space="preserve">
+    <value>The transfer of coins with a small balance is not completed, because it can be made once every 6 hours.</value>
   </data>
-  <data name="AcceptNameWithExisted" xml:space="preserve">
-    <value>Your specified SN is accepted. SN was specified: {0}</value>
+  <data name="FuturesHaveNotCurrency" xml:space="preserve">
+    <value>In futures there is no {0}.</value>
   </data>
-  <data name="AlreadyInputIdCommand" xml:space="preserve">
-    <value>You are already connected to the base. Specify the command to view the cabinet: {0}</value>
+  <data name="FuturesAccountHaveNotCurrency" xml:space="preserve">
+    <value>Error. Asset {0} not found in the Futures Wallet.</value>
   </data>
-  <data name="BepButton" xml:space="preserve">
-    <value>BEP-20</value>
+  <data name="AssetInfoWithDust" xml:space="preserve">
+    <value>For {0} ({1}) the quantity was determined as {2} from {3}({4}), {5}.</value>
   </data>
-  <data name="ChatIdExist" xml:space="preserve">
-    <value>The specified identifier is already registered in the database. Try again with command: {0}</value>
+  <data name="NotFoundAsset" xml:space="preserve">
+    <value>Not found asset {0}.</value>
   </data>
-  <data name="ChooseLanguage" xml:space="preserve">
-    <value>Choose language</value>
+  <data name="SellAssetError" xml:space="preserve">
+    <value>Currency sale error {0}{1}. {2}.{3}</value>
   </data>
-  <data name="ChoosePurse" xml:space="preserve">
-    <value>Choose a wallet.</value>
+  <data name="HaveNotDustAssets" xml:space="preserve">
+    <value>There are no coins with a small balance.</value>
   </data>
-  <data name="EndChooseLanguage" xml:space="preserve">
-    <value>Language is set</value>
+  <data name="HaveDustAssets" xml:space="preserve">
+    <value>Coins with a small balance: {0}.</value>
   </data>
-  <data name="EnglishLanguage" xml:space="preserve">
-    <value>English</value>
+  <data name="HaveNotSymbolInfo" xml:space="preserve">
+    <value>No filters found for {0}.</value>
   </data>
-  <data name="ErrorTextToSendAdmin" xml:space="preserve">
-    <value>An error has occurred, contact the Administrator.</value>
+  <data name="HaveNotPriceInfo" xml:space="preserve">
+    <value>Couldn't get a price for {0}{1}.</value>
   </data>
-  <data name="IdNotRegister" xml:space="preserve">
-    <value>This Id is not registered in the database. The administrator will check the data and you will receive a message.</value>
+  <data name="SellResultInfo" xml:space="preserve">
+    <value>ResultQuantity: {0}, StepSize: {1}, MinQuantity: {2}, MaxQuantity: {3}.</value>
   </data>
-  <data name="IdUnspecified" xml:space="preserve">
-    <value>Id is not specified, bind Id first. You can specify Id by writing the command: {0}</value>
+  <data name="SellResultInfoZero" xml:space="preserve">
+    <value>The resulting value for {0} = 0.</value>
   </data>
-  <data name="IncorrectId" xml:space="preserve">
-    <value>Id entered incorrectly. Try it again.</value>
+  <data name="LotSizeSuccess" xml:space="preserve">
+    <value>The check for LOT_SIZE passed.</value>
   </data>
-  <data name="InputBep" xml:space="preserve">
-    <value>Enter your BEP wallet.</value>
+  <data name="SuccessPriceLotSizeSuccess" xml:space="preserve">
+    <value>ResultQuantity: {0}, Price: {1}, MinNotional: {2}.</value>
   </data>
-  <data name="InputEmail" xml:space="preserve">
-    <value>Enter e-mail.</value>
+  <data name="MinNotionalSuccess" xml:space="preserve">
+    <value>The check for MIN_NOTIONAL passed.</value>
   </data>
-  <data name="InputEmailEmpty" xml:space="preserve">
-    <value>Email is empty. Try again with command: {0}</value>
+  <data name="MinNotionalNotSuccess" xml:space="preserve">
+    <value>The check for MIN_NOTIONAL not passed.</value>
   </data>
-  <data name="InputId" xml:space="preserve">
-    <value>Enter Id.</value>
+  <data name="NetworksNotFound" xml:space="preserve">
+    <value>Could not determine the network to output.</value>
   </data>
-  <data name="InputName" xml:space="preserve">
-    <value>Enter SN.</value>
+  <data name="NetworkWithdrawDisabled" xml:space="preserve">
+    <value>Output is prohibited for {0}.</value>
   </data>
-  <data name="InputNameEmpty" xml:space="preserve">
-    <value>SN is empty. Try again with command: {0}</value>
+  <data name="ScalesNotFound" xml:space="preserve">
+    <value>{0}. You must specify the ruler.</value>
   </data>
-  <data name="InputTrc" xml:space="preserve">
-    <value>Enter TRC wallet.</value>
+  <data name="GetSettingsPercent" xml:space="preserve">
+    <value>{0}. There is no data on the percentage in the settings.</value>
   </data>
-  <data name="Operations" xml:space="preserve">
-    <value>Available commands:
-Id: {0}
-Change wallet: {1}
-SN indication: {2}
-E-mail indication: {3}
-Private area: {4}
-Change language: {5}</value>
+  <data name="DataNotFound" xml:space="preserve">
+    <value>{0}. There is no data for receiving payment information.</value>
   </data>
-  <data name="PrivateBep" xml:space="preserve">
-    <value>BEP-20: {0}</value>
+  <data name="NeedTwoExcelFiles" xml:space="preserve">
+    <value>{0}. You need to import 2 different excel files.</value>
   </data>
-  <data name="PrivateEmail" xml:space="preserve">
-    <value>E-mail: {0}</value>
+  <data name="NeedScalesForUser" xml:space="preserve">
+    <value>{0}. It is necessary to specify a scale for the user {1}.</value>
   </data>
-  <data name="PrivateId" xml:space="preserve">
-    <value>Id: {0}</value>
+  <data name="Empty" xml:space="preserve">
+    <value>An empty entity has been sent.</value>
   </data>
-  <data name="PrivateName" xml:space="preserve">
-    <value>SN: {0}</value>
+  <data name="BalanceLess" xml:space="preserve">
+    <value>Balance {BinanceKeys.USDT}: {(usdt?.Available ?? 0)}, and for payments: {trcBalance}.</value>
   </data>
-  <data name="PrivateTrc" xml:space="preserve">
-    <value>TRC-20: {0}</value>
+  <data name="PursesEmpty" xml:space="preserve">
+    <value>Failed to identify the user's wallet {0}.</value>
   </data>
-  <data name="RussianLanguage" xml:space="preserve">
-    <value>Russian</value>
+  <data name="CanNotCreatePayHistory" xml:space="preserve">
+    <value>Failed to create a history entry for a user with Id {0}: {1}.</value>
   </data>
-  <data name="StartCommand" xml:space="preserve">
-    <value>Welcome! I will help register Fat Camel!
-To get a list of commands type "{0}" or click the button.</value>
+  <data name="CanNotSendMoney" xml:space="preserve">
+    <value>Failed to send to user with Id {0}: {1}.</value>
   </data>
-  <data name="StatusApprove" xml:space="preserve">
-    <value>Status: approved.</value>
+  <data name="WithdrawMinLessPay" xml:space="preserve">
+    <value>Payment of the amount {0} is less than the minimum amount to transfer {1} to {2}.</value>
   </data>
-  <data name="StatusNotApprove" xml:space="preserve">
-    <value>Status: not approved.</value>
+  <data name="PaySuccess" xml:space="preserve">
+    <value>Payment has occurred.</value>
   </data>
-  <data name="TrcButton" xml:space="preserve">
-    <value>TRC-20</value>
+  <data name="PayUnsuccess" xml:space="preserve">
+    <value>Payment failed.</value>
+  </data>
+  <data name="Balance" xml:space="preserve">
+    <value>Balance</value>
   </data>
 </root>

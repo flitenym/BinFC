@@ -17,7 +17,11 @@
         public const string SelectPurseCommand = "/select_purse";
         public const string AcceptPurseCommand = "/accept_purse";
         public const string ChangePurseCommand = "/change_purse";
+        public const string ChangeLanguageCommand = "/language";
+        public const string SaveLanguageCommand = "save_language";
         public const string InputTrcCommand = "input_trc";
         public const string InputBepCommand = "input_bep";
+        public const string RussianLanguageCommand = "ru";
+        public const string EnglishLanguageCommand = "en";
     }
 }

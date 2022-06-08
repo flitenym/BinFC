@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Storage.Module.Classes;
 using Storage.Module.Entities;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -76,7 +77,7 @@ namespace Storage.Module.Repositories
                 return null;
             }
 
-            return $"Не найдены настройки с ключом {key}";
+            return string.Format(StorageLoc.NotFoundSettingsByKey, key);
         }
 
         public async Task<SettingsInfo> GetSettingsAsync()

@@ -1,6 +1,7 @@
 ﻿using Storage.Module.Entities;
 using Storage.Module.Export.Models;
 using Storage.Module.Export.Services.Interfaces;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace Storage.Module.Export.Services
         {
             StringBuilder builder = new StringBuilder();
 
-            builder.AppendLine($"ID,Имя,USDT,Дата оплаты,Номер операции оплаты");
+            builder.AppendLine(StorageLoc.ExportColumns);
 
             foreach (ExportPayHistoryModel item in exportData)
             {
@@ -54,14 +55,14 @@ namespace Storage.Module.Export.Services
 
             if (!exportData.Any())
             {
-                return Task.FromResult<(bool, string, byte[])>((false, "Не получилось получить данные для выгрузки.", null));
+                return Task.FromResult<(bool, string, byte[])>((false, StorageLoc.ExportNoData, null));
             }
 
             byte[] fileContent = GetFileContent(exportData);
 
             if (fileContent == null)
             {
-                return Task.FromResult<(bool, string, byte[])>((false, "Не удалось создать файл для экспорта.", null));
+                return Task.FromResult<(bool, string, byte[])>((false, StorageLoc.ExportCanNotCreateFile, null));
             }
 
             return Task.FromResult<(bool, string, byte[])>((true, null, fileContent));

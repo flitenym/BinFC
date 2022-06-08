@@ -25,7 +25,8 @@ namespace TelegramFatCamel.Module.Commands
                     CommandNames.ChangePurseCommand, 
                     CommandNames.InputNameCommand, 
                     CommandNames.InputEmailCommand,
-                    CommandNames.GetPrivateCommand),
+                    CommandNames.GetPrivateCommand,
+                    CommandNames.ChangeLanguageCommand),
                 replyMarkup: new ReplyKeyboardRemove());
         }
     }

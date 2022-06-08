@@ -28,4 +28,19 @@
 	</ProjectReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Update="Localization\StorageLoc.ru.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <PublicClass>True</PublicClass>
+      <StronglyTypedFileName>$(IntermediateOutputPath)\StorageLoc.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>Storage.Module.Localization</StronglyTypedNamespace>
+      <StronglyTypedClassName>StorageLoc</StronglyTypedClassName>
+      <LastGenOutput>StorageLoc.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <Target Name="_GenerateResxSource" BeforeTargets="BeforeCompile;CoreCompile" DependsOnTargets="PrepareResources">
+  </Target>
+
 </Project>

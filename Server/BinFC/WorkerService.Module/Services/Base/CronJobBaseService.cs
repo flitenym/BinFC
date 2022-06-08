@@ -9,6 +9,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkerService.Module.Cronos;
+using WorkerService.Module.Localization;
 
 namespace WorkerService.Module.Services.Base
 {
@@ -64,7 +65,7 @@ namespace WorkerService.Module.Services.Base
 
                 if (!isSuccess)
                 {
-                    string error = "Не удалось запустить сервис продажи, т.к. не найдена cron запись в БД.";
+                    string error = WorkerServiceLoc.CanNotStartService;
                     _logger.LogError(error);
                     return;
                 }
@@ -76,7 +77,7 @@ namespace WorkerService.Module.Services.Base
 
             if (_expression == null)
             {
-                string error = "Не удалось получить cron запись.";
+                string error = WorkerServiceLoc.CanNotGetCronExpression;
                 _logger.LogError(error);
                 return;
             }
@@ -92,7 +93,7 @@ namespace WorkerService.Module.Services.Base
                 _timer = new System.Timers.Timer(delay.TotalMilliseconds);
                 _timer.Elapsed += async (sender, args) =>
                 {
-                    _timer.Dispose();  // reset and dispose timer
+                    _timer?.Dispose();  // reset and dispose timer
                     _timer = null;
 
                     if (!cancellationToken.IsCancellationRequested)

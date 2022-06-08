@@ -18,4 +18,19 @@
     <ProjectReference Include="..\Storage.Module\Storage.Module.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Update="Localization\BinanceApiLoc.ru.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <PublicClass>True</PublicClass>
+      <StronglyTypedFileName>$(IntermediateOutputPath)\BinanceApiLoc.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>BinanceApi.Module.Localization</StronglyTypedNamespace>
+      <StronglyTypedClassName>BinanceApiLoc</StronglyTypedClassName>
+      <LastGenOutput>BinanceApiLoc.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <Target Name="_GenerateResxSource" BeforeTargets="BeforeCompile;CoreCompile" DependsOnTargets="PrepareResources">
+  </Target>
+	
 </Project>
