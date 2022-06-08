@@ -189,4 +189,10 @@
   <data name="UserNotapprove" xml:space="preserve">
     <value>Ваш id ({0}) не подтвержден Администратором.</value>
   </data>
+  <data name="SaveSuccess" xml:space="preserve">
+    <value>Данные сохранены успешно.</value>
+  </data>
+  <data name="SaveUnsuccess" xml:space="preserve">
+    <value>Данные сохранены не успешно. Обратитесь к Администратору.</value>
+  </data>
 </root>

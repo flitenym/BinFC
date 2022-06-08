@@ -5,6 +5,6 @@ namespace Storage.Module.Import.Services.Interfaces
 {
     public interface IImportService
     {
-        public Task<(bool IsSuccess, string Error)> ImportAsync(byte[] fileContent, string fileName, ImportType importType);
+        public Task<(bool IsSuccess, string Message)> ImportAsync(byte[] fileContent, string fileName, ImportType importType);
     }
 }

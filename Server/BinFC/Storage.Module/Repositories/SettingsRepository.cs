@@ -30,7 +30,7 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
-        public Task<string> SaveChangesAsync()
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync()
         {
             return _baseRepository.SaveChangesAsync();
         }

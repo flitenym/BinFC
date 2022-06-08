@@ -189,4 +189,10 @@
   <data name="UserNotapprove" xml:space="preserve">
     <value>Your id ({0}) has not been confirmed by the Administrator.</value>
   </data>
+  <data name="SaveSuccess" xml:space="preserve">
+    <value>The data was saved successfully.</value>
+  </data>
+  <data name="SaveUnsuccess" xml:space="preserve">
+    <value>The data was not saved successfully. Contact the Administrator.</value>
+  </data>
 </root>

@@ -44,22 +44,22 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.FromValue);
         }
 
-        public async Task<FuturesScale> GetByIdAsync(long id)
+        public Task<FuturesScale> GetByIdAsync(long id)
         {
-            return await _dataContext
+            return _dataContext
                 .FuturesScale
                 .Include(i => i.Unique)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<string> CreateAsync(FuturesScale obj)
+        public Task<(bool IsSuccess, string Message)> CreateAsync(FuturesScale obj)
         {
             _dataContext.FuturesScale.Add(obj);
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> UpdateAsync(FuturesScale obj, FuturesScale newObj)
+        public async Task<(bool IsSuccess, string Message)> UpdateAsync(FuturesScale obj, FuturesScale newObj)
         {
             obj.FromValue = newObj.FromValue;
             obj.Percent = newObj.Percent;
@@ -76,7 +76,7 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
-        public async Task<string> DeleteAsync(IEnumerable<long> ids)
+        public Task<(bool IsSuccess, string Message)> DeleteAsync(IEnumerable<long> ids)
         {
             _dataContext
                 .FuturesScale
@@ -86,12 +86,12 @@ namespace Storage.Module.Repositories
                     .Where(x => ids.Contains(x.Id))
                 );
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
         #endregion
 
-        public Task<string> SaveChangesAsync()
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync()
         {
             return _baseRepository.SaveChangesAsync();
         }

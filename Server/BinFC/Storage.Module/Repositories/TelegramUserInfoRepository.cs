@@ -54,21 +54,21 @@ namespace Storage.Module.Repositories
             }
         }
 
-        public async Task<string> CreateAsync(TelegramUserInfo obj)
+        public Task<(bool IsSuccess, string Message)> CreateAsync(TelegramUserInfo obj)
         {
             _dataContext.TelegramUsersInfo.Add(obj);
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> UpdateAsync(TelegramUserInfo obj)
+        public Task<(bool IsSuccess, string Message)> UpdateAsync(TelegramUserInfo obj)
         {
             _dataContext.TelegramUsersInfo.Update(obj);
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> UpdateAsync(long? chatId, string lastCommand)
+        public async Task<(bool IsSuccess, string Message)> UpdateAsync(long? chatId, string lastCommand)
         {
             if (chatId.HasValue)
             {
@@ -99,9 +99,9 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
-        public async Task<string> SaveChangesAsync()
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync()
         {
-            return await _baseRepository.SaveChangesAsync();
+            return _baseRepository.SaveChangesAsync();
         }
     }
 }

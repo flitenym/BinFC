@@ -89,7 +89,7 @@ namespace Storage.Module.Import.Services
             return importData;
         }
 
-        public async Task<(bool IsSuccess, string Error)> SaveImportDataAsync(IEnumerable<Data> importData, ImportType importType)
+        public async Task<(bool IsSuccess, string Message)> SaveImportDataAsync(IEnumerable<Data> importData, ImportType importType)
         {
             foreach(var data in importData)
             {
@@ -108,17 +108,10 @@ namespace Storage.Module.Import.Services
                 }
             }
 
-            string saveError = await _baseRepository.SaveChangesAsync();
-
-            if (string.IsNullOrEmpty(saveError))
-            {
-                return (true, null);
-            }
-
-            return (false, saveError);
+            return await _baseRepository.SaveChangesAsync();
         }
 
-        public async Task<(bool IsSuccess, string Error)> ImportAsync(byte[] fileContent, string fileName, ImportType importType)
+        public async Task<(bool IsSuccess, string Message)> ImportAsync(byte[] fileContent, string fileName, ImportType importType)
         {
             DataSet dataSet = GetDataSet(fileContent, fileName);
 

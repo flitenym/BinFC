@@ -388,7 +388,7 @@ namespace BinanceApi.Module.Services
                         await _futuresDataRepository.UpdateIsPaidByUserIdAsync(paymentInfo.UserId);
 
                         // добавим в историю о выплатах
-                        var saveMessage = await _payHistoryRepository.CreateAsync(
+                        (bool isSuccessSave, string saveMessage) = await _payHistoryRepository.CreateAsync(
                             new PayHistory()
                             {
                                 SendedSum = paymentInfo.Usdt,
@@ -398,7 +398,7 @@ namespace BinanceApi.Module.Services
                             paymentInfo.UserId
                         );
 
-                        if (!string.IsNullOrEmpty(saveMessage))
+                        if (!isSuccessSave)
                         {
                             builder.AppendLine(string.Format(BinanceApiLoc.CanNotCreatePayHistory, paymentInfo.UserId, saveMessage));
                         }

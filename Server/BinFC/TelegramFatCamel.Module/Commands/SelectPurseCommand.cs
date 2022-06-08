@@ -38,7 +38,9 @@ namespace TelegramFatCamel.Module.Commands
                 userInfo.UserName = string.Join(' ', update.Message.Chat.FirstName, update.Message.Chat.LastName);
             }
 
-            if (await _userInfoRepository.SaveChangesAsync() != null)
+            (bool isSuccessSave, string saveMessage) = await _userInfoRepository.SaveChangesAsync();
+
+            if (!isSuccessSave)
             {
                 await client.SendTextMessageAsync(
                     update.Message.Chat.Id,

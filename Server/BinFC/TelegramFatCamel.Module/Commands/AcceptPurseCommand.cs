@@ -34,7 +34,9 @@ namespace TelegramFatCamel.Module.Commands
                 userInfo.TrcAddress = update.Message.Text;
             }
 
-            if (await _userInfoRepository.SaveChangesAsync() != null)
+            (bool isSuccessSave, string saveMessage) = await _userInfoRepository.SaveChangesAsync();
+
+            if (!isSuccessSave)
             {
                 await client.SendTextMessageAsync(
                     update.Message.Chat.Id,

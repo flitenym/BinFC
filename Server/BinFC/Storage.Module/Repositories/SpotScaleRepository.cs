@@ -44,22 +44,22 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.FromValue);
         }
 
-        public async Task<SpotScale> GetByIdAsync(long id)
+        public Task<SpotScale> GetByIdAsync(long id)
         {
-            return await _dataContext
+            return _dataContext
                 .SpotScale
                 .Include(i => i.Unique)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<string> CreateAsync(SpotScale obj)
+        public Task<(bool IsSuccess, string Message)> CreateAsync(SpotScale obj)
         {
             _dataContext.SpotScale.Add(obj);
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> UpdateAsync(SpotScale obj, SpotScale newObj)
+        public async Task<(bool IsSuccess, string Message)> UpdateAsync(SpotScale obj, SpotScale newObj)
         {
             obj.FromValue = newObj.FromValue;
             obj.Percent = newObj.Percent;
@@ -76,7 +76,7 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
-        public async Task<string> DeleteAsync(IEnumerable<long> Ids)
+        public Task<(bool IsSuccess, string Message)> DeleteAsync(IEnumerable<long> Ids)
         {
             _dataContext
                 .SpotScale
@@ -86,12 +86,12 @@ namespace Storage.Module.Repositories
                     .Where(x => Ids.Contains(x.Id))
                 );
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
         #endregion
 
-        public Task<string> SaveChangesAsync()
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync()
         {
             return _baseRepository.SaveChangesAsync();
         }
