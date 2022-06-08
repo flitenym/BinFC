@@ -35,7 +35,14 @@ namespace FatCamel.Host.Middlewares
         /// </summary>
         public void TrySetCulture(string cultureName)
         {
-            var culture = new CultureInfo(CultureTypeConverter.ConvertStringToCultureType(cultureName));
+            var lang = CultureTypeConverter.ConvertStringToCultureType(cultureName);
+
+            if (string.IsNullOrEmpty(lang))
+            {
+                return;
+            }
+
+            var culture = new CultureInfo(lang);
             CultureInfo.CurrentCulture = culture;
             CultureInfo.CurrentUICulture = culture;
         }

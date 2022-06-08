@@ -13,7 +13,7 @@
             {
                 nameof(CultureType.ru) => nameof(CultureType.ru),
                 nameof(CultureType.en) => nameof(CultureType.en),
-                _ => nameof(CultureType.ru),
+                _ => null,
             };
     }
 }
