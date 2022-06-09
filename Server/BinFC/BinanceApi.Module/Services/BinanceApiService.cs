@@ -84,7 +84,7 @@ namespace BinanceApi.Module.Services
 
             if (balance == 0)
             {
-                return (false, string.Format(BinanceApiLoc.FuturesHaveNotCurrency, BinanceKeys.USDT));
+                return (false, string.Format(BinanceApiLoc.FuturesHaveNotCurrency, settings.SellCurrency));
             }
 
             var client = GetBinanceClient(settings);
@@ -94,7 +94,7 @@ namespace BinanceApi.Module.Services
                 return (false, client.Message);
             }
 
-            var result = await client.client.GeneralApi.Futures.TransferFuturesAccountAsync(BinanceKeys.USDT, balance.Value, Binance.Net.Enums.FuturesTransferType.FromUsdtFuturesToSpot);
+            var result = await client.client.GeneralApi.Futures.TransferFuturesAccountAsync(settings.SellCurrency, balance.Value, Binance.Net.Enums.FuturesTransferType.FromUsdtFuturesToSpot);
 
             return CheckStatus(result);
         }
@@ -120,12 +120,12 @@ namespace BinanceApi.Module.Services
                 return (false, messageStatus, null);
             }
 
-            var futuresUsdtInfo = result.Data.Assets.FirstOrDefault(x => x.Asset == BinanceKeys.USDT);
+            var futuresUsdtInfo = result.Data.Assets.FirstOrDefault(x => x.Asset == settings.SellCurrency);
 
             if (futuresUsdtInfo == null)
             {
-                _logger.LogError(string.Format(BinanceApiLoc.FuturesAccountHaveNotCurrency, BinanceKeys.USDT));
-                return (false, null, null);
+                _logger.LogError(string.Format(BinanceApiLoc.FuturesAccountHaveNotCurrency, settings.SellCurrency));
+                return (false, string.Format(BinanceApiLoc.FuturesAccountHaveNotCurrency, settings.SellCurrency), null);
             }
 
             return (true, null, futuresUsdtInfo.WalletBalance);
@@ -183,13 +183,13 @@ namespace BinanceApi.Module.Services
 
             List<BinanceBalance> currencies;
 
-            if (except == null || except.Count == 0)
+            if (except?.Any() == true)
             {
-                currencies = result.Data.Balances.Where(x => x.Available != 0 && !string.IsNullOrEmpty(x.Asset)).ToList();
+                currencies = result.Data.Balances.Where(x => x.Available != 0 && !string.IsNullOrEmpty(x.Asset) && !except.Contains(x.Asset)).ToList();
             }
             else
             {
-                currencies = result.Data.Balances.Where(x => x.Available != 0 && !string.IsNullOrEmpty(x.Asset) && !except.Contains(x.Asset)).ToList();
+                currencies = result.Data.Balances.Where(x => x.Available != 0 && !string.IsNullOrEmpty(x.Asset)).ToList();
             }
 
             return (true, null, currencies);
@@ -310,7 +310,7 @@ namespace BinanceApi.Module.Services
 
         private async Task<(bool IsSuccess, string Message, AssetsInfo AssetInfo)> GetQuantity(BinanceExchangeInfo exchangeInfo, string fromAsset, decimal quantity, SettingsInfo settings)
         {
-            (bool isSuccessGetQuantityUSDT, string messageGetQuantityUSDT, AssetsInfo usdtAssetInfo) = await GetQuantity(exchangeInfo, fromAsset, BinanceKeys.USDT, quantity, settings: settings);
+            (bool isSuccessGetQuantityUSDT, string messageGetQuantityUSDT, AssetsInfo usdtAssetInfo) = await GetQuantity(exchangeInfo, fromAsset, settings.SellCurrency, quantity, settings: settings);
 
             if (isSuccessGetQuantityUSDT && !string.IsNullOrEmpty(usdtAssetInfo.ToAsset))
             {

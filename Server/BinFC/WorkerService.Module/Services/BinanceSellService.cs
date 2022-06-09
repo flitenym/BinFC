@@ -202,7 +202,8 @@ namespace WorkerService.Module.Services
         /// <returns></returns>
         private async Task<bool> SellCurrenciesAsync(SettingsInfo settings)
         {
-            (bool isSuccessGetExchangeInfo, string messageGetExchangeInfo, BinanceExchangeInfo exchangeInfo) = await _binanceApiService.GetExchangeInfoAsync(settings);
+            (bool isSuccessGetExchangeInfo, string messageGetExchangeInfo, BinanceExchangeInfo exchangeInfo) = 
+                await _binanceApiService.GetExchangeInfoAsync(settings);
 
             if (!isSuccessGetExchangeInfo || exchangeInfo == null)
             {
@@ -213,7 +214,7 @@ namespace WorkerService.Module.Services
 
             // получим все валюты в балансе аккаунта, кроме USDT и BNB
             (bool isSuccessGetAllCurrencies, string messageGetAllCurrencies, List<BinanceBalance> currencies) = 
-                await _binanceApiService.GetBinanceCurrenciesAsync(settings, new List<string>() { BinanceKeys.USDT, BinanceKeys.BNB });
+                await _binanceApiService.GetBinanceCurrenciesAsync(settings, new List<string>() { settings.SellCurrency, BinanceKeys.BNB });
 
             if (!isSuccessGetAllCurrencies || currencies == null)
             {
