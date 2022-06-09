@@ -61,7 +61,7 @@ namespace Storage.Module.Repositories
             _dataContext.FuturesData.Add(newObj);
         }
 
-        public async Task<string> DeleteAsync(IEnumerable<long> ids)
+        public Task<(bool IsSuccess, string Message)> DeleteAsync(IEnumerable<long> ids)
         {
             _dataContext
                 .FuturesData
@@ -71,10 +71,10 @@ namespace Storage.Module.Repositories
                     .Where(x => ids.Contains(x.Id))
                 );
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> DeleteAllAsync()
+        public Task<(bool IsSuccess, string Message)> DeleteAllAsync()
         {
             _dataContext
                 .FuturesData
@@ -83,10 +83,10 @@ namespace Storage.Module.Repositories
                     .FuturesData.ToArray()
                 );
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public Task<string> SaveChangesAsync()
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync()
         {
             return _baseRepository.SaveChangesAsync();
         }
@@ -107,9 +107,9 @@ namespace Storage.Module.Repositories
             _dataContext.FuturesData.Update(data);
         }
 
-        private async Task<FuturesData> GetByUserIdAsync(long userId)
+        private Task<FuturesData> GetByUserIdAsync(long userId)
         {
-            return await _dataContext
+            return _dataContext
                 .FuturesData
                 .Include(i => i.User)
                 .Where(x => x.User.UserId == userId)

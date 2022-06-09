@@ -30,17 +30,7 @@ namespace Storage.Module.Controllers
                 return BadRequest(StorageLoc.ErrorRequestCheck);
             }
 
-            (bool IsSuccess, string Error) = 
-                await _importService.ImportAsync(model.GetFileContent(model.File), model.File.FileName, model.ImportType);
-
-            if (IsSuccess)
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest(Error);
-            }
+            return StringToResult(await _importService.ImportAsync(model.GetFileContent(model.File), model.File.FileName, model.ImportType));
         }
     }
 }

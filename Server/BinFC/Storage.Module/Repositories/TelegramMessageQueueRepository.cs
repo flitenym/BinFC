@@ -30,18 +30,18 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
-        public async Task<TelegramMessageQueue> GetByIdAsync(long id)
+        public Task<TelegramMessageQueue> GetByIdAsync(long id)
         {
-            return await _dataContext
+            return _dataContext
                 .TelegramMessagesQueue
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<string> CreateAsync(TelegramMessageQueue obj)
+        public Task<(bool IsSuccess, string Message)> CreateAsync(TelegramMessageQueue obj)
         {
             _dataContext.TelegramMessagesQueue.Add(obj);
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
         public void Create(TelegramMessageQueue obj)
@@ -49,14 +49,14 @@ namespace Storage.Module.Repositories
             _dataContext.TelegramMessagesQueue.Add(obj);
         }
 
-        public async Task<string> DeleteAsync(TelegramMessageQueue obj)
+        public Task<(bool IsSuccess, string Message)> DeleteAsync(TelegramMessageQueue obj)
         {
             _dataContext.TelegramMessagesQueue.Remove(obj);
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> DeleteAsync(long id)
+        public Task<(bool IsSuccess, string Message)> DeleteAsync(long id)
         {
             _dataContext
                 .TelegramMessagesQueue
@@ -66,12 +66,12 @@ namespace Storage.Module.Repositories
                     .Where(x => x.Id == id)
                 );
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> SaveChangesAsync()
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync()
         {
-            return await _baseRepository.SaveChangesAsync();
+            return _baseRepository.SaveChangesAsync();
         }
     }
 }

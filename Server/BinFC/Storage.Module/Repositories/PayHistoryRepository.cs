@@ -48,7 +48,7 @@ namespace Storage.Module.Repositories
             return (lastPayHistory?.NumberPay ?? 0) + 1;
         }
 
-        public async Task<string> DeleteAllAsync()
+        public Task<(bool IsSuccess, string Message)> DeleteAllAsync()
         {
             _dataContext
                 .PayHistory
@@ -57,17 +57,17 @@ namespace Storage.Module.Repositories
                     .PayHistory.ToArray()
                 );
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> CreateAsync(PayHistory obj)
+        public Task<(bool IsSuccess, string Message)> CreateAsync(PayHistory obj)
         {
             _dataContext.PayHistory.Add(obj);
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> CreateAsync(PayHistory obj, long userId)
+        public async Task<(bool IsSuccess, string Message)> CreateAsync(PayHistory obj, long userId)
         {
             UserInfo user = await _dataContext
                 .UsersInfo
@@ -75,7 +75,7 @@ namespace Storage.Module.Repositories
 
             if (user == null)
             {
-                return string.Format(StorageLoc.NotFoundUserByUserId, userId);
+                return (false, string.Format(StorageLoc.NotFoundUserByUserId, userId));
             }
 
             obj.UserId = user.Id;
@@ -85,7 +85,7 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
-        public Task<string> SaveChangesAsync()
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync()
         {
             return _baseRepository.SaveChangesAsync();
         }

@@ -44,7 +44,7 @@ namespace Storage.Module.Repositories
                 .AnyAsync();
         }
 
-        public async Task<string> ChangePasswordAsync(string userName, string oldPassword, string newPassword)
+        public async Task<(bool IsSuccess, string Message)> ChangePasswordAsync(string userName, string oldPassword, string newPassword)
         {
             Admin admin = await _dataContext
                 .Admins
@@ -53,30 +53,30 @@ namespace Storage.Module.Repositories
 
             if (admin == null)
             {
-                return string.Format(StorageLoc.NotFoundUserByLogin, userName);
+                return (false, string.Format(StorageLoc.NotFoundUserByLogin, userName));
             }
 
             if (admin.Password.Equals(oldPassword))
             {
                 if (oldPassword.Equals(newPassword))
                 {
-                    return StorageLoc.OldAndNewPasswordShouldNotEqual;
+                    return (false, StorageLoc.OldAndNewPasswordShouldNotEqual);
                 }
                 else
                 {
                     admin.Password = newPassword;
 
                     _dataContext.Admins.Update(admin);
-                    return await _baseRepository.SaveChangesAsync();
+                    return await SaveChangesAsync();
                 }
             }
             else
             {
-                return StorageLoc.OldPasswordIncorrect;
+                return (false, StorageLoc.OldPasswordIncorrect);
             }
         }
 
-        public async Task<string> UpdateLanguageAsync(string userName, string language)
+        public async Task<(bool IsSuccess, string Message)> UpdateLanguageAsync(string userName, string language)
         {
             Admin admin = await _dataContext
                 .Admins
@@ -85,7 +85,7 @@ namespace Storage.Module.Repositories
 
             if (admin == null)
             {
-                return string.Format(StorageLoc.NotFoundUserByLogin, userName);
+                return (false, string.Format(StorageLoc.NotFoundUserByLogin, userName));
             }
 
             admin.Language = language;
@@ -95,14 +95,14 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
-        public async Task<string> CreateAsync(Admin obj)
+        public Task<(bool IsSuccess, string Message)> CreateAsync(Admin obj)
         {
             _dataContext.Admins.Add(obj);
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> UpdateAsync(Admin obj, Admin newObj)
+        public Task<(bool IsSuccess, string Message)> UpdateAsync(Admin obj, Admin newObj)
         {
             obj.UserName = newObj.UserName;
             obj.Password = newObj.Password;
@@ -110,17 +110,17 @@ namespace Storage.Module.Repositories
 
             _dataContext.Admins.Update(obj);
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> DeleteAsync(Admin obj)
+        public Task<(bool IsSuccess, string Message)> DeleteAsync(Admin obj)
         {
             _dataContext.Admins.Remove(obj);
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public Task<string> SaveChangesAsync()
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync()
         {
             return _baseRepository.SaveChangesAsync();
         }

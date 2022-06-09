@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Storage.Module.Entities;
+using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
 using System;
 using System.Linq;
@@ -18,24 +19,24 @@ namespace Storage.Module.Repositories.Base
             _logger = logger;
         }
 
-        public async Task<string> SaveChangesAsync()
+        public async Task<(bool IsSuccess, string Message)> SaveChangesAsync()
         {
             try
             {
                 await _dataContext.SaveChangesAsync();
-                return null;
+                return (true, StorageLoc.SaveSuccess);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, string.Join("; ", _dataContext.ChangeTracker.Entries().Select(x => x.Entity.GetType().Name)));
                 _dataContext.ChangeTracker.Clear();
-                return ex.InnerException?.Message ?? ex.Message;
+                return (false, StorageLoc.SaveUnsuccess);
             }
         }
 
         public async Task<UserInfo> GetOrCreateUserInfoAsync(long userId)
         {
-            var foundedUserInfo = GetUserInfo(userId);
+            var foundedUserInfo = await GetUserInfoAsync(userId);
             if (foundedUserInfo == null)
             {
                 Unique defaultUnique = await GetDefaultUniqueAsync();
@@ -51,18 +52,17 @@ namespace Storage.Module.Repositories.Base
             return foundedUserInfo;
         }
 
-        private UserInfo GetUserInfo(long userId)
+        private Task<UserInfo> GetUserInfoAsync(long userId)
         {
             return _dataContext
-                .UsersInfo
-                .Include(i => i.Unique)
-                .FirstOrDefault(x => x.UserId == userId);
+                    .UsersInfo
+                    .Include(i => i.Unique)
+                    .FirstOrDefaultAsync(x => x.UserId == userId);
         }
 
-        public async Task<Unique> GetDefaultUniqueAsync()
+        public Task<Unique> GetDefaultUniqueAsync()
         {
-            return
-                await _dataContext
+            return _dataContext
                     .Unique
                     .FirstOrDefaultAsync(x => x.IsDefault);
         }

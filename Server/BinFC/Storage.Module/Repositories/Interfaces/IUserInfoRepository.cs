@@ -11,14 +11,14 @@ namespace Storage.Module.Repositories.Interfaces
         public IEnumerable<UserInfo> Get(DateTime beforeDate);
         public Task<UserInfo> GetByIdAsync(long Id);
         public List<long> GetChatIdByUserNickName(List<string> userNickNames);
-        public Task<string> CreateAsync(UserInfo obj);
-        public Task<string> UpdateAsync(UserInfo obj, UserInfo newObj);
-        public Task<string> DeleteAsync(UserInfo obj);
-        public Task<string> ApproveAsync(IEnumerable<long> ids);
-        public Task<string> NotApproveAsync(IEnumerable<long> ids);
-        public Task<string> ApproveAllAsync();
-        public Task<string> NotApproveAllAsync();
-        public Task<string> SaveChangesAsync();
+        public Task<(bool IsSuccess, string Message)> CreateAsync(UserInfo obj);
+        public Task<(bool IsSuccess, string Message)> UpdateAsync(UserInfo obj, UserInfo newObj);
+        public Task<(bool IsSuccess, string Message)> DeleteAsync(UserInfo obj);
+        public Task<(bool IsSuccess, string Message)> ApproveAsync(IEnumerable<long> ids);
+        public Task<(bool IsSuccess, string Message)> NotApproveAsync(IEnumerable<long> ids);
+        public Task<(bool IsSuccess, string Message)> ApproveAllAsync();
+        public Task<(bool IsSuccess, string Message)> NotApproveAllAsync();
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync();
         public Task<UserInfo> GetUserInfoByChatIdAsync(long chatId, bool isNeedTracking = true);
         public Task<UserInfo> GetUserInfoByUserIdAsync(long userId, bool isNeedTracking = true);
     }

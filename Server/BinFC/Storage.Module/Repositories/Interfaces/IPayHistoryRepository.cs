@@ -9,9 +9,9 @@ namespace Storage.Module.Repositories.Interfaces
         public IEnumerable<PayHistory> Get();
         public IEnumerable<PayHistory> Get(long[] ids);
         public Task<int> GetLastNumberPayAsync();
-        public Task<string> DeleteAllAsync();
-        public Task<string> CreateAsync(PayHistory obj);
-        public Task<string> CreateAsync(PayHistory obj, long userId);
-        public Task<string> SaveChangesAsync();
+        public Task<(bool IsSuccess, string Message)> DeleteAllAsync();
+        public Task<(bool IsSuccess, string Message)> CreateAsync(PayHistory obj);
+        public Task<(bool IsSuccess, string Message)> CreateAsync(PayHistory obj, long userId);
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync();
     }
 }

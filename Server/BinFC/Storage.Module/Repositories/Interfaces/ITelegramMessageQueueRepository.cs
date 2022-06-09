@@ -8,10 +8,10 @@ namespace Storage.Module.Repositories.Interfaces
     {
         public IEnumerable<TelegramMessageQueue> Get();
         public Task<TelegramMessageQueue> GetByIdAsync(long id);
-        public Task<string> CreateAsync(TelegramMessageQueue obj);
+        public Task<(bool IsSuccess, string Message)> CreateAsync(TelegramMessageQueue obj);
         public void Create(TelegramMessageQueue obj);
-        public Task<string> DeleteAsync(TelegramMessageQueue obj);
-        public Task<string> DeleteAsync(long id);
-        public Task<string> SaveChangesAsync();
+        public Task<(bool IsSuccess, string Message)> DeleteAsync(TelegramMessageQueue obj);
+        public Task<(bool IsSuccess, string Message)> DeleteAsync(long id);
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync();
     }
 }

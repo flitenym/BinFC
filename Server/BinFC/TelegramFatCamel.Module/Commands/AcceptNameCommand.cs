@@ -38,7 +38,9 @@ namespace TelegramFatCamel.Module.Commands
             existedUserName = userInfo.UserName;
             userInfo.UserName = userName;
 
-            if (await _userInfoRepository.SaveChangesAsync() != null)
+            (bool isSuccessSave, string saveMessage) = await _userInfoRepository.SaveChangesAsync();
+
+            if (!isSuccessSave)
             {
                 await client.SendTextMessageAsync(
                     update.Message.Chat.Id,

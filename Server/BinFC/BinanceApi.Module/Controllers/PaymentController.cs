@@ -52,12 +52,7 @@ namespace BinanceApi.Module.Controllers
 
             if (isSuccess)
             {
-                if (!string.IsNullOrEmpty(message))
-                {
-                    _logger.LogInformation(message);
-                    return Ok(new { Message = message });
-                }
-                return Ok();
+                return Ok(new { Message = message });
             }
             else
             {

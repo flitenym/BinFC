@@ -9,9 +9,9 @@ namespace Storage.Module.Repositories.Interfaces
         public IEnumerable<FuturesScale> Get();
         public IEnumerable<FuturesScale> GetSorted();
         public Task<FuturesScale> GetByIdAsync(long Id);
-        public Task<string> CreateAsync(FuturesScale obj);
-        public Task<string> UpdateAsync(FuturesScale obj, FuturesScale newObj);
-        public Task<string> DeleteAsync(IEnumerable<long> Ids);
-        public Task<string> SaveChangesAsync();
+        public Task<(bool IsSuccess, string Message)> CreateAsync(FuturesScale obj);
+        public Task<(bool IsSuccess, string Message)> UpdateAsync(FuturesScale obj, FuturesScale newObj);
+        public Task<(bool IsSuccess, string Message)> DeleteAsync(IEnumerable<long> Ids);
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync();
     }
 }

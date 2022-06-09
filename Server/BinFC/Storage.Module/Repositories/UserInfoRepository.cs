@@ -51,9 +51,9 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.Id);
         }
 
-        public async Task<UserInfo> GetByIdAsync(long id)
+        public Task<UserInfo> GetByIdAsync(long id)
         {
-            return await _dataContext
+            return _dataContext
                 .UsersInfo
                 .Include(i => i.Unique)
                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -68,7 +68,7 @@ namespace Storage.Module.Repositories
                 .ToList();
         }
 
-        public async Task<string> CreateAsync(UserInfo obj)
+        public async Task<(bool IsSuccess, string Message)> CreateAsync(UserInfo obj)
         {
             if (!obj.UniqueId.HasValue)
             {
@@ -82,7 +82,7 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
-        public async Task<string> UpdateAsync(UserInfo obj, UserInfo newObj)
+        public async Task<(bool IsSuccess, string Message)> UpdateAsync(UserInfo obj, UserInfo newObj)
         {
             if (newObj.ChatId != null)
             {
@@ -134,14 +134,14 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
-        public async Task<string> DeleteAsync(UserInfo obj)
+        public Task<(bool IsSuccess, string Message)> DeleteAsync(UserInfo obj)
         {
             _dataContext.UsersInfo.Remove(obj);
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> ApproveAsync(IEnumerable<long> ids)
+        public async Task<(bool IsSuccess, string Message)> ApproveAsync(IEnumerable<long> ids)
         {
             foreach (var id in ids)
             {
@@ -153,7 +153,7 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
-        public async Task<string> NotApproveAsync(IEnumerable<long> ids)
+        public async Task<(bool IsSuccess, string Message)> NotApproveAsync(IEnumerable<long> ids)
         {
             foreach (var id in ids)
             {
@@ -165,7 +165,7 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
-        public async Task<string> ApproveAllAsync()
+        public Task<(bool IsSuccess, string Message)> ApproveAllAsync()
         {
             var usersInfo = _dataContext
                 .UsersInfo
@@ -177,10 +177,10 @@ namespace Storage.Module.Repositories
                 Approve(userInfo);
             }
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
-        public async Task<string> NotApproveAllAsync()
+        public Task<(bool IsSuccess, string Message)> NotApproveAllAsync()
         {
             var usersInfo = _dataContext
                 .UsersInfo
@@ -191,7 +191,7 @@ namespace Storage.Module.Repositories
                 NotApprove(userInfo);
             }
 
-            return await SaveChangesAsync();
+            return SaveChangesAsync();
         }
 
         private void Approve(UserInfo userInfo)
@@ -268,7 +268,7 @@ namespace Storage.Module.Repositories
             }
         }
 
-        public Task<string> SaveChangesAsync()
+        public Task<(bool IsSuccess, string Message)> SaveChangesAsync()
         {
             return _baseRepository.SaveChangesAsync();
         }
