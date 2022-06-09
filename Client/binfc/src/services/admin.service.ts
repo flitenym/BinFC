@@ -36,12 +36,22 @@ const updateLanguage = async (username: string | null, language: string) => {
       })
 };
 
+const getLanguage = async (username: string) => {
+  return await axios
+    .get(API_URL + "/getlanguage", {
+      params: { username: username }
+    })
+    .then((response) => {
+      return response
+    })
+};
 
 export const adminService = {
   login,
   logout,
   changePassword,
-  updateLanguage
+  updateLanguage,
+  getLanguage
 };
 
 export default adminService;
