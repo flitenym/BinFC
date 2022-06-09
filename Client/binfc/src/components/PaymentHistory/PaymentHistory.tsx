@@ -56,7 +56,7 @@ const PaymentHistory: FunctionComponent = () => {
                     userName: item.user.userName ? item?.user.userName : t("common:noData"),
                     tableUserID: item.user.userId ? item?.user.userId : t("common:noData"),
                     sendedSum: item.sendedSum ? item.sendedSum : t("common:noData"),
-                    sendedTime: item?.sendedTime ? `${moment.utc(item?.sendedTime).format('YYYY-MM-DD HH:mm:ss')}` : t("common:noData"),
+                    sendedTime: item?.sendedTime ? `${moment.utc(item?.sendedTime).local().format('YYYY-MM-DD HH:mm:ss')}` : t("common:noData"),
                     numberPay: item?.numberPay ? item?.numberPay : t("common:noData"),
                     userId: item.userId ? item.userId : t("common:noData"),
                 })

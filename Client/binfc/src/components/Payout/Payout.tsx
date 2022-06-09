@@ -5,11 +5,13 @@ import { useTranslation } from "react-i18next";
 import { paymentService } from "../../services/payment.service";
 import { Spin, Space } from 'antd';
 import { sortedString } from "../../helpers/sortedHelper";
+import { useSelector } from "react-redux/es/hooks/useSelector";
 
 const { Title } = Typography;
 
 const Payout: FunctionComponent = () => {
     const { i18n } = useTranslation("common");
+    const language = useSelector((state: any) => state?.languageState.locale)
     const [paymentsData, setPaymentsData] = useState<any>([]);
     const [modalPaymentVisible, setIsModalPaymentVisible] = useState<boolean>(false);
     const [modalData, setModalData] = useState<any>([])
@@ -49,7 +51,7 @@ const Payout: FunctionComponent = () => {
             setIsLoading(false)
         })
         paymentService.getBalanceData().then((response) => {
-            if (response.status === 200) {
+            if (response.status === 200) {               
                 setBalanceData(response.data);
             }
             else {
@@ -57,7 +59,7 @@ const Payout: FunctionComponent = () => {
             }
         })
         setForceReload(false)
-    }, [forceReload])
+    }, [forceReload, language])
 
     const { selectedPaymentskey } = selectedPaymentsId;
     const rowSelectionPaymentsId = {

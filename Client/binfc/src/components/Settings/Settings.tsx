@@ -1,5 +1,6 @@
 import { Button, Checkbox, Input, List, Modal, Radio, Space, Typography } from "antd";
 import { Content } from "antd/lib/layout/layout";
+import moment from "moment";
 import { FunctionComponent, MutableRefObject, useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
 import binancesellService from "../../services/binancesell.service";
@@ -227,11 +228,15 @@ const Settings: FunctionComponent = () => {
     }
 
     const checkDates = (cronExpression?: string) => {
+        let localeDate: any[] = []
         cronService.next(cronExpression ?? '').then((response) => {
             if (response.status !== 200) {
                 return Promise.reject(response);
             } else {
-                setModalData(response.data)
+                response.data.map((item: any) => {
+                    localeDate.push(moment.utc(item).local().format('YYYY-MM-DD HH:mm:ss'))                 
+                });
+                setModalData(localeDate)
                 setModalDatesVisible(true)
             }
         })

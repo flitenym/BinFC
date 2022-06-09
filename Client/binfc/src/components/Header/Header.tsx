@@ -35,17 +35,23 @@ const Header: FunctionComponent = () => {
     const username = useSelector((state: any) => state?.authState?.username)
     const ruIsSelected = localStorage.getItem("i18nextLng") === "ru"
     const lightThemeIsSelected = localStorage.getItem("theme") === "Light"
+    const user = localStorage.getItem("username")
     const dispatch = useDispatch();
 
     const [form] = useForm();
 
     useEffect(() => {
-        const chooseLanguage = localStorage.getItem("i18nextLng")
-        if (chooseLanguage) {
-            setLanguageFunc(chooseLanguage, false)
-        } else {
-            setLanguageFunc("ru", true)
-        }
+        adminService.getLanguage(user ?? "").then((response) => {
+            let chooseLanguage = localStorage.getItem("i18nextLng") ?? "ru"
+            if (response.status === 200) {
+                if (chooseLanguage !== response.data) {
+                    chooseLanguage = response.data
+                    setLanguageFunc(chooseLanguage, true)
+                } else {
+                    setLanguageFunc(chooseLanguage, false)
+                }
+            }
+        })
     }, [])
 
     const changeMode = (mode: any) => {
@@ -62,22 +68,25 @@ const Header: FunctionComponent = () => {
         }
     }
 
-    const changeLanguage = (language: any) => {
-        if (language === 'ru') {
-            setLanguageFunc("en", true, language)
+    const changeLanguage = (lang: any) => {
+        if (lang === language) {
+            return
+        }
+        if (lang === 'ru') {
+            setLanguageFunc("ru", true, lang)
         } else {
-            setLanguageFunc("ru", true, language)
+            setLanguageFunc("en", true, lang)
         }
     }
 
     const setLanguageFunc = (localeToStorage: string, flag: boolean, language?: any) => {
         if (flag) {
-            localStorage.setItem("i18nextLng", localeToStorage)
+            adminService.updateLanguage(
+                localStorage.getItem("username"),
+                localeToStorage
+            )
         }
-        adminService.updateLanguage(
-            localStorage.getItem("username"),
-            localeToStorage
-        )
+        localStorage.setItem("i18nextLng", localeToStorage)
         setLanguage(localeToStorage);
         dispatch(languageChange({ locale: language ? language : localeToStorage }))
         i18n.changeLanguage(localeToStorage)
@@ -114,7 +123,7 @@ const Header: FunctionComponent = () => {
                 {
                     label: (
                         <Typography.Text key={48} onClick={() =>
-                            changeLanguage('en')}>
+                            changeLanguage('ru')}>
                             {`${t("common:Russian")}`}
                         </Typography.Text>
                     ),
@@ -123,7 +132,7 @@ const Header: FunctionComponent = () => {
                 {
                     label: (
                         <Typography.Text key={49} onClick={() =>
-                            changeLanguage('ru')}>
+                            changeLanguage('en')}>
                             {`${t("common:English")}`}
                         </Typography.Text>
                     ),
@@ -184,7 +193,7 @@ const Header: FunctionComponent = () => {
                         arrow
                         overlay={languageMenu}>
                         <a style={{ fontSize: "16px" }} key={47} onClick={e => e.preventDefault()}>
-                            {ruIsSelected ? `${t("common:Russian")}` : `${t("common:English")}`}
+                            {language === "ru" ? `${t("common:Russian")}` : `${t("common:English")}`}
                         </a>
                     </Dropdown>
                     <Button
