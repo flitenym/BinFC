@@ -95,6 +95,22 @@ namespace Storage.Module.Repositories
             return await SaveChangesAsync();
         }
 
+        public async Task<(bool IsSuccess, string Message)> GetLanguageAsync(string userName)
+        {
+            Admin admin = await _dataContext
+                .Admins
+                .AsNoTracking()
+                .Where(x => x.UserName.Equals(userName))
+                .FirstOrDefaultAsync();
+
+            if (admin == null)
+            {
+                return (false, string.Format(StorageLoc.NotFoundUserByLogin, userName));
+            }
+
+            return (true, admin.Language);
+        }
+
         public Task<(bool IsSuccess, string Message)> CreateAsync(Admin obj)
         {
             _dataContext.Admins.Add(obj);

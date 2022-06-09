@@ -121,6 +121,25 @@ namespace Storage.Module.Controllers
         }
 
         [Authorize]
+        [HttpGet("getlanguage")]
+        public async Task<IActionResult> GetLanguageAsync(string userName)
+        {
+            if (string.IsNullOrEmpty(userName))
+            {
+                return BadRequest(StorageLoc.EmptyLogin);
+            }
+
+            (bool isSuccess, string message) = await _adminRepository.GetLanguageAsync(userName);
+
+            if (isSuccess)
+            {
+                return Ok(message);
+            }
+
+            return BadRequest(message);
+        }
+
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(long id, [FromBody] Admin newObj)
         {
