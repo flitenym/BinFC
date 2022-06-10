@@ -222,4 +222,7 @@
   <data name="Balance" xml:space="preserve">
     <value>Balance</value>
   </data>
+  <data name="PayUserInfo" xml:space="preserve">
+    <value>Cashback in the amount of {0}$ has been sent to you.</value>
+  </data>
 </root>

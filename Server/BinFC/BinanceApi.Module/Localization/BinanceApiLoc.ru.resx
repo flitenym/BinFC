@@ -222,4 +222,7 @@
   <data name="Balance" xml:space="preserve">
     <value>Баланс</value>
   </data>
+  <data name="PayUserInfo" xml:space="preserve">
+    <value>Вам отправлен кэшбэк на сумму {0}$</value>
+  </data>
 </root>

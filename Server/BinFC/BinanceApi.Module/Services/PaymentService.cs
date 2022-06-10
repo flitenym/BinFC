@@ -26,6 +26,8 @@ namespace BinanceApi.Module.Services
         private readonly IFuturesScaleRepository _futuresScaleRepository;
         private readonly ISettingsRepository _settingsRepository;
         private readonly IPayHistoryRepository _payHistoryRepository;
+        private readonly ITelegramMessageQueueRepository _telegramMessageQueueRepository;
+        private readonly IUserInfoRepository _userInfoRepository;
 
         private readonly ILogger<PaymentService> _logger;
         public PaymentService(
@@ -36,6 +38,8 @@ namespace BinanceApi.Module.Services
             IFuturesScaleRepository futuresScaleRepository,
             ISettingsRepository settingsRepository,
             IPayHistoryRepository payHistoryRepository,
+            ITelegramMessageQueueRepository telegramMessageQueueRepository,
+            IUserInfoRepository userInfoRepository,
             ILogger<PaymentService> logger
             )
         {
@@ -46,6 +50,8 @@ namespace BinanceApi.Module.Services
             _futuresScaleRepository = futuresScaleRepository;
             _settingsRepository = settingsRepository;
             _payHistoryRepository = payHistoryRepository;
+            _telegramMessageQueueRepository = telegramMessageQueueRepository;
+            _userInfoRepository = userInfoRepository;
 
             _logger = logger;
         }
@@ -169,11 +175,6 @@ namespace BinanceApi.Module.Services
                 if (lastData?.IsPaid == true)
                 {
                     lastData = null;
-                }
-                
-                if (firstData?.IsPaid == true)
-                {
-                    firstData = null;
                 }
 
                 if (lastData == null && firstData == null)
@@ -382,6 +383,16 @@ namespace BinanceApi.Module.Services
                     if (isSuccessWithdrawal)
                     {
                         // выполним без сохранения, а в _payHistoryRepository.CreateAsync выполним сохранение.
+                        var userInfo = await _userInfoRepository.GetUserInfoByUserIdAsync(paymentInfo.UserId, false);
+
+                        if (userInfo.ChatId.HasValue)
+                        {
+                            _telegramMessageQueueRepository.Create(new TelegramMessageQueue()
+                            {
+                                ChatId = userInfo.ChatId,
+                                Message = string.Format(BinanceApiLoc.PayUserInfo, paymentInfo.Usdt)
+                            });
+                        }
 
                         // обновим, что оплата произошла у данного userId, чтобы в последующем он уже не выбирался, т.к. ему уже оплатили.
                         await _spotDataRepository.UpdateIsPaidByUserIdAsync(paymentInfo.UserId);
