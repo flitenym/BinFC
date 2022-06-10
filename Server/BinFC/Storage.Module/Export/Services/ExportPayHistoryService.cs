@@ -41,7 +41,7 @@ namespace Storage.Module.Export.Services
 
             foreach (ExportPayHistoryModel item in exportData)
             {
-                builder.AppendLine($"{item.UserId},{item.UserName},{item.SendedSum},{item.SendedTime.ToString("dd.MM.yyyy")},{item.NumberPay}");
+                builder.AppendLine($"{item.UserId},{item.UserName},{item.SendedSum.ToString().Replace(',','.')},{item.SendedTime.ToString("dd.MM.yyyy")},{item.NumberPay}");
             }
 
             var data = Encoding.UTF8.GetBytes(builder.ToString());
