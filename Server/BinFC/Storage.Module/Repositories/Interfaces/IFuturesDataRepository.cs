@@ -14,6 +14,6 @@ namespace Storage.Module.Repositories.Interfaces
         public Task<(bool IsSuccess, string Message)> DeleteAsync(IEnumerable<long> Ids);
         public Task<(bool IsSuccess, string Message)> DeleteAllAsync();
         public Task<(bool IsSuccess, string Message)> SaveChangesAsync();
-        public Task UpdateIsPaidByUserIdAsync(long userId);
+        public void UpdateIsPaidByUserId(long userId);
     }
 }

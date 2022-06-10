@@ -397,8 +397,8 @@ namespace BinanceApi.Module.Services
                         }
 
                         // обновим, что оплата произошла у данного userId, чтобы в последующем он уже не выбирался, т.к. ему уже оплатили.
-                        await _spotDataRepository.UpdateIsPaidByUserIdAsync(paymentInfo.UserId);
-                        await _futuresDataRepository.UpdateIsPaidByUserIdAsync(paymentInfo.UserId);
+                        _spotDataRepository.UpdateIsPaidByUserId(paymentInfo.UserId);
+                        _futuresDataRepository.UpdateIsPaidByUserId(paymentInfo.UserId);
 
                         // добавим в историю о выплатах
                         (bool isSuccessSave, string saveMessage) = await _payHistoryRepository.CreateAsync(

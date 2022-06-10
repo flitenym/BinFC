@@ -93,27 +93,31 @@ namespace Storage.Module.Repositories
 
         #endregion
 
-        public async Task UpdateIsPaidByUserIdAsync(long userId)
+        public void UpdateIsPaidByUserId(long userId)
         {
-            var data = await GetByUserIdAsync(userId);
+            var records = GetByUserId(userId);
 
-            if (data == null)
+            if (!records.Any())
             {
                 return;
             }
 
-            data.IsPaid = true;
-
-            _dataContext.SpotData.Update(data);
+            foreach (var record in records)
+            {
+                if (!record.IsPaid)
+                {
+                    record.IsPaid = true;
+                    _dataContext.SpotData.Update(record);
+                }
+            }
         }
 
-        private Task<SpotData> GetByUserIdAsync(long userId)
+        private IEnumerable<SpotData> GetByUserId(long userId)
         {
             return _dataContext
                 .SpotData
                 .Include(i => i.User)
-                .Where(x => x.User.UserId == userId)
-                .FirstOrDefaultAsync();
+                .Where(x => x.User.UserId == userId);
         }
     }
 }
