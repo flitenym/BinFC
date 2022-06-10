@@ -141,9 +141,6 @@
   <data name="EmptyValues" xml:space="preserve">
     <value>No values specified.</value>
   </data>
-  <data name="ErrorRequestCheck" xml:space="preserve">
-    <value>Request verification error.</value>
-  </data>
   <data name="CanNotRemoveDefault" xml:space="preserve">
     <value>You cannot delete the default entity.</value>
   </data>
@@ -194,5 +191,11 @@
   </data>
   <data name="SaveUnsuccess" xml:space="preserve">
     <value>The data was not saved successfully. Contact the Administrator.</value>
+  </data>
+  <data name="ExportNoRecords" xml:space="preserve">
+    <value>There are no entries to export.</value>
+  </data>
+  <data name="ImportNoFile" xml:space="preserve">
+    <value>Failed to get file.</value>
   </data>
 </root>

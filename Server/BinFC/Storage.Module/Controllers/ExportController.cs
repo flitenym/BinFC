@@ -35,7 +35,7 @@ namespace Storage.Module.Controllers
 
             if (!model.IsValid())
             {
-                return BadRequest(StorageLoc.ErrorRequestCheck);
+                return BadRequest(StorageLoc.ExportNoRecords);
             }
 
             (bool isSuccess, string error, byte[] fileContent) = 

@@ -10,8 +10,10 @@ const exportPayHistory = async (ids: number[]) => {
             responseType: 'blob',
 
         }).then((response: any) => {
-            const typeFile = response?.headers?.['content-type'].split('/')[1]
-            FileDownload(response.data, `Table.${typeFile}`, 'text/csv;charset=utf-8', '\uFEFF')
+            if (response.status == 200){
+                const typeFile = response?.headers?.['content-type'].split('/')[1]
+                FileDownload(response.data, `Table.${typeFile}`, 'text/csv;charset=utf-8', '\uFEFF')
+            }
         })
 };
 

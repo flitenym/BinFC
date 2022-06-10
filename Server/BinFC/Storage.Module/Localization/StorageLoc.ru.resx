@@ -141,9 +141,6 @@
   <data name="EmptyValues" xml:space="preserve">
     <value>Не указаны значения.</value>
   </data>
-  <data name="ErrorRequestCheck" xml:space="preserve">
-    <value>Ошибка проверки запроса.</value>
-  </data>
   <data name="CanNotRemoveDefault" xml:space="preserve">
     <value>Нельзя удалить сущность по умолчанию.</value>
   </data>
@@ -194,5 +191,11 @@
   </data>
   <data name="SaveUnsuccess" xml:space="preserve">
     <value>Данные сохранены не успешно. Обратитесь к Администратору.</value>
+  </data>
+  <data name="ExportNoRecords" xml:space="preserve">
+    <value>Записи для экспорта не выделены.</value>
+  </data>
+  <data name="ImportNoFile" xml:space="preserve">
+    <value>Неудалось получить файл.</value>
   </data>
 </root>

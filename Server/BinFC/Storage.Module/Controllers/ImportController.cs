@@ -27,7 +27,7 @@ namespace Storage.Module.Controllers
         {
             if (!model.IsValid())
             {
-                return BadRequest(StorageLoc.ErrorRequestCheck);
+                return BadRequest(StorageLoc.ImportNoFile);
             }
 
             return StringToResult(await _importService.ImportAsync(model.GetFileContent(model.File), model.File.FileName, model.ImportType));
