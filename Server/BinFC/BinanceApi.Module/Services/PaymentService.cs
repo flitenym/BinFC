@@ -382,6 +382,8 @@ namespace BinanceApi.Module.Services
 
                     if (isSuccessWithdrawal)
                     {
+                        isHaveOnePay = true;
+
                         // выполним без сохранения, а в _payHistoryRepository.CreateAsync выполним сохранение.
                         var userInfo = await _userInfoRepository.GetUserInfoByUserIdAsync(paymentInfo.UserId, false);
 
@@ -390,7 +392,7 @@ namespace BinanceApi.Module.Services
                             _telegramMessageQueueRepository.Create(new TelegramMessageQueue()
                             {
                                 ChatId = userInfo.ChatId,
-                                Message = string.Format(BinanceApiLoc.PayUserInfo, paymentInfo.Usdt)
+                                Message = string.Format(BinanceApiLoc.PayUserInfo, paymentInfo.Usdt - network.WithdrawFee)
                             });
                         }
 
@@ -402,7 +404,7 @@ namespace BinanceApi.Module.Services
                         (bool isSuccessSave, string saveMessage) = await _payHistoryRepository.CreateAsync(
                             new PayHistory()
                             {
-                                SendedSum = paymentInfo.Usdt,
+                                SendedSum = paymentInfo.Usdt - network.WithdrawFee,
                                 NumberPay = numberPay,
                                 UserId = paymentInfo.UserId
                             },
