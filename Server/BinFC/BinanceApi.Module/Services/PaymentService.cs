@@ -172,9 +172,9 @@ namespace BinanceApi.Module.Services
                 var lastData = data.FirstOrDefault(x => x.UserId == user && x.LoadingDate == lastDate);
                 var firstData = data.FirstOrDefault(x => x.UserId == user && x.LoadingDate == firstDate);
 
-                if (lastData?.IsPaid == true)
+                if (lastData?.IsPaid == true && firstData?.IsPaid == true)
                 {
-                    lastData = null;
+                    continue;
                 }
 
                 if (lastData == null && firstData == null)
@@ -182,7 +182,7 @@ namespace BinanceApi.Module.Services
                     continue;
                 }
 
-                PaymentDTO payment = new PaymentDTO();
+                PaymentDTO payment = new ();
 
                 UserInfo userInfo = lastData?.User ?? firstData?.User;
 
