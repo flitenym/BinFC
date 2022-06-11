@@ -48,6 +48,7 @@ namespace Storage.Module.Repositories
                 .UsersInfo
                 .Include(i => i.Unique)
                 .Where(x => x.Created < beforeDate)
+                .Where(x => !x.IsApproved)
                 .OrderBy(x => x.Id);
         }
 

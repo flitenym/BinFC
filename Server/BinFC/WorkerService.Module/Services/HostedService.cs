@@ -22,8 +22,8 @@ namespace WorkerService.Module.Services
         private Timer _timer = null;
 
         public HostedService(
-            TelegramFatCamelBotService telegramFatCamelBotService, 
-            IServiceScopeFactory scopeFactory, 
+            TelegramFatCamelBotService telegramFatCamelBotService,
+            IServiceScopeFactory scopeFactory,
             ILogger<HostedService> logger)
         {
             _telegramFatCamelBotService = telegramFatCamelBotService;
@@ -100,10 +100,10 @@ namespace WorkerService.Module.Services
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, WorkerServiceLoc.SendNotificationError);
-            }            
+            }
         }
 
         private async Task NotApproveUserInfoAsync()
