@@ -156,6 +156,9 @@
   <data name="ErrorTextToSendAdmin" xml:space="preserve">
     <value>An error has occurred, contact the Administrator.</value>
   </data>
+  <data name="Futures" xml:space="preserve">
+    <value>Futures: {0}</value>
+  </data>
   <data name="IdNotRegister" xml:space="preserve">
     <value>This Id is not registered in the database. The administrator will check the data and you will receive a message.</value>
   </data>
@@ -212,6 +215,9 @@ Change language: {5}</value>
   </data>
   <data name="RussianLanguage" xml:space="preserve">
     <value>Russian</value>
+  </data>
+  <data name="Spot" xml:space="preserve">
+    <value>Spot: {0}</value>
   </data>
   <data name="StartCommand" xml:space="preserve">
     <value>Welcome! I will help register Fat Camel!

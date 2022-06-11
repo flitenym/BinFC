@@ -15,9 +15,16 @@ namespace TelegramFatCamel.Module.Commands
     public class GetPrivateCommand : BaseCommand
     {
         private readonly IUserInfoRepository _userInfoRepository;
-        public GetPrivateCommand(IUserInfoRepository userInfoRepository)
+        private readonly ISpotScaleRepository _spotScaleRepository;
+        private readonly IFuturesScaleRepository _futuresScaleRepository;
+        public GetPrivateCommand(
+            IUserInfoRepository userInfoRepository, 
+            ISpotScaleRepository spotScaleRepository,
+            IFuturesScaleRepository futuresScaleRepository)
         {
             _userInfoRepository = userInfoRepository;
+            _spotScaleRepository = spotScaleRepository;
+            _futuresScaleRepository = futuresScaleRepository;
         }
 
         public override string Name => CommandNames.GetPrivateCommand;
@@ -35,6 +42,12 @@ namespace TelegramFatCamel.Module.Commands
                 return;
             }
 
+            var spots = _spotScaleRepository.GetByUnique(existedUser.UniqueId.Value);
+            var futures = _futuresScaleRepository.GetByUnique(existedUser.UniqueId.Value);
+
+            string spotPercentes = string.Join("; ", spots.Select(x => $"{x.Percent}% (>{x.FromValue}){Environment.NewLine}")).Trim();
+            string futuresPercentes = string.Join("; ", futures.Select(x => $"{x.Percent}% (>{x.FromValue}){Environment.NewLine}")).Trim();
+
             List<string> privateInfo = new();
 
             privateInfo.Add(!existedUser.UserId.HasValue ? string.Empty : string.Format(TelegramLoc.PrivateId, existedUser.UserId)); // id
@@ -43,6 +56,10 @@ namespace TelegramFatCamel.Module.Commands
             privateInfo.Add(string.IsNullOrEmpty(existedUser.BepAddress) ?
                                 string.IsNullOrEmpty(existedUser.TrcAddress) ? string.Empty : string.Format(TelegramLoc.PrivateTrc, existedUser.TrcAddress) :
                                 string.Format(TelegramLoc.PrivateBep, existedUser.BepAddress)); //purse
+
+            privateInfo.Add(string.Format(TelegramLoc.Spot, spotPercentes)); // spots percent
+            privateInfo.Add(string.Format(TelegramLoc.Futures, futuresPercentes)); // futures percent
+
             privateInfo.Add(existedUser.IsApproved ? TelegramLoc.StatusApprove : TelegramLoc.StatusNotApprove); // status
 
             await client.SendTextMessageAsync(

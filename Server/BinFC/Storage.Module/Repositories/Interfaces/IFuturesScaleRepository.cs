@@ -8,6 +8,7 @@ namespace Storage.Module.Repositories.Interfaces
     {
         public IEnumerable<FuturesScale> Get();
         public IEnumerable<FuturesScale> GetSorted();
+        public IEnumerable<FuturesScale> GetByUnique(long uniqueId);
         public Task<FuturesScale> GetByIdAsync(long Id);
         public Task<(bool IsSuccess, string Message)> CreateAsync(FuturesScale obj);
         public Task<(bool IsSuccess, string Message)> UpdateAsync(FuturesScale obj, FuturesScale newObj);

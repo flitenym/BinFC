@@ -8,6 +8,7 @@ namespace Storage.Module.Repositories.Interfaces
     {
         public IEnumerable<SpotScale> Get();
         public IEnumerable<SpotScale> GetSorted();
+        public IEnumerable<SpotScale> GetByUnique(long uniqueId);
         public Task<SpotScale> GetByIdAsync(long Id);
         public Task<(bool IsSuccess, string Message)> CreateAsync(SpotScale obj);
         public Task<(bool IsSuccess, string Message)> UpdateAsync(SpotScale obj, SpotScale newObj);

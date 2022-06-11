@@ -156,6 +156,9 @@
   <data name="ErrorTextToSendAdmin" xml:space="preserve">
     <value>Произошла ошибка, обратитесь к Администратору.</value>
   </data>
+  <data name="Futures" xml:space="preserve">
+    <value>Futures: {0}</value>
+  </data>
   <data name="IdNotRegister" xml:space="preserve">
     <value>Данный Id не зарегистрирован в базе. Администратор проверит данные и вам придет сообщение.</value>
   </data>
@@ -212,6 +215,9 @@
   </data>
   <data name="RussianLanguage" xml:space="preserve">
     <value>Русский</value>
+  </data>
+  <data name="Spot" xml:space="preserve">
+    <value>Spot: {0}</value>
   </data>
   <data name="StartCommand" xml:space="preserve">
     <value>Добро пожаловать! Я буду помогать в регистрации Fat Camel!

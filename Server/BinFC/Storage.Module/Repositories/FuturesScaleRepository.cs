@@ -44,6 +44,15 @@ namespace Storage.Module.Repositories
                 .OrderBy(x => x.FromValue);
         }
 
+        public IEnumerable<FuturesScale> GetByUnique(long uniqueId)
+        {
+            return _dataContext
+                .FuturesScale
+                .AsNoTracking()
+                .Where(x => x.UniqueId == uniqueId)
+                .OrderBy(x => x.FromValue);
+        }
+
         public Task<FuturesScale> GetByIdAsync(long id)
         {
             return _dataContext
