@@ -1,4 +1,4 @@
-﻿using FatCamel.Host.Enum;
+﻿using Host.Enum;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

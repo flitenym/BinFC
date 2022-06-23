@@ -1,4 +1,4 @@
-﻿using FatCamel.Host.Interfaces;
+﻿using Host.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

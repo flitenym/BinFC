@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	<ProjectReference Include="..\FatCamel.Host\FatCamel.Host.csproj">
+	<ProjectReference Include="..\Host\Host.csproj">
 		<Private>false</Private>
 		<ExcludeAssets>runtime</ExcludeAssets>
 	</ProjectReference>

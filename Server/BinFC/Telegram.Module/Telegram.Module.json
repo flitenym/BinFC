@@ -1,0 +1,7 @@
+﻿{
+  "Name": "Telegram.Module",
+  "Version": "1.0.0",
+  "Extra Settings": [
+    "telegramsettings.json"
+  ]
+}

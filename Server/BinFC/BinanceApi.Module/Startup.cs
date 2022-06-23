@@ -1,6 +1,6 @@
 ﻿using BinanceApi.Module.Services;
 using BinanceApi.Module.Services.Interfaces;
-using FatCamel.Host.Interfaces;
+using Host.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;

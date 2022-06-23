@@ -1,4 +1,4 @@
-﻿using FatCamel.Host.StaticClasses;
+﻿using Host.StaticClasses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

@@ -9,24 +9,24 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
-using TelegramFatCamel.Module.Services;
+using Telegram.Module.Services;
 using WorkerService.Module.Localization;
 
 namespace WorkerService.Module.Services
 {
     public class HostedService : IHostedService, IDisposable
     {
-        private readonly TelegramFatCamelBotService _telegramFatCamelBotService;
+        private readonly TelegramBotService _telegramBotService;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<HostedService> _logger;
         private Timer _timer = null;
 
         public HostedService(
-            TelegramFatCamelBotService telegramFatCamelBotService,
+            TelegramBotService telegramBotService,
             IServiceScopeFactory scopeFactory,
             ILogger<HostedService> logger)
         {
-            _telegramFatCamelBotService = telegramFatCamelBotService;
+            _telegramBotService = telegramBotService;
             _scopeFactory = scopeFactory;
             _logger = logger;
         }
@@ -88,7 +88,7 @@ namespace WorkerService.Module.Services
                         return;
                     }
 
-                    TelegramBotClient _client = await _telegramFatCamelBotService.GetTelegramBotAsync(false);
+                    TelegramBotClient _client = await _telegramBotService.GetTelegramBotAsync(false);
 
                     foreach (var messageQueue in messagesQueue)
                     {

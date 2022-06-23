@@ -1,4 +1,4 @@
-﻿using FatCamel.Host.Enum;
+﻿using Host.Enum;
 using Microsoft.Extensions.Configuration;
 using System;
 
