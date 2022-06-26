@@ -1,17 +1,13 @@
-﻿using Host.StaticClasses;
+﻿using HostLibrary.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Storage.Module.Controllers.Base;
 using Storage.Module.Controllers.DTO;
 using Storage.Module.Entities;
 using Storage.Module.Localization;
 using Storage.Module.Repositories.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Storage.Module.Controllers
@@ -21,10 +17,12 @@ namespace Storage.Module.Controllers
     public class AdminController : BaseController
     {
         private readonly IAdminRepository _adminRepository;
+        private readonly IJwtAuthService _jwtAuthService;
         private readonly ILogger<AdminController> _logger;
-        public AdminController(IAdminRepository adminRepository, ILogger<AdminController> logger)
+        public AdminController(IAdminRepository adminRepository, IJwtAuthService jwtAuthService, ILogger<AdminController> logger)
         {
             _adminRepository = adminRepository;
+            _jwtAuthService = jwtAuthService;
             _logger = logger;
         }
 
@@ -64,23 +62,7 @@ namespace Storage.Module.Controllers
 
             if (await _adminRepository.LoginAsync(obj))
             {
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, obj.UserName)
-                };
-                ClaimsIdentity claimsIdentity =
-                new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
-                    ClaimsIdentity.DefaultRoleClaimType);
-
-                var now = DateTime.UtcNow;
-                // создаем JWT-токен
-                var jwt = new JwtSecurityToken(
-                        issuer: AuthOptions.ISSUER,
-                        audience: AuthOptions.AUDIENCE,
-                        notBefore: now,
-                        claims: claimsIdentity.Claims,
-                        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-                var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+                string encodedJwt = _jwtAuthService.GetToken(obj.UserName);
 
                 var response = new
                 {

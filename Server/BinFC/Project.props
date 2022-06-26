@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Version>1.0.0-alpha.1</Version>
+    <HostLibraryVersion>1.1.0</HostLibraryVersion>
   </PropertyGroup>
 
 </Project>

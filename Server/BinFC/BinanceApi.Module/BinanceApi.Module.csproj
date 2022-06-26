@@ -8,13 +8,10 @@
   
   <ItemGroup>
     <PackageReference Include="Binance.Net" Version="8.0.11" />
+    <PackageReference Include="HostLibrary" Version="$(HostLibraryVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-	<ProjectReference Include="..\Host\Host.csproj">
-		<Private>false</Private>
-		<ExcludeAssets>runtime</ExcludeAssets>
-	</ProjectReference>
     <ProjectReference Include="..\Storage.Module\Storage.Module.csproj" />
   </ItemGroup>
 

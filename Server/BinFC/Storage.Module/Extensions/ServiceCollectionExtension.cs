@@ -1,4 +1,4 @@
-﻿using Host.Enum;
+﻿using HostLibrary.Enum;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

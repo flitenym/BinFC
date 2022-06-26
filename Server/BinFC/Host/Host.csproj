@@ -2,22 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
-    <UserSecretsId>c78ab124-63e6-492a-9fbe-ee5f90a6c302</UserSecretsId>
   </PropertyGroup>
   
   <Import Project="..\Project.props" />
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
-    <PackageReference Include="NLog" Version="4.7.15" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Localization\" />
+    <PackageReference Include="HostLibrary" Version="$(HostLibraryVersion)" />
   </ItemGroup>
 
 </Project>

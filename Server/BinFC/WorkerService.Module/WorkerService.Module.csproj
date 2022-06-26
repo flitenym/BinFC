@@ -14,14 +14,11 @@
 
   <ItemGroup>
     <PackageReference Include="Cronos" Version="0.7.1" />
+    <PackageReference Include="HostLibrary" Version="$(HostLibraryVersion)" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BinanceApi.Module\BinanceApi.Module.csproj" />
-    <ProjectReference Include="..\Host\Host.csproj">
-		<Private>false</Private>
-		<ExcludeAssets>runtime</ExcludeAssets>
-	</ProjectReference>
     <ProjectReference Include="..\Storage.Module\Storage.Module.csproj" />
     <ProjectReference Include="..\Telegram.Module\Telegram.Module.csproj" />
   </ItemGroup>

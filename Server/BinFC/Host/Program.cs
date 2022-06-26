@@ -1,13 +1,10 @@
 using System;
 using System.Diagnostics;
-using Host.Core;
-using Host.Extensions;
-using Host.StaticClasses;
+using HostLibrary.Core;
+using HostLibrary.StaticClasses;
+using HostLibrary;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog;
-using NLog.Web;
 
 namespace Host
 {
@@ -33,17 +30,10 @@ namespace Host
         }
 
         public static IHostBuilder CreateHostBuilder() =>
-            Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
-                .ConfigureModules()
+            Initial.CreateHostBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                })
-                .ConfigureLogging(logging =>
-                {
-                    logging.ClearProviders();
-                    logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-                })
-                .UseNLog();
+                });
     }
 }
