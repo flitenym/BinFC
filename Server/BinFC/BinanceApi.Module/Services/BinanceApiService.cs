@@ -67,7 +67,7 @@ namespace BinanceApi.Module.Services
                     return (false, BinanceApiLoc.Error32110);
                 }
 
-                return (false, null);
+                return (false, $"{response.Error.Code}: {response.Error.Message}");
             }
         }
 
